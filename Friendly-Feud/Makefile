@@ -68,3 +68,11 @@ e2e-prod:
 
 e2e-dev:
 	cd e2e && npm install && npx playwright test --ui --config playwright-dev.config.js
+
+# Live-reload dev stack for UI work: http://127.0.0.1:8082 (use: make local-dev docker_registry=local)
+local-dev: build-dev
+	docker compose -p famfdev -f ./docker/docker-compose-dev.yaml -f ./docker/docker-compose-local.override.yaml up -d --wait --wait-timeout 180 || (docker compose -p famfdev logs && exit 1)
+	echo "Dev UI: http://127.0.0.1:8082"
+
+local-dev-down:
+	docker compose -p famfdev -f ./docker/docker-compose-dev.yaml -f ./docker/docker-compose-local.override.yaml down

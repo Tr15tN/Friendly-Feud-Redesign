@@ -1,0 +1,9 @@
+# Layered on top of docker-compose-dev.yaml: publish only the nginx proxy, on localhost:8082.
+services:
+  proxy:
+    ports: !override
+      - "127.0.0.1:8082:80"
+  frontend:
+    ports: !reset []
+  backend:
+    ports: !reset []
