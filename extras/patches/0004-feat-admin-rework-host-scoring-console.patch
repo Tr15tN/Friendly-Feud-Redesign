@@ -1,0 +1,1533 @@
+From 87a116b24ca28969af6ab8494471daf619d56261 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:40:30 +0300
+Subject: [PATCH 04/18] feat(admin): rework host scoring console
+
+- sticky score bar: team totals, strike pips, pot/banked state, x1/x2/x3 multiplier
+- answer grid with readable revealed/clean-up states (fixes white-on-grey text)
+- team-coloured strike and award buttons with a clear 'banked' state + steal hint
+- two-step confirm on Title Card / Start Round 1 when a game is in progress
+- compact room header and collapsible settings during play so the board
+  controls fit above the fold at 1440x900
+- team1/team2 accent colours and fast money defaults in the theme config
+---
+ .../Admin/GameDisplay/AnswerGrid.tsx          |  94 +++
+ src/components/Admin/GameDisplay/ScoreBar.tsx | 130 ++++
+ .../Admin/GameDisplay/TeamControls.tsx        | 160 +++--
+ src/components/Admin/GameDisplay/index.tsx    | 613 +++++++-----------
+ .../Admin/GameDisplay/useScoring.ts           |  34 +
+ src/components/Admin/HideGameQuestions.tsx    |   2 +-
+ src/components/Admin/RoomSettings.tsx         |  77 ++-
+ src/components/AdminPage.tsx                  |  58 +-
+ src/components/ui/ConfirmButton.tsx           |  51 ++
+ src/lib/scoring/index.ts                      |   8 +
+ src/lib/utils/team-colors.ts                  |  35 +
+ tailwind.config.js                            |  18 +-
+ 12 files changed, 833 insertions(+), 447 deletions(-)
+ create mode 100644 src/components/Admin/GameDisplay/AnswerGrid.tsx
+ create mode 100644 src/components/Admin/GameDisplay/ScoreBar.tsx
+ create mode 100644 src/components/Admin/GameDisplay/useScoring.ts
+ create mode 100644 src/components/ui/ConfirmButton.tsx
+ create mode 100644 src/lib/utils/team-colors.ts
+
+diff --git a/src/components/Admin/GameDisplay/AnswerGrid.tsx b/src/components/Admin/GameDisplay/AnswerGrid.tsx
+new file mode 100644
+index 0000000..cbfe737
+--- /dev/null
++++ b/src/components/Admin/GameDisplay/AnswerGrid.tsx
+@@ -0,0 +1,94 @@
++import { answerValue, isAwarded, sanitizeMultiplier, toggleAnswer } from "@/lib/scoring";
++import { Game } from "@/src/types/game";
++import { useTranslation } from "react-i18next";
++import { ScoringApi } from "./useScoring";
++
++interface AnswerGridProps {
++  game: Game;
++  scoring: ScoringApi;
++}
++
++export default function AnswerGrid({ game, scoring }: AnswerGridProps) {
++  const { t } = useTranslation();
++  const round = game.rounds[game.round];
++  const multiplier = sanitizeMultiplier(round.multiply);
++  const awarded = isAwarded(round);
++
++  return (
++    <section className="rounded-xl border-2 border-secondary-500 p-5">
++      <p id="currentRoundQuestionText" className="text-2xl font-bold text-foreground">
++        {round.question}
++      </p>
++      <p className="mb-4 mt-1 text-sm text-secondary-900">
++        {awarded
++          ? t("Round awarded: further reveals are not scored.")
++          : t("Click an answer to reveal it on the board.")}{" "}
++        {t("Keys 1–8 toggle answers.")}
++      </p>
++      <div className="grid grid-flow-col grid-rows-4 gap-3">
++        {round.answers.map((x, index) => {
++          const state = !x.trig ? "hidden" : x.cleanup ? "cleanup" : "scored";
++          const styles = {
++            hidden: "border-primary-900 bg-primary-700 text-white hover:bg-primary-900",
++            scored: "border-success-700 bg-success-200 text-success-900",
++            cleanup: "border-dashed border-secondary-900 bg-secondary-300 text-foreground",
++          }[state];
++          return (
++            <button
++              key={`answer-${index}`}
++              type="button"
++              id={`question${index}Button`}
++              data-key={index + 1}
++              aria-pressed={x.trig}
++              aria-keyshortcuts={`${index + 1}`}
++              className={`flex min-h-16 items-center justify-between gap-3 rounded-lg border-2 px-4 py-3 text-left text-xl font-bold uppercase focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-warning-500 ${styles}`}
++              onClick={() => {
++                const { game: next, revealed } = toggleAnswer(game, index);
++                const label = revealed
++                  ? t("Revealed {{answer}}", { answer: x.ans })
++                  : t("Hid {{answer}}", { answer: x.ans });
++                scoring.commit(next, label, revealed ? [{ action: "reveal" }] : []);
++              }}
++            >
++              <span className="flex min-w-0 items-center gap-3">
++                <span
++                  aria-hidden
++                  className={`grid size-7 shrink-0 place-items-center rounded-full text-sm ${
++                    state === "hidden"
++                      ? "bg-white/20 before:content-[attr(data-key)]"
++                      : state === "scored"
++                        ? "bg-success-700 text-white"
++                        : "bg-secondary-700"
++                  }`}
++                  data-key={index + 1}
++                >
++                  {state === "scored" ? "✓" : ""}
++                </span>
++                <span className="truncate">{x.ans}</span>
++              </span>
++              <span className="shrink-0 tabular-nums" id={`answer${index}PointsText`}>
++                {t("number", { count: x.pnt })}
++                {multiplier > 1 && (
++                  <span className="ml-1 text-sm font-semibold opacity-80">
++                    → {t("number", { count: answerValue(round, x.pnt) })}
++                  </span>
++                )}
++                {state === "cleanup" && (
++                  <span className="ml-2 text-xs font-semibold normal-case">({t("not scored")})</span>
++                )}
++              </span>
++            </button>
++          );
++        })}
++      </div>
++      {scoring.lastAction && (
++        <p
++          className="mt-4 inline-block rounded-full bg-secondary-300 px-3 py-1 text-sm text-foreground"
++          id="lastActionText"
++        >
++          {t("Last action")}: {scoring.lastAction}
++        </p>
++      )}
++    </section>
++  );
++}
+diff --git a/src/components/Admin/GameDisplay/ScoreBar.tsx b/src/components/Admin/GameDisplay/ScoreBar.tsx
+new file mode 100644
+index 0000000..17a025a
+--- /dev/null
++++ b/src/components/Admin/GameDisplay/ScoreBar.tsx
+@@ -0,0 +1,130 @@
++import { firstBuzzTeam, isAwarded, MAX_STRIKES, roundPot, sanitizeMultiplier, setMultiplier } from "@/lib/scoring";
++import { getTeamDisplayName } from "@/src/lib/utils";
++import { teamColors } from "@/src/lib/utils/team-colors";
++import { Game } from "@/src/types/game";
++import { useTranslation } from "react-i18next";
++import { ScoringApi } from "./useScoring";
++
++const MULTIPLIER_PRESETS = [1, 2, 3];
++
++function StrikePips({ count, team }: { count: number; team: number }) {
++  const { t } = useTranslation();
++  return (
++    <div
++      id={`adminTeam${team}Strikes`}
++      className="flex gap-1"
++      role="img"
++      aria-label={t("Strikes {{count}} of {{max}}", { count, max: MAX_STRIKES })}
++    >
++      {Array.from({ length: MAX_STRIKES }, (_, i) => (
++        <span
++          key={i}
++          className={`grid size-7 place-items-center rounded border-2 text-sm font-bold ${
++            i < count ? "border-failure-900 bg-failure-700 text-white" : "border-secondary-700"
++          }`}
++        >
++          {i < count ? "✕" : ""}
++        </span>
++      ))}
++    </div>
++  );
++}
++
++function TeamSummary({ game, team }: { game: Game; team: number }) {
++  const { t } = useTranslation();
++  const colors = teamColors(team);
++  const round = game.rounds[game.round];
++  const banked = round?.awarded_to === team;
++  const inControl = !isAwarded(round) && firstBuzzTeam(game) === team;
++  const alignRight = team === 1;
++  return (
++    <div className={`flex items-center gap-4 ${alignRight ? "flex-row-reverse text-right" : ""}`}>
++      <div className={`h-14 w-2 shrink-0 rounded ${colors.solid}`} aria-hidden />
++      <div className="min-w-0">
++        <div className="truncate text-sm uppercase tracking-wide text-secondary-900">
++          {getTeamDisplayName(game.teams[team].name, team, t)}
++          {banked && <span className={`ml-2 font-semibold ${colors.text}`}>· {t("banked")}</span>}
++          {inControl && <span className="ml-2 font-semibold text-warning-700">· {t("buzzed first")}</span>}
++        </div>
++        <div id={`adminTeam${team}Points`} className="text-4xl font-bold tabular-nums text-foreground">
++          {t("number", { count: game.teams[team].points })}
++        </div>
++      </div>
++      <StrikePips count={game.teams[team].mistakes} team={team} />
++    </div>
++  );
++}
++
++interface ScoreBarProps {
++  game: Game;
++  scoring: ScoringApi;
++  children?: React.ReactNode;
++}
++
++export default function ScoreBar({ game, scoring, children }: ScoreBarProps) {
++  const { t } = useTranslation();
++  const round = game.rounds[game.round];
++  const multiplier = sanitizeMultiplier(round?.multiply);
++  const awardedTo = round?.awarded_to;
++
++  const changeMultiplier = (value: unknown) => {
++    const next = setMultiplier(game, value);
++    scoring.commit(next, t("Multiplier set to x{{count}}", { count: sanitizeMultiplier(value) }));
++  };
++
++  return (
++    <div className="sticky top-0 z-30 border-b-2 border-secondary-500 bg-background/95 shadow-md backdrop-blur">
++      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6 px-5 py-3">
++        <TeamSummary game={game} team={0} />
++        <div className="text-center">
++          <div id="pointsText" className="text-sm uppercase tracking-wide text-secondary-900">
++            {t("round")} {t("number", { count: game.round + 1 })} / {t("number", { count: game.rounds.length })} ·{" "}
++            {awardedTo === 0 || awardedTo === 1
++              ? t("Banked by {{team}}", { team: getTeamDisplayName(game.teams[awardedTo].name, awardedTo, t) })
++              : t("Pot")}
++          </div>
++          <div id="pointsNumberText" className="text-5xl font-extrabold tabular-nums text-foreground">
++            {t("number", { count: roundPot(round) })}
++          </div>
++          <div className="mt-1 flex items-center justify-center gap-2">
++            <span id="multiplierText" className="sr-only">
++              {t("multiplier")}
++            </span>
++            <div className="inline-flex overflow-hidden rounded-lg border-2 border-secondary-700" role="group">
++              {MULTIPLIER_PRESETS.map((m) => (
++                <button
++                  key={m}
++                  type="button"
++                  id={`multiplierPreset${m}Button`}
++                  aria-pressed={multiplier === m}
++                  disabled={isAwarded(round)}
++                  className={`px-3 py-1 text-sm font-semibold text-foreground disabled:opacity-50 ${
++                    multiplier === m ? "bg-warning-500 text-black" : "bg-secondary-300 hover:bg-secondary-500"
++                  }`}
++                  onClick={() => changeMultiplier(m)}
++                >
++                  ×{m}
++                </button>
++              ))}
++            </div>
++            <label className="flex items-center gap-1 text-sm text-secondary-900">
++              ×
++              <input
++                type="number"
++                id="multiplierInput"
++                min="1"
++                aria-label={t("multiplier")}
++                disabled={isAwarded(round)}
++                className="w-14 rounded border-2 border-secondary-700 bg-secondary-200 px-1 text-foreground disabled:opacity-50"
++                value={multiplier}
++                onChange={(e) => changeMultiplier(e.target.value)}
++              />
++            </label>
++          </div>
++        </div>
++        <TeamSummary game={game} team={1} />
++      </div>
++      {children}
++    </div>
++  );
++}
+diff --git a/src/components/Admin/GameDisplay/TeamControls.tsx b/src/components/Admin/GameDisplay/TeamControls.tsx
+index 0a1846a..d9bec2e 100644
+--- a/src/components/Admin/GameDisplay/TeamControls.tsx
++++ b/src/components/Admin/GameDisplay/TeamControls.tsx
+@@ -1,64 +1,130 @@
+-import { awardRound, isAwarded, roundPot } from "@/lib/scoring";
++import { addStrike, awardRound, isAwarded, MAX_STRIKES, resetStrikes, roundPot, stealTeam } from "@/lib/scoring";
+ import { getTeamDisplayName } from "@/src/lib/utils";
++import { teamColors } from "@/src/lib/utils/team-colors";
+ import { Game, WSEvent } from "@/src/types/game";
+-import { Dispatch, SetStateAction } from "react";
++import Image from "next/image";
+ import { useTranslation } from "react-i18next";
++import { ScoringApi } from "./useScoring";
+ 
+ interface TeamControlsProps {
+   game: Game;
+-  setGame: Dispatch<SetStateAction<Game | null>>;
+-  team: number;
++  scoring: ScoringApi;
+   send: (data: WSEvent) => void;
+ }
+ 
+-export default function TeamControls({ game, setGame, team, send }: TeamControlsProps) {
++const PANEL = "space-y-3 rounded-xl border-2 border-secondary-500 p-4";
++const PANEL_TITLE = "text-sm font-semibold uppercase tracking-wide text-secondary-900";
++
++/** Strikes + "bank the pot" controls for both teams. */
++export default function TeamControls({ game, scoring, send }: TeamControlsProps) {
+   const { t } = useTranslation();
+   const round = game.rounds[game.round];
++  const pot = roundPot(round);
+   const awarded = isAwarded(round);
++  const steal = stealTeam(game);
++  const name = (team: number) => getTeamDisplayName(game.teams[team].name, team, t);
+ 
+-  function TeamGetsPointsButton() {
+-    return (
+-      <button
+-        disabled={awarded}
+-        id={`team${team}GivePointsButton`}
+-        className={`rounded border-4 p-10 text-2xl text-foreground ${awarded ? "bg-secondary-500" : "bg-success-500"}`}
+-        onClick={() => {
+-          const updated = awardRound(game, team);
+-          if (updated === game) return;
+-          setGame(updated);
+-          send({ action: "data", data: updated });
+-        }}
+-      >
+-        {getTeamDisplayName(game.teams[team].name, team, t)}: {t("Gets Points")} ({roundPot(round)})
+-      </button>
+-    );
+-  }
++  return (
++    <aside className="space-y-4">
++      <div className={PANEL}>
++        <h3 className={PANEL_TITLE}>{t("Strikes")}</h3>
++        <div className="grid grid-cols-2 gap-3">
++          {[0, 1].map((team) => {
++            const colors = teamColors(team);
++            const maxed = game.teams[team].mistakes >= MAX_STRIKES;
++            return (
++              <button
++                key={team}
++                type="button"
++                id={`team${team}MistakeButton`}
++                className={`rounded-lg border-2 py-4 text-lg font-semibold ${colors.border} ${colors.soft} hover:brightness-95`}
++                onClick={() => {
++                  const next = addStrike(game, team);
++                  scoring.commit(next, t("Strike for {{team}}", { team: name(team) }), [
++                    { action: "mistake", data: next.teams[team].mistakes },
++                  ]);
++                }}
++              >
++                ✕ {name(team)}
++                <span className="block text-xs font-normal">
++                  {t("Strikes {{count}} of {{max}}", { count: game.teams[team].mistakes, max: MAX_STRIKES })}
++                  {maxed ? " · max" : ""}
++                </span>
++              </button>
++            );
++          })}
++        </div>
++        <div className="flex items-center justify-between gap-2 text-sm">
++          <button
++            type="button"
++            id="resetMistakesButton"
++            className="rounded border-2 border-secondary-700 bg-secondary-300 px-3 py-1 text-foreground hover:bg-secondary-500"
++            onClick={() => scoring.commit(resetStrikes(game), t("Reset Mistakes"))}
++          >
++            {t("Reset Mistakes")}
++          </button>
++          <button
++            type="button"
++            id="showMistakeButton"
++            title={t("Shows the big X on screen without adding a strike")}
++            className="flex items-center gap-2 rounded border-2 border-secondary-700 bg-secondary-300 px-3 py-1 text-foreground hover:bg-secondary-500"
++            onClick={() => send({ action: "show_mistake" })}
++          >
++            <Image width={20} height={20} src="/x.svg" alt="" />
++            {t("Buzz-in X (no strike)")}
++          </button>
++        </div>
++      </div>
+ 
+-  function TeamMistakeButton() {
+-    return (
+-      <button
+-        id={`team${team}MistakeButton`}
+-        className="rounded border-4 bg-failure-500 p-10 text-2xl text-foreground"
+-        onClick={() => {
+-          if (game.teams[team].mistakes < 3) game.teams[team].mistakes++;
+-          // @ts-expect-error: need a better way to update these values
+-          setGame((prv) => ({ ...prv }));
+-          send({ action: "data", data: game });
+-          send({
+-            action: "mistake",
+-            data: game.teams[team].mistakes,
+-          });
+-        }}
+-      >
+-        {getTeamDisplayName(game.teams[team].name, team, t)}: {t("mistake")}
+-      </button>
+-    );
+-  }
++      {steal !== null && (
++        <div
++          id="stealHint"
++          className="rounded-xl border-2 border-warning-500 bg-warning-200 p-4 text-sm text-black"
++          role="status"
++        >
++          <b>{t("{{team}} has 3 strikes.", { team: name(steal === 0 ? 1 : 0) })}</b>{" "}
++          {t("{{team}} can steal: award the pot to whoever wins it.", { team: name(steal) })}
++        </div>
++      )}
+ 
+-  return (
+-    <>
+-      <TeamGetsPointsButton />
+-      <TeamMistakeButton />
+-    </>
++      <div className={PANEL}>
++        <h3 className={PANEL_TITLE}>
++          {awarded ? t("Pot banked") : t("Bank the pot")} ({t("number", { count: pot })})
++        </h3>
++        {[0, 1].map((team) => {
++          const colors = teamColors(team);
++          const isWinner = round?.awarded_to === team;
++          return (
++            <button
++              key={team}
++              type="button"
++              id={`team${team}GivePointsButton`}
++              disabled={awarded}
++              aria-pressed={isWinner}
++              className={`w-full rounded-lg py-4 text-xl font-bold ${
++                isWinner
++                  ? `${colors.solid} ring-4 ${colors.ring}`
++                  : awarded
++                    ? "bg-secondary-300 text-secondary-900 opacity-60"
++                    : `${colors.solid} ${colors.solidHover}`
++              }`}
++              onClick={() => {
++                const next = awardRound(game, team);
++                scoring.commit(next, t("Awarded {{points}} to {{team}}", { points: pot, team: name(team) }));
++              }}
++            >
++              {isWinner
++                ? `✓ ${t("{{team}} banked {{points}}", { team: name(team), points: round.awarded_points ?? pot })}`
++                : t("Award {{points}} to {{team}}", { points: pot, team: name(team) })}
++            </button>
++          );
++        })}
++        <p className="text-xs text-secondary-900">
++          {awarded
++            ? t("Next Round starts a fresh pot.")
++            : t("Awarding locks the pot; leftover reveals won't change it.")}
++        </p>
++      </div>
++    </aside>
+   );
+ }
+diff --git a/src/components/Admin/GameDisplay/index.tsx b/src/components/Admin/GameDisplay/index.tsx
+index 85f0872..794fc67 100644
+--- a/src/components/Admin/GameDisplay/index.tsx
++++ b/src/components/Admin/GameDisplay/index.tsx
+@@ -1,13 +1,16 @@
++import AnswerGrid from "@/components/Admin/GameDisplay/AnswerGrid";
+ import FinalRoundButtonControls from "@/components/Admin/GameDisplay/FinalRoundButtonControls";
+ import FinalRoundPointTotals from "@/components/Admin/GameDisplay/FinalRoundPointTotals";
++import ScoreBar from "@/components/Admin/GameDisplay/ScoreBar";
+ import TeamControls from "@/components/Admin/GameDisplay/TeamControls";
+ import TitleMusic from "@/components/Admin/GameDisplay/TitleMusic";
++import { useScoring } from "@/components/Admin/GameDisplay/useScoring";
+ import HideGameQuestions from "@/components/Admin/HideGameQuestions";
+ import Players from "@/components/Admin/Players";
+ import BuzzerTable from "@/components/BuzzerTable";
+-import { setMultiplier, toggleAnswer } from "@/lib/scoring";
++import ConfirmButton from "@/components/ui/ConfirmButton";
++import { hasProgress } from "@/lib/scoring";
+ import { Game, WSEvent } from "@/src/types/game";
+-import Image from "next/image";
+ import { Dispatch, RefObject, SetStateAction } from "react";
+ import { useTranslation } from "react-i18next";
+ 
+@@ -25,6 +28,10 @@ interface GameDisplayProps {
+   setTitleMusicPlaying: (titleMusicPlaying: boolean) => void;
+ }
+ 
++const FLOW_BASE = "rounded-lg border-2 px-4 py-3 text-lg disabled:opacity-50";
++const FLOW_BUTTON = `${FLOW_BASE} border-secondary-700 bg-secondary-300 text-foreground hover:bg-secondary-500`;
++const FLOW_PRIMARY = `${FLOW_BASE} border-primary-900 bg-primary-700 font-semibold text-white hover:bg-primary-900`;
++
+ export default function GameDisplay({
+   ws,
+   setGame,
+@@ -39,11 +46,9 @@ export default function GameDisplay({
+   setTitleMusicPlaying,
+ }: GameDisplayProps) {
+   const { t } = useTranslation();
++  const scoring = useScoring(game, setGame, send);
+ 
+   if (game.rounds == null) {
+-    {
+-      /* SHOW ERRORS TO ADMIN */
+-    }
+     return <p className="py-20 text-center text-2xl text-secondary-900">[{t("Please load a game")}]</p>;
+   }
+ 
+@@ -60,15 +65,24 @@ export default function GameDisplay({
+     current_screen = `${t("Final Round")} ${t("number", { count: 2 })}`;
+   }
+ 
+-  // var put it into function scope
+-  const current_round = game.rounds[game.round];
+-  console.debug("Current round:", current_round);
++  const inProgress = hasProgress(game);
+ 
+-  return (
+-    <div>
+-      <div className="flex-col space-y-5 p-5">
+-        <hr />
+-        <div className="flex flex-row items-baseline justify-evenly">
++  /** Switch to a regular round: clears strikes; the server clears buzzers on round change. */
++  const goToRound = (roundIndex: number, label: string) => {
++    const next = structuredClone(game);
++    next.title = false;
++    next.is_final_round = false;
++    next.is_final_second = false;
++    next.round = Math.min(Math.max(0, roundIndex), game.rounds.length - 1);
++    next.teams.forEach((team) => (team.mistakes = 0));
++    scoring.commit(next, label);
++  };
++
++  const showControls = (
++    <div className="flex flex-col gap-2 px-5 pb-4">
++      <div className="flex flex-wrap items-center justify-between gap-3">
++        {/* Title music matters on the title screen; keep it reachable while it is playing. */}
++        {(game.title || titleMusicPlaying) && (
+           <TitleMusic
+             send={send}
+             room={room}
+@@ -77,232 +91,92 @@ export default function GameDisplay({
+             isPlaying={titleMusicPlaying}
+             setIsPlaying={setTitleMusicPlaying}
+           />
+-          {/* CURRENT SCREEN TEXT */}
+-          <p id="currentScreenText" className="pt-5 text-center text-2xl text-foreground">
+-            {" "}
+-            {t("Current Screen")}: {current_screen}
+-          </p>
+-        </div>
+-
+-        <div className="flex grow flex-row space-x-10">
+-          {/* TITLE SCREEN BUTTON */}
+-          <button
+-            id="titleCardButton"
+-            className="grow rounded border-4 bg-secondary-300 p-10 text-2xl text-foreground"
+-            onClick={() => {
+-              game.title = true;
+-              game.round = 0;
+-              game.is_final_round = false;
+-              game.is_final_second = false;
+-              // @ts-expect-error: need a better way to update these values
+-              setGame((prv) => ({ ...prv }));
+-              send({ action: "data", data: game });
+-            }}
+-          >
+-            {t("Title Card")}
+-          </button>
+-
+-          <HideGameQuestions game={game} setGame={setGame} send={send} />
+-
+-          {/* FINAL ROUND BUTTON */}
+-          {game.final_round ? (
+-            <button
+-              id="finalRoundButton"
+-              className="grow rounded border-4 bg-secondary-300 p-10 text-2xl text-foreground"
+-              onClick={() => {
+-                game.title = false;
+-                game.is_final_round = true;
+-                game.is_final_second = false;
+-                // @ts-expect-error: need a better way to update these values
+-                setGame((prv) => ({ ...prv }));
+-                send({ action: "data", data: game });
+-                send({
+-                  action: "set_timer",
+-                  data: game.final_round_timers[0],
+-                });
+-              }}
+-            >
+-              {t("Final Round")}
+-            </button>
+-          ) : null}
+-
+-          {/* ROUND SELECTOR */}
+-          <select
+-            className="grow rounded border-4 bg-secondary-300 p-10 text-2xl text-foreground"
+-            id="roundSelector"
+-            value={game.round}
+-            onChange={(e) => {
+-              game.round = parseInt(e.target.value);
+-              game.is_final_round = false;
+-              game.is_final_second = false;
+-              game.teams[0].mistakes = 0;
+-              game.teams[1].mistakes = 0;
+-              game.title = false;
+-              // @ts-expect-error: need a better way to update these values
+-              setGame((prv) => ({ ...prv }));
+-              send({ action: "data", data: game });
+-            }}
+-          >
+-            {game.rounds.map((key, index) => (
+-              <option value={index} key={`round-select-${index}`}>
+-                {t("round")} {t("number", { count: index + 1 })}
+-              </option>
+-            ))}
+-          </select>
+-        </div>
+-        {/* START ROUND 1 BUTTON */}
+-        <div className="flex flex-row space-x-10">
+-          <button
+-            id="startRoundOneButton"
+-            className="grow rounded border-4 bg-secondary-300 p-10 text-2xl text-foreground"
+-            onClick={() => {
+-              game.title = false;
+-              game.is_final_round = false;
+-              game.is_final_second = false;
+-              game.round = 0;
+-              // @ts-expect-error: need a better way to update these values
+-              setGame((prv) => ({
+-                ...prv,
+-              }));
+-              send({ action: "data", data: game });
+-            }}
+-          >
+-            {t("Start Round 1")}
+-          </button>
+-
+-          {/* NEXT ROUND BUTTON */}
+-          <button
+-            className="grow rounded border-4 bg-secondary-300 p-10 text-2xl text-foreground"
+-            id="nextRoundButton"
+-            onClick={() => {
+-              game.title = false;
+-              game.is_final_round = false;
+-              game.is_final_second = false;
+-              game.teams[0].mistakes = 0;
+-              game.teams[1].mistakes = 0;
+-              if (game.round < game.rounds.length - 1) {
+-                game.round = game.round + 1;
+-              }
+-              // @ts-expect-error: need a better way to update these values
+-              setGame((prv) => ({ ...prv }));
+-              console.debug(game.round);
+-              send({ action: "data", data: game });
+-            }}
+-          >
+-            {t("Next Round")}
+-          </button>
+-          <button
+-            id="showMistakeButton"
+-            className="flex grow flex-row items-center justify-center rounded border-4 bg-secondary-300 p-10 text-2xl text-foreground"
+-            onClick={() => {
+-              send({ action: "show_mistake" });
+-            }}
+-          >
+-            <Image width={150} height={150} style={{ objectFit: "contain" }} src="/x.svg" alt="Show Mistake" />
+-          </button>
++        )}
++        <p id="currentScreenText" className="ml-auto text-lg text-foreground">
++          {t("Current Screen")}: <b>{current_screen}</b>
++        </p>
++      </div>
++      <div className="flex flex-wrap gap-3">
++        <ConfirmButton
++          id="titleCardButton"
++          className={FLOW_BUTTON}
++          needsConfirm={!game.title && inProgress}
++          confirmLabel={t("Click again to confirm")}
++          onConfirm={() => {
++            const next = structuredClone(game);
++            next.title = true;
++            next.round = 0;
++            next.is_final_round = false;
++            next.is_final_second = false;
++            scoring.commit(next, t("Title Card"));
++          }}
++        >
++          {t("Title Card")}
++        </ConfirmButton>
++        <ConfirmButton
++          id="startRoundOneButton"
++          className={FLOW_BUTTON}
++          needsConfirm={inProgress && !(game.round === 0 && !game.title && !game.is_final_round)}
++          confirmLabel={t("Click again to confirm")}
++          onConfirm={() => goToRound(0, t("Start Round 1"))}
++        >
++          {t("Start Round 1")}
++        </ConfirmButton>
++        <select
++          className={FLOW_BUTTON}
++          id="roundSelector"
++          aria-label={t("round")}
++          value={game.round}
++          onChange={(e) => {
++            const index = parseInt(e.target.value);
++            goToRound(index, `${t("round")} ${index + 1}`);
++          }}
++        >
++          {game.rounds.map((_, index) => (
++            <option value={index} key={`round-select-${index}`}>
++              {t("round")} {t("number", { count: index + 1 })}
++            </option>
++          ))}
++        </select>
++        <button
++          type="button"
++          className={`${FLOW_PRIMARY} grow`}
++          id="nextRoundButton"
++          onClick={() => goToRound(game.round + 1, t("Next Round"))}
++        >
++          {t("Next Round")} →
++        </button>
++        <HideGameQuestions game={game} setGame={setGame} send={send} />
++        {game.final_round ? (
+           <button
+-            id="resetMistakesButton"
+-            className="grow rounded border-4 bg-secondary-300 p-10 text-2xl text-foreground"
++            type="button"
++            id="finalRoundButton"
++            className={FLOW_BUTTON}
+             onClick={() => {
+-              for (const team in game.teams) {
+-                game.teams[team].mistakes = 0;
+-              }
+-              // @ts-expect-error: need a better way to update these values
+-              setGame((prv) => ({ ...prv }));
+-              send({ action: "data", data: game });
++              const next = structuredClone(game);
++              next.title = false;
++              next.is_final_round = true;
++              next.is_final_second = false;
++              scoring.commit(next, t("Final Round"), [{ action: "set_timer", data: game.final_round_timers[0] }]);
+             }}
+           >
+-            {t("Reset Mistakes")}
++            {t("Final Round")}
+           </button>
+-        </div>
+-
+-        {/* GETS POINTS MISTAKE */}
+-        <div className="grid grid-flow-col grid-rows-2 gap-5">
+-          <TeamControls
+-            game={game}
+-            setGame={setGame}
+-            team={0}
+-            send={send}
+-          />
+-          <TeamControls
+-            game={game}
+-            setGame={setGame}
+-            send={send}
+-            team={1}
+-          />
+-        </div>
++        ) : null}
+       </div>
+-      <hr />
++    </div>
++  );
+ 
+-      {/* IS NOT THE FINAL ROUND */}
+-      {!game.is_final_round ? (
+-        // GAME BOARD CONTROLS
++  if (!game.is_final_round) {
++    return (
++      <div>
++        {showControls}
++        <ScoreBar game={game} scoring={scoring} />
++        <div className="mt-5 grid grid-cols-1 gap-5 px-5 xl:grid-cols-[minmax(0,1fr)_360px]">
++          <AnswerGrid game={game} scoring={scoring} />
++          <TeamControls game={game} scoring={scoring} send={send} />
++        </div>
+         <div>
+-          <div className="flex flex-col space-y-2 px-10 pt-5">
+-            {/* QUESTION */}
+-            <p id="currentRoundQuestionText" className="text-3xl font-bold text-foreground">
+-              {current_round.question}
+-            </p>
+-            {/* POINT TRACKER */}
+-            <div className="flex flex-row items-center justify-between space-x-5 border-4 p-2">
+-              <div className="flex flex-row items-center space-x-5">
+-                <h3 id="pointsText" className="text-xl  text-foreground">
+-                  {t("Points")}:{" "}
+-                </h3>
+-                <h3 id="pointsNumberText" className="grow text-2xl  text-foreground">
+-                  {t("number", { count: game.point_tracker[game.round] })}
+-                </h3>
+-              </div>
+-              <div className="flex flex-row items-center space-x-2">
+-                <h3 id="multiplierText" className="text-xl text-foreground">
+-                  {t("multiplier")}:{" "}
+-                </h3>
+-                <h3 className="text-2xl text-foreground">x</h3>
+-                <input
+-                  type="number"
+-                  id="multiplierInput"
+-                  min="1"
+-                  className="w-24 border-2 bg-secondary-200 p-1 text-foreground placeholder:text-secondary-900"
+-                  value={current_round.multiply}
+-                  placeholder={t("multiplier")}
+-                  onChange={(e) => {
+-                    const updated = setMultiplier(game, e.target.value);
+-                    setGame(updated);
+-                    send({ action: "data", data: updated });
+-                  }}
+-                />
+-              </div>
+-            </div>
+-          </div>
+-
+-          {/* GAME BOARD BUTTONS */}
+-          <div className=" mx-10 mt-5 grid grid-flow-col grid-rows-4 gap-3  rounded border-4 p-3 text-white ">
+-            {current_round.answers.map((x, index) => (
+-              <div
+-                key={`answer-${index}`}
+-                className={`${
+-                  x.trig ? "bg-secondary-500" : "bg-primary-700"
+-                } rounded border-2 text-2xl font-extrabold uppercase`}
+-              >
+-                <button
+-                  className="flex min-h-full min-w-full flex-row items-center justify-center p-5"
+-                  id={`question${index}Button`}
+-                  onClick={() => {
+-                    const { game: updated, revealed } = toggleAnswer(game, index);
+-                    setGame(updated);
+-                    if (revealed) send({ action: "reveal" });
+-                    send({ action: "data", data: updated });
+-                  }}
+-                >
+-                  <div className="grow">{x.ans}</div>
+-                  <div id={`answer${index}PointsText`} className="p-2">
+-                    {t("number", { count: x.pnt })}
+-                  </div>
+-                </button>
+-              </div>
+-            ))}
+-          </div>
+-
+           {/* BUZZERS AND PLAYERS */}
+           <div className="grid grid-cols-2 gap-4 p-5">
+             <h1 className="text-2xl capitalize text-foreground">{t("Buzzer Order")}</h1>
+@@ -346,165 +220,170 @@ export default function GameDisplay({
+             <Players game={game} setGame={setGame} ws={ws} room={room} />
+           </div>
+         </div>
+-      ) : (
+-        // FINAL ROUND
+-        <div>
+-          <Players game={game} setGame={setGame} ws={ws} room={room} />
+-          <div className="p-5">
+-            {/* FINAL ROUND TEXT */}
+-            <h2 id="finalRoundNumberText" className="py-5 text-center text-6xl text-foreground">
+-              {t("Final Round")} {t("number", { count: game.is_final_second ? 2 : 1 })}
+-            </h2>
+-            <hr />
+-            <div className="flex flex-row items-center justify-evenly space-x-5 py-5">
+-              {/* START FINAL ROUND 2 */}
+-              {!game.is_final_second ? (
++      </div>
++    );
++  }
++
++  return (
++    <div>
++      {showControls}
++      <hr />
++      <div>
++        <Players game={game} setGame={setGame} ws={ws} room={room} />
++        <div className="p-5">
++          {/* FINAL ROUND TEXT */}
++          <h2 id="finalRoundNumberText" className="py-5 text-center text-6xl text-foreground">
++            {t("Final Round")} {t("number", { count: game.is_final_second ? 2 : 1 })}
++          </h2>
++          <hr />
++          <div className="flex flex-row items-center justify-evenly space-x-5 py-5">
++            {/* START FINAL ROUND 2 */}
++            {!game.is_final_second ? (
++              <button
++                id="startFinalRound2Button"
++                className={`rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${timerStarted ? "opacity-50" : ""}`}
++                disabled={timerStarted}
++                onClick={() => {
++                  console.debug(game);
++                  game.is_final_second = true;
++                  game.hide_first_round = true;
++                  // @ts-expect-error: need a better way to update these values
++                  setGame((prv) => ({ ...prv }));
++                  send({ action: "data", data: game });
++                  send({
++                    action: "set_timer",
++                    data: game.final_round_timers[1],
++                  });
++                  setTimerCompleted(false);
++                }}
++              >
++                {t("start")} {t("Final Round")} {t("number", { count: 2 })}
++              </button>
++            ) : (
++              <div className="flex flex-row items-center justify-evenly space-x-5 py-5 text-foreground">
++                {/* GO BACK TO FINAL ROUND 1 */}
+                 <button
+-                  id="startFinalRound2Button"
+-                  className={`rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${timerStarted ? "opacity-50" : ""}`}
++                  id="backToRound1FinalButton"
++                  className={`rounded border-4 bg-secondary-300 p-5 text-3xl ${timerStarted ? "opacity-50" : ""}`}
+                   disabled={timerStarted}
+                   onClick={() => {
+-                    console.debug(game);
+-                    game.is_final_second = true;
+-                    game.hide_first_round = true;
++                    game.is_final_round = true;
++                    game.hide_first_round = false;
++                    game.is_final_second = false;
+                     // @ts-expect-error: need a better way to update these values
+                     setGame((prv) => ({ ...prv }));
+                     send({ action: "data", data: game });
+                     send({
+                       action: "set_timer",
+-                      data: game.final_round_timers[1],
++                      data: game.final_round_timers[0],
+                     });
+-                    setTimerCompleted(false);
+                   }}
+                 >
+-                  {t("start")} {t("Final Round")} {t("number", { count: 2 })}
++                  {t("Back To")} {t("Final Round")} {t("number", { count: 1 })}
+                 </button>
+-              ) : (
+-                <div className="flex flex-row items-center justify-evenly space-x-5 py-5 text-foreground">
+-                  {/* GO BACK TO FINAL ROUND 1 */}
+-                  <button
+-                    id="backToRound1FinalButton"
+-                    className={`rounded border-4 bg-secondary-300 p-5 text-3xl ${timerStarted ? "opacity-50" : ""}`}
+-                    disabled={timerStarted}
+-                    onClick={() => {
+-                      game.is_final_round = true;
+-                      game.hide_first_round = false;
+-                      game.is_final_second = false;
+-                      // @ts-expect-error: need a better way to update these values
+-                      setGame((prv) => ({ ...prv }));
+-                      send({ action: "data", data: game });
++                {game.is_final_second ? (
++                  <div>
++                    {/* REVEAL FIRST ROUND ANSWERS */}
++                    {game.hide_first_round ? (
++                      <button
++                        id="revealFirstRoundFinalButton"
++                        className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
++                        onClick={() => {
++                          game.hide_first_round = false;
++                          // @ts-expect-error: need a better way to update these values
++                          setGame((prv) => ({ ...prv }));
++                          send({ action: "data", data: game });
++                        }}
++                      >
++                        {t("Reveal First Round Answers")}
++                      </button>
++                    ) : (
++                      // HIDE FIRST ROUND ANSWERS
++                      <button
++                        id="hideFirstRoundAnswersButton"
++                        className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
++                        onClick={() => {
++                          game.hide_first_round = true;
++                          // @ts-expect-error: need a better way to update these values
++                          setGame((prv) => ({ ...prv }));
++                          send({ action: "data", data: game });
++                        }}
++                      >
++                        {t("Hide First Round Answers")}
++                      </button>
++                    )}
++                  </div>
++                ) : null}
++              </div>
++            )}
++            <div className="flex px-2">
++              {!timerStarted ? (
++                /* START TIMER */
++                <button
++                  id="startTimerButton"
++                  className={`rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${timerCompleted ? "opacity-50" : ""}`}
++                  disabled={timerCompleted}
++                  onClick={() => {
++                    if (game.is_final_second) {
+                       send({
+-                        action: "set_timer",
++                        action: "start_timer",
++                        data: game.final_round_timers[1],
++                      });
++                    } else {
++                      send({
++                        action: "start_timer",
+                         data: game.final_round_timers[0],
+                       });
+-                    }}
+-                  >
+-                    {t("Back To")} {t("Final Round")} {t("number", { count: 1 })}
+-                  </button>
+-                  {game.is_final_second ? (
+-                    <div>
+-                      {/* REVEAL FIRST ROUND ANSWERS */}
+-                      {game.hide_first_round ? (
+-                        <button
+-                          id="revealFirstRoundFinalButton"
+-                          className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
+-                          onClick={() => {
+-                            game.hide_first_round = false;
+-                            // @ts-expect-error: need a better way to update these values
+-                            setGame((prv) => ({ ...prv }));
+-                            send({ action: "data", data: game });
+-                          }}
+-                        >
+-                          {t("Reveal First Round Answers")}
+-                        </button>
+-                      ) : (
+-                        // HIDE FIRST ROUND ANSWERS
+-                        <button
+-                          id="hideFirstRoundAnswersButton"
+-                          className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
+-                          onClick={() => {
+-                            game.hide_first_round = true;
+-                            // @ts-expect-error: need a better way to update these values
+-                            setGame((prv) => ({ ...prv }));
+-                            send({ action: "data", data: game });
+-                          }}
+-                        >
+-                          {t("Hide First Round Answers")}
+-                        </button>
+-                      )}
+-                    </div>
+-                  ) : null}
+-                </div>
+-              )}
+-              <div className="flex px-2">
+-                {!timerStarted ? (
+-                  /* START TIMER */
+-                  <button
+-                    id="startTimerButton"
+-                    className={`rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${timerCompleted ? "opacity-50" : ""}`}
+-                    disabled={timerCompleted}
+-                    onClick={() => {
+-                      if (game.is_final_second) {
+-                        send({
+-                          action: "start_timer",
+-                          data: game.final_round_timers[1],
+-                        });
+-                      } else {
+-                        send({
+-                          action: "start_timer",
+-                          data: game.final_round_timers[0],
+-                        });
+-                      }
+-                      setTimerStarted(true);
+-                      setTimerCompleted(false);
+-                    }}
+-                  >
+-                    {t("Start Timer")}
+-                  </button>
+-                ) : (
+-                  /* STOP TIMER */
+-                  <button
+-                    id="stopTimerButton"
+-                    className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
+-                    onClick={() => {
+-                      send({ action: "stop_timer" });
+-                      setTimerStarted(false);
+-                    }}
+-                  >
+-                    {t("Stop Timer")}
+-                  </button>
+-                )}
+-                <button
+-                  className={`ml-2 rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${!timerStarted ? "" : "opacity-50"}`}
+-                  disabled={timerStarted}
+-                  id="resetTimerButton"
+-                  onClick={() => {
+-                    if (!timerStarted) {
+-                      if (game.is_final_second) {
+-                        send({
+-                          action: "set_timer",
+-                          data: game.final_round_timers[1],
+-                        });
+-                      } else {
+-                        send({
+-                          action: "set_timer",
+-                          data: game.final_round_timers[0],
+-                        });
+-                      }
+                     }
++                    setTimerStarted(true);
+                     setTimerCompleted(false);
+                   }}
+                 >
+-                  {t("Reset Timer")}
++                  {t("Start Timer")}
+                 </button>
+-              </div>
++              ) : (
++                /* STOP TIMER */
++                <button
++                  id="stopTimerButton"
++                  className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
++                  onClick={() => {
++                    send({ action: "stop_timer" });
++                    setTimerStarted(false);
++                  }}
++                >
++                  {t("Stop Timer")}
++                </button>
++              )}
++              <button
++                className={`ml-2 rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${!timerStarted ? "" : "opacity-50"}`}
++                disabled={timerStarted}
++                id="resetTimerButton"
++                onClick={() => {
++                  if (!timerStarted) {
++                    if (game.is_final_second) {
++                      send({
++                        action: "set_timer",
++                        data: game.final_round_timers[1],
++                      });
++                    } else {
++                      send({
++                        action: "set_timer",
++                        data: game.final_round_timers[0],
++                      });
++                    }
++                  }
++                  setTimerCompleted(false);
++                }}
++              >
++                {t("Reset Timer")}
++              </button>
+             </div>
+-            <FinalRoundPointTotals game={game} />
+-            {/* FINAL ROUND QUESTIONS AND ANSWERS */}
+-            <FinalRoundButtonControls game={game} setGame={setGame} send={send} />
+           </div>
++          <FinalRoundPointTotals game={game} />
++          {/* FINAL ROUND QUESTIONS AND ANSWERS */}
++          <FinalRoundButtonControls game={game} setGame={setGame} send={send} />
+         </div>
+-      )}
++      </div>
+     </div>
+   );
+ }
+diff --git a/src/components/Admin/GameDisplay/useScoring.ts b/src/components/Admin/GameDisplay/useScoring.ts
+new file mode 100644
+index 0000000..d01ae72
+--- /dev/null
++++ b/src/components/Admin/GameDisplay/useScoring.ts
+@@ -0,0 +1,34 @@
++import { Game, WSEvent } from "@/src/types/game";
++import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react";
++
++export interface ScoringApi {
++  /** Apply a new game state: update local state, sync to the room and remember the label. */
++  commit: (next: Game, label: string, extraEvents?: WSEvent[]) => void;
++  lastAction: string | null;
++}
++
++export function useScoring(
++  game: Game,
++  setGame: Dispatch<SetStateAction<Game | null>>,
++  send: (data: WSEvent) => void
++): ScoringApi {
++  const gameRef = useRef(game);
++  gameRef.current = game;
++  const sendRef = useRef(send);
++  sendRef.current = send;
++  const [lastAction, setLastAction] = useState<string | null>(null);
++
++  const commit = useCallback(
++    (next: Game, label: string, extraEvents: WSEvent[] = []) => {
++      if (next === gameRef.current) return;
++      gameRef.current = next;
++      setGame(next);
++      sendRef.current({ action: "data", data: next });
++      extraEvents.forEach((event) => sendRef.current(event));
++      setLastAction(label);
++    },
++    [setGame]
++  );
++
++  return { commit, lastAction };
++}
+diff --git a/src/components/Admin/HideGameQuestions.tsx b/src/components/Admin/HideGameQuestions.tsx
+index 4fdb6eb..e32b6ff 100644
+--- a/src/components/Admin/HideGameQuestions.tsx
++++ b/src/components/Admin/HideGameQuestions.tsx
+@@ -19,7 +19,7 @@ export default function HideGameQuestions({ game, setGame, send }: HideGameQuest
+   return (
+     <button
+       id="hideQuestionsInput"
+-      className={`rounded border-4 p-10 text-2xl ${textColor} ${buttonColor} ${disabledOpacity}`}
++      className={`rounded-lg border-2 border-secondary-700 px-4 py-3 text-lg hover:bg-secondary-500 ${textColor} ${buttonColor} ${disabledOpacity}`}
+       onClick={() => {
+         setGame((prevGame) => {
+           if (prevGame === null) {
+diff --git a/src/components/Admin/RoomSettings.tsx b/src/components/Admin/RoomSettings.tsx
+index 61532e4..51c1afb 100644
+--- a/src/components/Admin/RoomSettings.tsx
++++ b/src/components/Admin/RoomSettings.tsx
+@@ -18,6 +18,8 @@ interface RoomSettingsProps {
+   setCsvFileUpload: Dispatch<SetStateAction<File | null>>;
+   setCsvFileUploadText: Dispatch<SetStateAction<string>>;
+   quitGame: (host: boolean) => void;
++  /** full = classic layout; header = one compact row (used during play); setup = language/theme/game loader only. */
++  variant?: "full" | "header" | "setup";
+ }
+ 
+ export default function RoomSettings({
+@@ -29,8 +31,64 @@ export default function RoomSettings({
+   setCsvFileUpload,
+   setCsvFileUploadText,
+   quitGame,
++  variant = "full",
+ }: RoomSettingsProps) {
+   const { i18n, t } = useTranslation();
++
++  const setup = (
++    <div className="m-5 flex flex-col items-center justify-center gap-5 md:flex-row md:justify-evenly">
++      <div className="flex flex-col items-center gap-5 sm:flex-row">
++        <LanguageSwitcher
++          onChange={(e) => {
++            const language = normalizeLanguage(e.target.value);
++            i18n.changeLanguage(language);
++            send({ action: "change_lang", data: language });
++          }}
++        />
++        <ThemeSwitcher game={game} setGame={setGame} send={send} />
++      </div>
++      <GameLoader
++        gameSelector={gameSelector}
++        send={send}
++        setCsvFileUpload={setCsvFileUpload}
++        setCsvFileUploadText={setCsvFileUploadText}
++      />
++    </div>
++  );
++
++  if (variant === "setup") return setup;
++
++  if (variant === "header") {
++    return (
++      <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-3 text-foreground">
++        <p className="text-lg">
++          {t("room code")}:{" "}
++          <span id="roomCodeText" className="text-3xl font-semibold uppercase tracking-widest">
++            {room}
++          </span>
++        </p>
++        <div className="flex items-center gap-3">
++          <Link
++            href="/game"
++            target="_blank"
++            id="openGameWindowButton"
++            className="rounded-lg bg-success-300 px-4 py-2 text-foreground hover:shadow-md"
++          >
++            {t("Open Game Window")}
++          </Link>
++          <HelpButton doc="/help" />
++          <button
++            id="quitButton"
++            className="rounded-lg bg-failure-200 px-4 py-2 text-foreground hover:shadow-md"
++            onClick={() => quitGame(true)}
++          >
++            {t("Quit")}
++          </button>
++        </div>
++      </div>
++    );
++  }
++
+   return (
+     <div className="min-h-full">
+       {/* ROOM CODE TEXT */}
+@@ -55,24 +113,7 @@ export default function RoomSettings({
+           </div>
+         </button>
+       </div>
+-      <div className="m-5 flex flex-col items-center justify-center gap-5 md:flex-row md:justify-evenly">
+-        <div className="flex flex-col items-center gap-5 sm:flex-row">
+-          <LanguageSwitcher
+-            onChange={(e) => {
+-              const language = normalizeLanguage(e.target.value);
+-              i18n.changeLanguage(language);
+-              send({ action: "change_lang", data: language });
+-            }}
+-          />
+-          <ThemeSwitcher game={game} setGame={setGame} send={send} />
+-        </div>
+-        <GameLoader
+-          gameSelector={gameSelector}
+-          send={send}
+-          setCsvFileUpload={setCsvFileUpload}
+-          setCsvFileUploadText={setCsvFileUploadText}
+-        />
+-      </div>
++      {setup}
+     </div>
+   );
+ }
+diff --git a/src/components/AdminPage.tsx b/src/components/AdminPage.tsx
+index d381695..15754ba 100644
+--- a/src/components/AdminPage.tsx
++++ b/src/components/AdminPage.tsx
+@@ -33,6 +33,12 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId
+   const [titleMusicPlaying, setTitleMusicPlaying] = useState(false);
+   const [csvFileUpload, setCsvFileUpload] = useState<File | null>(null);
+   const [csvFileUploadText, setCsvFileUploadText] = useState("");
++  // Open on the title screen (setup), collapsed while a round is being played.
++  const inRound = game.rounds != null && !game.title;
++  const [settingsOpen, setSettingsOpen] = useState(!inRound);
++  useEffect(() => {
++    setSettingsOpen(!inRound);
++  }, [inRound]);
+   const refreshCounterRef = useRef(0);
+ 
+   function send(data: WSEvent) {
+@@ -118,19 +124,47 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId
+         setCsvFileUpload={setCsvFileUpload}
+         setCsvFileUploadText={setCsvFileUploadText}
+         quitGame={quitGame}
++        variant={inRound ? "header" : "full"}
+       />
+-      <hr className="my-12" />
+-      <TitlesAndLogoSettings
+-        game={game}
+-        send={send}
+-        room={room}
+-        setGame={setGame}
+-        setImageUploaded={setImageUploaded}
+-        imageUploaded={imageUploaded}
+-      />
+-      <hr className="my-12" />
+-      {/* ADMIN CONTROLS */}
+-      <AdminSettings game={game} setGame={setGame} send={send} hostPassword={hostPassword} />
++      {/* Settings collapse during play so the scoring console stays above the fold. */}
++      <details
++        id="roomSettingsDetails"
++        className="mx-5 my-2 rounded-xl border-2 border-secondary-500 text-foreground"
++        open={settingsOpen}
++        onToggle={(e) => setSettingsOpen((e.target as HTMLDetailsElement).open)}
++      >
++        <summary className="cursor-pointer select-none px-5 py-2 text-lg font-semibold">
++          {t("Titles, teams & settings")}
++        </summary>
++        <div className="pb-8">
++          {inRound && (
++            <>
++              <RoomSettings
++                room={room}
++                game={game}
++                gameSelector={gameSelector}
++                send={send}
++                setGame={setGame}
++                setCsvFileUpload={setCsvFileUpload}
++                setCsvFileUploadText={setCsvFileUploadText}
++                quitGame={quitGame}
++                variant="setup"
++              />
++              <hr className="my-8" />
++            </>
++          )}
++          <TitlesAndLogoSettings
++            game={game}
++            send={send}
++            room={room}
++            setGame={setGame}
++            setImageUploaded={setImageUploaded}
++            imageUploaded={imageUploaded}
++          />
++          <hr className="my-8" />
++          <AdminSettings game={game} setGame={setGame} send={send} hostPassword={hostPassword} />
++        </div>
++      </details>
+       <GameDisplay
+         ws={ws}
+         setGame={setGame}
+diff --git a/src/components/ui/ConfirmButton.tsx b/src/components/ui/ConfirmButton.tsx
+new file mode 100644
+index 0000000..16917ec
+--- /dev/null
++++ b/src/components/ui/ConfirmButton.tsx
+@@ -0,0 +1,51 @@
++import { ButtonHTMLAttributes, ReactNode, useEffect, useState } from "react";
++
++interface ConfirmButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> {
++  /** When false the button acts immediately; when true the first click arms it. */
++  needsConfirm: boolean;
++  onConfirm: () => void;
++  confirmLabel: ReactNode;
++  /** Classes used instead of className while armed (avoid conflicting utility classes). */
++  armedClassName?: string;
++  children: ReactNode;
++}
++
++/** Two-step button for destructive host actions: click once to arm, again within 3s to confirm. */
++export default function ConfirmButton({
++  needsConfirm,
++  onConfirm,
++  confirmLabel,
++  children,
++  className = "",
++  armedClassName = "rounded-lg border-2 border-warning-700 bg-warning-200 px-4 py-3 text-lg font-semibold text-black ring-4 ring-warning-500",
++  ...rest
++}: ConfirmButtonProps) {
++  const [armed, setArmed] = useState(false);
++
++  useEffect(() => {
++    if (!armed) return;
++    const timer = setTimeout(() => setArmed(false), 3000);
++    return () => clearTimeout(timer);
++  }, [armed]);
++
++  return (
++    <button
++      type="button"
++      {...rest}
++      aria-live="polite"
++      data-armed={armed || undefined}
++      className={armed ? armedClassName : className}
++      onClick={() => {
++        if (needsConfirm && !armed) {
++          setArmed(true);
++          return;
++        }
++        setArmed(false);
++        onConfirm();
++      }}
++      onBlur={() => setArmed(false)}
++    >
++      {armed ? confirmLabel : children}
++    </button>
++  );
++}
+diff --git a/src/lib/scoring/index.ts b/src/lib/scoring/index.ts
+index c7c5d51..7104fdd 100644
+--- a/src/lib/scoring/index.ts
++++ b/src/lib/scoring/index.ts
+@@ -108,6 +108,14 @@ export function stealTeam(game: Game): number | null {
+   return struckOut === 0 ? 1 : 0;
+ }
+ 
++/** Team (0/1) of the first player/buzzer that buzzed in this round, if any. */
++export function firstBuzzTeam(game: Game): number | null {
++  const first = game.buzzed?.[0];
++  if (!first) return null;
++  const team = game.registeredPlayers?.[first.id]?.team ?? first.team ?? null;
++  return team === 0 || team === 1 ? team : null;
++}
++
+ /** True when a round has progress worth protecting from an accidental restart. */
+ export function hasProgress(game: Game): boolean {
+   return (
+diff --git a/src/lib/utils/team-colors.ts b/src/lib/utils/team-colors.ts
+new file mode 100644
+index 0000000..1b54cda
+--- /dev/null
++++ b/src/lib/utils/team-colors.ts
+@@ -0,0 +1,35 @@
++// Static class maps so Tailwind's JIT can see every class name.
++export interface TeamColorClasses {
++  solid: string; // filled button / header
++  solidHover: string;
++  soft: string; // tinted background
++  border: string;
++  text: string;
++  ring: string;
++  gradient: string; // score panel gradient
++}
++
++const TEAM_COLORS: TeamColorClasses[] = [
++  {
++    solid: "bg-team1-700 text-white",
++    solidHover: "hover:bg-team1-900",
++    soft: "bg-team1-200 text-team1-900",
++    border: "border-team1-700",
++    text: "text-team1-700",
++    ring: "ring-team1-500",
++    gradient: "from-team1-900 to-team1-500",
++  },
++  {
++    solid: "bg-team2-700 text-white",
++    solidHover: "hover:bg-team2-900",
++    soft: "bg-team2-200 text-team2-900",
++    border: "border-team2-700",
++    text: "text-team2-700",
++    ring: "ring-team2-500",
++    gradient: "from-team2-900 to-team2-500",
++  },
++];
++
++export function teamColors(team: number): TeamColorClasses {
++  return TEAM_COLORS[team] ?? TEAM_COLORS[0];
++}
+diff --git a/tailwind.config.js b/tailwind.config.js
+index 9be2602..2afa5b8 100644
+--- a/tailwind.config.js
++++ b/tailwind.config.js
+@@ -49,10 +49,24 @@ module.exports = {
+               200: "#BFDBFE",
+             },
+             foreground: "black",
++            // Fast money board: holder = board frame, background = answer cells.
+             fastm: {
+               text: "white",
+-              holder: "black",
+-              background: "blue",
++              holder: "#1E3A8A",
++              background: "black",
++            },
++            // Team accent colours (score panels, award/strike buttons). Shared by all themes.
++            team1: {
++              900: "#881337",
++              700: "#BE123C",
++              500: "#F43F5E",
++              200: "#FFE4E6",
++            },
++            team2: {
++              900: "#064E3B",
++              700: "#047857",
++              500: "#10B981",
++              200: "#D1FAE5",
+             },
+           },
+         },
+-- 
+2.47.3
+

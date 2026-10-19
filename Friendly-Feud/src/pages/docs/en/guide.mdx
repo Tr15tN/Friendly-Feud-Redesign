@@ -1,0 +1,249 @@
+import BackToLoginButton from "@/components/BackToLoginButton";
+import ThemeSwitcher from "@/components/Admin/ThemeSwitcher";
+
+<div className="relative fixed">
+<div className="flex justify-center w-full py-12 px-10 md:px-2 bg-background overflow-y-scroll overflow-x-hidden">
+
+<div className="w-full max-w-3xl">
+
+<div className="flex justify-between">
+  <BackToLoginButton />
+  <ThemeSwitcher setGame={() => {}} send={() => {}} game={{ settings: { theme: null } }} />
+</div>
+
+# Friendly Feud — Game Guide
+
+A complete guide to running and playing Friendly Feud. This describes exactly what this build
+does. Where the game leaves a decision to you, it is marked as a **House rule** suggestion.
+
+> **TL;DR for the host:** Host a room → open the game window on the TV → players join on their
+> phones with the room code → Start Round 1 → reveal answers, mark strikes, bank the pot →
+> repeat → Fast Money → read the final scores.
+
+## 1. Quick start for the host
+
+1. **Create a room** — click **Host**. You get a 4‑letter **room code** and a host password
+   that travels automatically with your controls (you never type it).
+2. **Load a game** in **Titles, teams & settings** — a built‑in game or your own `.json`/`.csv`.
+   Set team names, title, logo, and theme here too.
+3. **Open the game window on the TV** — **Open Game Window** opens the board (`/game`) in a new
+   tab; put it on the TV/projector.
+4. **Players join on phones** — enter the **room code**, type a name, tap **Join**, pick a
+   team, press **Play** to arm the buzzer.
+5. **Spectators / extra screens** — instead of a team, choose **Open Game Window** (show the
+   board elsewhere) or **Host Buzzers** (a shared two‑button buzzer).
+6. **Start the game** — press **Start Round 1**.
+
+## 2. The host console at a glance
+
+The console has three phases shown in the phase bar: **Lobby → Rounds N/N → Fast Money**.
+There is always one obvious primary (blue) button for the current phase; other controls are
+secondary, and a one‑line hint says what to do next.
+
+## 3. Main rounds
+
+### 3.1 The face‑off (buzzers)
+
+Buzzers clear when a round starts. Players buzz from their phones (or via the shared **Host
+Buzzers** screen). The board shows **who buzzed first**, and the console marks that team
+“buzzed first / in control”.
+
+The “in control” marker is **informational** — the game does not enforce turn order or lock
+anyone out. **House rule:** play it like classic Feud — the fastest players face off on the
+top answer; the higher answer wins control and chooses to play or pass.
+
+### 3.2 Revealing answers
+
+Click an answer (or press keys **1–8**) to reveal it on the board; click/press again to hide
+it. Revealed answers add to the **round pot**; cards show `points × multiplier`. The question
+text is **hidden on the TV by default** — toggle it with **Show / Hide questions**.
+
+### 3.3 Strikes, 3 strikes, and the steal
+
+Give a wrong‑answer **strike** with **✕ Team**. Each team has three strike slots (capped at 3).
+
+- **Buzz‑in X (no strike)** flashes the big ✕ on the board without adding a strike; the team
+  **✕** buttons add a real strike.
+- Fix with **− strike (Team)** or **Reset Mistakes**.
+- At **3 strikes** a yellow hint says the other team can steal. The app only **hints** — you
+  decide and press the award button. **House rule:** on a steal the other team gives one
+  answer; if it’s on the board they steal the whole pot, otherwise control keeps it.
+
+### 3.4 How the round pot is calculated
+
+> pot = (sum of the points of every revealed answer) × round multiplier
+
+The **multiplier** gives Double (×2) and Triple (×3) rounds — set per round in the game file
+or changed live with the ×1/×2/×3 buttons or the × number box. A blank/invalid multiplier is
+treated as ×1. Hiding a revealed answer removes its value again.
+
+### 3.5 Banking / awarding the pot
+
+Press **Award N to [team]** to give the pot to a team. That adds it to their score and **locks
+the round**: the award buttons and multiplier are disabled, and the board shows “Banked by
+[team]”.
+
+### 3.6 Answers revealed after banking (not scored)
+
+After an award the pot is locked to what was banked. Revealing leftover answers marks them
+**(not scored)** and dimmed on the TV; they do not change any score.
+
+### 3.7 Fixing mistakes: Undo and Manual adjust
+
+**Undo** (↶ Undo, or **Ctrl/Cmd+Z**) steps back through scoring actions (up to 50) without
+touching players or settings. **Manual adjust** adds/subtracts a fixed number of points to a
+team (never below 0).
+
+### 3.8 Worked scoring example
+
+Answers: Black Hood & Cape 43, Sickle 20, Skeleton 13, Mask 11, Makeup 8. Round set to **×2**.
+
+1. Reveal Black Hood & Cape (43) → pot = 43 × 2 = **86**.
+2. Reveal Skeleton (13) → pot = (43 + 13) × 2 = **112**.
+3. Alpha gets a 3rd strike; Bravo steals with a correct answer.
+4. **Award 112 to Bravo** → Bravo **+112**, round locks.
+5. Reveal Makeup (8) to show the board → **(not scored)**; pot stays **112**, no score change.
+
+## 4. Fast Money (the final round)
+
+Press **Fast Money**. Two contestants play in turn against the same questions; the goal is a
+combined score that reaches the **win target**.
+
+### 4.1 How it’s played
+
+Per question row: type the contestant’s **Answer**, pick the matching board answer (and points)
+from the **Award points** dropdown (or leave **(No Answer) 0**), press **Reveal Answer**, then
+**Award points**. A **(No Answer)** award plays the try‑again sound and shows **✗ 0** — it does
+not flash a strike.
+
+Press **Start Final Round 2** for the second contestant. The second half hides the first
+contestant’s answers until you **Reveal First Round Answers**, and shows the partner’s answer so
+you can judge duplicates.
+
+### 4.2 Timers
+
+Each half has its own countdown (`final_round_timers`, default 20s and 25s). Use **Start /
+Stop / Reset Timer**. The board’s circular timer counts down and notifies the console at zero.
+
+### 4.3 Duplicate answers
+
+In the second half, press **Already Answered** on a question if the contestant repeats the
+first contestant’s answer; it plays the duplicate buzzer. Judging duplicates is the host’s call.
+
+### 4.4 The total and win target
+
+**Total** = points from both halves. **Target** defaults to **200** and is set per game in
+**Titles, teams & settings → Fast money target**. Reaching or exceeding the target shows **WIN**
+with confetti. **House rule:** classic Fast Money uses 5 questions and a target of 200.
+
+## 5. Winning and the end of the game
+
+The app does **not** declare a main‑game winner — it keeps the team totals and **you read the
+scores**. **House rule:** higher score after your agreed number of rounds wins, or the leader
+plays Fast Money. The only automatic “win” is the Fast Money target celebration. To wrap up,
+show the **Title Card** again or press **Quit**.
+
+## 6. Keyboard shortcuts
+
+Host console (ignored while typing, on the title screen, and during Fast Money):
+
+- **1–8** — reveal / hide the matching answer in the current round.
+- **Ctrl/Cmd + Z** — undo the last scoring action.
+
+Shared Host Buzzers screen:
+
+- **j** — buzz for Team 1 (Alpha). **k** — buzz for Team 2 (Bravo). (Wire two physical
+  keyboard buttons as buzzers.)
+
+## 7. Host console reference
+
+**Top bar:** Room code · Open Game Window · Help (this guide) · Quit (host only).
+
+**Flow controls:** Phase bar · Title Card (shows title; starts fresh, double‑click to confirm
+mid‑game) · Start Round 1 · Round selector · Next Round → (clears strikes, fresh pot, clears
+buzzers) · Show / Hide questions · Final Round.
+
+**Lobby:** big join code (and “Join at [URL]” if set), per‑team roster, Title Music.
+
+**Score bar:** each team’s name, score, three strike pips, banked / buzzed‑first tag; centre
+shows round, Pot (or “Banked by [team]”), ×1/×2/×3 and × box, and ↶ Undo.
+
+**Answer grid:** one button per answer (keys 1–8); base → multiplied value, **(not scored)**
+tag after an award, last‑action undo pill.
+
+**Strikes & Bank the pot:** ✕ Team (add) · − strike (Team) · Reset Mistakes · Buzz‑in X (no
+strike) · steal hint at 3 strikes · Award N to [team] · Manual adjust.
+
+**Fast Money controls:** Start Final Round 2 / Back To Final Round 1 · Reveal / Hide First
+Round Answers · Start / Stop / Reset Timer · per question: Answer, Award‑points dropdown,
+Reveal, Award, status, and (round 2) the partner’s answer with Already Answered · Round one /
+two / Total and Target.
+
+**Players & buzzers:** Buzzer Order with Clear Buzzers; Players list with per‑player blindfold
+and remove.
+
+## 8. Creating your own games
+
+Use the built‑in creator at **/new** (or **Create New Game**), or hand‑write `.json` / import
+`.csv`.
+
+**/new creator:** add rounds (question, multiplier 1/2/3, Answer + points pairs); add Fast
+Money questions (Answer + points) and the two timer values; **Save** downloads a `.json` to
+load back via **Load Game**.
+
+**JSON essentials:**
+
+```json
+{
+  "settings": { "theme": "default", "final_round_win_threshold": 200 },
+  "rounds": [
+    {
+      "question": "Name something you'd need to look like the Grim Reaper.",
+      "multiply": 1,
+      "answers": [
+        { "ans": "Black Hood & Cape", "pnt": 43 },
+        { "ans": "Sickle", "pnt": 20 }
+      ]
+    }
+  ],
+  "final_round": [
+    { "question": "Name a part of the body beginning with N.", "answers": [["Nose", 52], ["Neck", 34]] }
+  ],
+  "final_round_timers": [20, 25]
+}
+```
+
+Main‑round answers are `{ "ans", "pnt" }`; Fast Money answers are `["text", points]` pairs.
+`multiply` is the Double/Triple multiplier; `final_round_win_threshold` is optional (default
+200).
+
+**CSV:** one round per line — `Question, Answer, Points, Answer, Points, ...`. On import you
+choose how many rows are rounds vs Fast Money.
+
+## 9. Player guide (short)
+
+Join with the room code and a name, pick a team, press **Play**. On a face‑off tap **BUZZ**
+(buzzers reset each round). You see your team, score, and strikes; a host can “blindfold” your
+view. Not playing? Choose **Open Game Window** or **Host Buzzers** instead of a team.
+
+## 10. Troubleshooting & FAQ
+
+**Reconnecting:** your browser remembers your session; reopening usually puts you back in. A
+“room not found” means the room was closed or timed out — rejoin with a fresh code.
+
+**Host the board on a separate device:** host on your controller device, then on the TV device
+**Join** and press **Open Game Window** instead of picking a team. For a shared physical
+buzzer, pick **Host Buzzers**, enter the host password shown on the admin page; that screen
+responds to **j** and **k**.
+
+**Security note:** only the **host** (the browser that created the room, carrying the host
+password) can control a room — reveal, score, change settings, or quit. Players, spectators,
+and people in other rooms cannot, even if they know the room code. Keep the host tab/session to
+yourself.
+
+**The game window isn’t updating:** reload the game‑window tab (it rejoins from your saved
+session) and make sure you’re acting in the host tab, not a spectator/player tab.
+
+</div>
+</div>
+</div>

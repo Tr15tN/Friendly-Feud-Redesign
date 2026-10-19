@@ -1,0 +1,182 @@
+From cd0a9f7c3c97bca93170674f091d5ee5313eaa30 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:44:14 +0300
+Subject: [PATCH 08/18] fix(board): first-buzzer banner hides reliably and
+ never stacks with the strike X
+
+The popup's 5s timer depended on the buzzed object, which is re-created on every
+game update, so any host action kept it on screen over the board. It is now a
+bottom banner keyed on the buzz identity (3s), dismissed when a strike is shown,
+and doesn't replay on page restore.
+---
+ src/components/BuzzerPopup.tsx | 124 +++++++++++++++------------------
+ src/pages/game.tsx             |   2 +-
+ 2 files changed, 57 insertions(+), 69 deletions(-)
+
+diff --git a/src/components/BuzzerPopup.tsx b/src/components/BuzzerPopup.tsx
+index 6bc8c53..944f0c8 100644
+--- a/src/components/BuzzerPopup.tsx
++++ b/src/components/BuzzerPopup.tsx
+@@ -4,90 +4,78 @@ import { useTranslation } from "react-i18next";
+ 
+ interface BuzzerPopupProps {
+   buzzed: BuzzedState;
++  /** Hide (and dismiss) the banner, e.g. while the strike overlay is on screen. */
++  suppressed?: boolean;
+ }
+ 
+-export default function BuzzerPopup({ buzzed }: BuzzerPopupProps) {
+-  const { t } = useTranslation();
+-  const [isVisible, setIsVisible] = useState(false);
+-  const firstPressRef = useRef(false);
+-  const isInitialMount = useRef(true);
++const VISIBLE_MS = 3000;
++// Buzz state that arrives right after the page loads is a restore, not a new press.
++const RESTORE_GRACE_MS = 1000;
+ 
+-  useEffect(() => {
+-    let timer: NodeJS.Timeout | null = null;
++function buzzKey(buzzed: BuzzedState | undefined): string | null {
++  if (!buzzed?.id && !buzzed?.team_name) return null;
++  return `${buzzed.id ?? ""}|${buzzed.team_name ?? ""}`;
++}
+ 
+-    if (isVisible) {
+-      timer = setTimeout(() => {
+-        setIsVisible(false);
+-      }, 5000);
+-    }
++/**
++ * "First buzzer" banner. Keyed on the identity of the first buzz (not on the
++ * buzzed object, which is re-created on every game update), so the auto-hide
++ * timer is not restarted by unrelated host actions.
++ */
++export default function BuzzerPopup({ buzzed, suppressed = false }: BuzzerPopupProps) {
++  const { t } = useTranslation();
++  const key = buzzKey(buzzed);
++  const [shownKey, setShownKey] = useState<string | null>(null);
++  const lastKeyRef = useRef<string | null>(null);
++  const mountedAtRef = useRef(Date.now());
+ 
+-    // Skip audio and animation if this is the initial mount with existing buzzer state
+-    // If we don't, on refresh this will cause errors due to needing user interaction on audio autoplay
+-    if (isInitialMount.current && (buzzed?.id || buzzed?.team_name)) {
+-      isInitialMount.current = false;
+-      firstPressRef.current = true;
+-      setIsVisible(false);
++  useEffect(() => {
++    const previous = lastKeyRef.current;
++    lastKeyRef.current = key;
++    if (!key) {
++      setShownKey(null);
+       return;
+     }
++    if (key === previous || Date.now() - mountedAtRef.current < RESTORE_GRACE_MS) return;
+ 
+-    // Check if this is a new buzzer press (buzzed has an id and we haven't processed it yet)
+-    console.log(buzzed, firstPressRef.current);
+-    if ((buzzed?.id || buzzed?.team_name) && !firstPressRef.current) {
+-      // Set first press flag
+-      firstPressRef.current = true;
++    // Sound Attribution:
++    // "Quiz Show Buzzer 2" by JapanYoshiTheGamer
++    // Source: https://freesound.org/s/423219/
++    // License: Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)
++    new Audio("buzzer.wav").play().catch((error) => console.warn("Error playing buzzer sound:", error));
+ 
+-      // Sound Attribution:
+-      // "Quiz Show Buzzer 2" by JapanYoshiTheGamer
+-      // Source: https://freesound.org/s/423219/
+-      // License: Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)
+-      const audio = new Audio("buzzer.wav");
++    setShownKey(key);
++    const timer = setTimeout(() => setShownKey((current) => (current === key ? null : current)), VISIBLE_MS);
++    return () => clearTimeout(timer);
++  }, [key]);
+ 
+-      // Handle audio play errors gracefully
+-      // If we don't, popup will not go away
+-      audio.play().catch((error) => {
+-        console.warn("Error playing buzzer sound:", error);
+-      });
+-
+-      setIsVisible(true);
+-    }
+-
+-    // Reset the first press tracking when buzzed is cleared
+-    if (!buzzed || (!buzzed.id && !buzzed.team_name)) {
+-      firstPressRef.current = false;
+-      isInitialMount.current = false;
+-      setIsVisible(false);
+-      if (timer) {
+-        clearTimeout(timer);
+-      }
+-    }
+-
+-    return () => {
+-      if (timer) {
+-        clearTimeout(timer);
+-      }
+-    };
+-  }, [buzzed, isVisible]);
++  useEffect(() => {
++    if (suppressed) setShownKey(null);
++  }, [suppressed]);
+ 
+-  // Only show popup for valid buzzer press
+-  if (!buzzed?.id && !buzzed?.team_name) {
+-    return null;
+-  }
++  const visible = !suppressed && key !== null && shownKey === key;
+ 
+   return (
+-    // TODO: Figure out why this isn't getting bigger
+-    <div className={`fixed inset-0 z-50 flex items-center justify-center`}>
++    <div
++      className="pointer-events-none fixed inset-x-0 bottom-[3vh] z-40 flex justify-center"
++      aria-live="assertive"
++      role="status"
++    >
+       <div
+-        className={`rounded-lg border-4 border-white bg-warning-900 text-white transition-all duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}
++        id="buzzerPopup"
++        className={`font-oswald flex items-center gap-6 rounded-2xl border-4 border-white bg-warning-900 px-10 py-4 text-white shadow-2xl transition-all duration-300 motion-reduce:transition-none ${
++          visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"
++        }`}
++        aria-hidden={!visible}
+       >
+-        <div className="flex flex-col items-center p-12">
+-          <div className="text-4xl font-bold">{t("First Buzzer")}</div>
+-          <hr className="my-2 w-full border-t-2 border-warning-500" />
+-          <div className="w-full text-center text-4xl font-bold">
++        <span className="text-[3vh] uppercase tracking-widest text-warning-200">{t("First Buzzer")}</span>
++        {visible && (
++          <span className="text-[4.5vh] font-bold uppercase">
+             {buzzed.name && <span>{buzzed.name}</span>}
+-            {buzzed.name && "team_name" in buzzed && <span> | </span>}
+-            {"team_name" in buzzed && <span>{buzzed.team_name}</span>}
+-          </div>
+-        </div>
++            {buzzed.name && buzzed.team_name && <span className="text-warning-200"> · </span>}
++            {buzzed.team_name && <span>{buzzed.team_name}</span>}
++          </span>
++        )}
+       </div>
+     </div>
+   );
+diff --git a/src/pages/game.tsx b/src/pages/game.tsx
+index 261ee43..94ba347 100644
+--- a/src/pages/game.tsx
++++ b/src/pages/game.tsx
+@@ -384,7 +384,7 @@ export default function GamePage() {
+         <div className={`${activeTheme} game-screen min-h-screen bg-background`}>
+           <div className="">{gameSession}</div>
+         </div>
+-        <BuzzerPopup buzzed={buzzed} />
++        <BuzzerPopup buzzed={buzzed} suppressed={showMistake !== null} />
+       </>
+     );
+   } else {
+-- 
+2.47.3
+

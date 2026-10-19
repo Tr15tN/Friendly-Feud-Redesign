@@ -1,0 +1,71 @@
+{
+  "name": "cold_friendly_feud",
+  "version": "2.0.0",
+  "private": true,
+  "dependencies": {
+    "@hiseb/confetti": "^2.1.0",
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.0.7",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/mdx": "^2.0.13",
+    "autoprefixer": "^10.4.22",
+    "axios": "^1.19.0",
+    "cookie-cutter": "^0.2.0",
+    "i18next": "^25.7.1",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "lucide-react": "^0.556.0",
+    "next": "^16.3.0",
+    "next-themes": "^0.4.6",
+    "papaparse": "^5.5.3",
+    "postcss": "^8.5.18",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-i18next": "^16.4.0",
+    "sonner": "^2.0.7"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "NODE_ENV=production next start",
+    "start_local": "NODE_ENV=local next start",
+    "start_windows": "set NODE_ENV=local && next start",
+    "parse-locales": "i18next-scanner --config ./i18n/i18next-scanner.config.js",
+    "lint": "eslint .",
+    "fix": "eslint --fix .",
+    "test": "vitest run",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\" \"e2e/**/*.{js,jsx,ts,tsx,css}\"",
+    "prepare": "husky",
+    "typecheck": "tsc --noEmit"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@playwright/test": "^1.57.0",
+    "@stylistic/eslint-plugin": "^5.6.1",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/parser": "^8.65.0",
+    "eslint": "^10.8.0",
+    "eslint-config-next": "^16.0.7",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-config-xo": "^0.49.0",
+    "eslint-plugin-tailwindcss": "^3.18.2",
+    "husky": "^9.1.7",
+    "i18next-scanner": "^4.6.0",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "tailwindcss-themer": "^4.1.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^3.2.7"
+  }
+}

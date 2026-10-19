@@ -1,0 +1,42 @@
+services:
+  frontend:
+    image: ${docker_registry}/famf-web:dev
+    env_file:
+      - ../.env.example
+    ports:
+      - 3000:3000
+    healthcheck:
+      # Verifies that the frontend dev server is responding on port 3000
+      # Start period is longer due to npm install
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
+  backend:
+    image: ${docker_registry}/famf-server:dev
+    env_file:
+      - ../.env.example
+    ports:
+      - 8080:8080
+    environment:
+      # One of memory, sqlite
+      GAME_STORE: ${game_store}
+    # Verifies dedicated backend health endpoint returns 200
+    # Start period is longer due to go build
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/api/health']
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
+  proxy:
+    image: nginx:1.27-alpine
+    ports:
+      - 80:80
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:80']
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s

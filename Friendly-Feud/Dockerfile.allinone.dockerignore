@@ -1,0 +1,34 @@
+# Ignore everything
+*
+# Allow list
+## Frontend
+!games/
+!i18n/
+!public/
+!jsconfig.json
+!tsconfig.json
+!LICENSE
+!next.config.mjs
+!package-lock.json
+!package.json
+!postcss.config.js
+!tailwind.config.js
+!backend/server.js
+!backend/load-game.js
+!src/pages/
+!src/components/
+!src/lib/
+!src/global.css
+!src/types/
+!src/
+!docker/frontend-start.sh
+
+## Backend
+!backend/api/
+!backend/go.mod
+!backend/go.sum
+!backend/main.go
+
+## Scripts
+!docker/allinone/
+!dev/

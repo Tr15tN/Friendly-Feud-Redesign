@@ -1,0 +1,149 @@
+package api
+
+import (
+	"log"
+	"time"
+)
+
+type host struct {
+	ID string `json:"id"`
+}
+
+// TODO put any client or goroutine data outside of game data.
+type registeredPlayer struct {
+	Start     time.Time `json:"start"`
+	Latencies []int64   `json:"latencies"`
+	// Allow team to be set to null in json
+	Team    *int    `json:"team"`
+	Latency float64 `json:"latency"`
+	Name    string  `json:"name"`
+	Hidden  bool    `json:"hidden"`
+}
+
+type buzzed struct {
+	Time int64  `json:"time"`
+	ID   string `json:"id"`
+	// optional team value. Used in generic buzzer vs. player buzzer
+	Team *int `json:"team"`
+}
+
+type settings struct {
+	LogoUrl              any    `json:"logo_url"`
+	TitleMusicUrl        any    `json:"title_music_url"`
+	HideQuestions        bool   `json:"hide_questions"`
+	Theme                string `json:"theme"`
+	FinalRoundTitle      any    `json:"final_round_title"`
+	PlayerBuzzerSound    bool   `json:"player_buzzer_sound"`
+	FirstBuzzerSoundOnly bool   `json:"first_buzzer_sound_only"`
+	HideJoinInfo         bool   `json:"hide_join_info"`
+	// Fast money total required for the win celebration. 0 means use the default (200).
+	FinalRoundWinThreshold int `json:"final_round_win_threshold,omitempty"`
+}
+
+type team struct {
+	Name     string `json:"name"`
+	Points   int    `json:"points"`
+	Mistakes int    `json:"mistakes"`
+}
+
+type answer struct {
+	Triggered bool   `json:"trig"`
+	Answer    string `json:"ans"`
+	Points    int    `json:"pnt"`
+	// Revealed after the round was awarded (shown, but not scored).
+	Cleanup bool `json:"cleanup,omitempty"`
+}
+
+type round struct {
+	Answers  []answer `json:"answers"`
+	Multiply int      `json:"multiply"`
+	Question string   `json:"question"`
+	// Team index that banked this round, nil when not awarded yet.
+	AwardedTo *int `json:"awarded_to"`
+	// Pot value locked in when the round was awarded.
+	AwardedPoints int `json:"awarded_points"`
+}
+
+type finalRound struct {
+	Answers   []any  `json:"answers"`
+	Questions string `json:"question"`
+	Selection int    `json:"selection"`
+	Points    int    `json:"points"`
+	Input     string `json:"input"`
+	Revealed  bool   `json:"revealed"`
+	// Host pressed "Award" for this answer.
+	Awarded bool `json:"awarded,omitempty"`
+}
+
+type game struct {
+	Room              string                       `json:"room"`
+	RegisteredPlayers map[string]*registeredPlayer `json:"registeredPlayers"`
+	Host              host                         `json:"host"`
+	Buzzed            []buzzed                     `json:"buzzed"`
+	Settings          settings                     `json:"settings"`
+	Teams             []team                       `json:"teams"`
+	Title             bool                         `json:"title"`
+	TitleText         string                       `json:"title_text"`
+	PointTracker      []int                        `json:"point_tracker"`
+	IsFinalRound      bool                         `json:"is_final_round"`
+	IsFinalSecond     bool                         `json:"is_final_second"`
+	HideFirstRound    bool                         `json:"hide_first_round"`
+	Round             int                          `json:"round"`
+	Rounds            []round                      `json:"rounds"`
+	FinalRound        []finalRound                 `json:"final_round"`
+	FinalRound2       []finalRound                 `json:"final_round_2"`
+	FinalRoundTimers  []int                        `json:"final_round_timers"`
+	Tick              int64                        `json:"tick"`
+	RoundStartTime    int64                        `json:"round_start_time"`
+}
+
+func setTick(client *Client, event *Event) GameError {
+	room, storeError := store.getRoom(client, event.Room)
+	if storeError.code != "" {
+		return storeError
+	}
+	room.Game.Tick = time.Now().UTC().UnixMilli()
+	log.Println("Set tick for room", room.Game.Room, room.Game.Tick, event.Action)
+	store.writeRoom(room.Game.Room, room)
+	return GameError{}
+}
+
+func NewGame(roomCode string) room {
+	return room{
+		roomConnections: newRoomConnections(),
+		Game: &game{
+			Room:              roomCode,
+			RegisteredPlayers: make(map[string]*registeredPlayer),
+			Buzzed:            []buzzed{},
+			Settings: settings{
+				LogoUrl:         nil,
+				TitleMusicUrl:   nil,
+				HideQuestions:   true,
+				Theme:           "default",
+				FinalRoundTitle: nil,
+			},
+			Teams: []team{
+				{
+					Name:     "Alpha",
+					Points:   0,
+					Mistakes: 0,
+				},
+				{
+					Name:     "Bravo",
+					Points:   0,
+					Mistakes: 0,
+				},
+			},
+			Title:          true,
+			TitleText:      "",
+			PointTracker:   []int{},
+			IsFinalRound:   false,
+			IsFinalSecond:  false,
+			HideFirstRound: false,
+			Round:          0,
+			Tick:           time.Now().UTC().UnixMilli(),
+			RoundStartTime: time.Now().UTC().UnixMilli(),
+		},
+		cleanup: make(chan struct{}),
+	}
+}

@@ -1,0 +1,18 @@
+# Ignore everything
+*
+# Allow list
+!games/
+!i18n/
+!public/
+!jsconfig.json
+!tsconfig.json
+!LICENSE
+!next.config.mjs
+!package-lock.json
+!package.json
+!postcss.config.js
+!tailwind.config.js
+!backend/server.js
+!backend/load-game.js
+!src/
+!docker/frontend-start.sh

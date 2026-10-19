@@ -1,0 +1,178 @@
+From f8ceb9fec166ec7f5f268d6fda56faa7833aae7c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:45:40 +0300
+Subject: [PATCH 09/18] feat(board): themed multiplier banner, readable
+ question strip, multiplied card values
+
+- 'DOUBLE / TRIPLE (xN points)' banner in the theme's warning colour replaces
+  the small hard-coded yellow tag; pot is labelled 'Round pot' / 'Banked'
+- question shown in a high-contrast 44px strip instead of 24px at 80% opacity
+- revealed cards show the value that goes into the pot (base x multiplier) with
+  a small breakdown; clean-up reveals are dimmed
+---
+ src/components/QuestionBoard.tsx | 38 ++++++++++++++++++++++++----
+ src/components/Round.tsx         | 43 +++++++++++++++++++++-----------
+ 2 files changed, 62 insertions(+), 19 deletions(-)
+
+diff --git a/src/components/QuestionBoard.tsx b/src/components/QuestionBoard.tsx
+index 60e850a..2f2cb92 100644
+--- a/src/components/QuestionBoard.tsx
++++ b/src/components/QuestionBoard.tsx
+@@ -1,4 +1,5 @@
+ import FitText from "@/components/FitText";
++import { sanitizeMultiplier } from "@/lib/scoring";
+ import { Round } from "@/types/game";
+ import { useCallback, useEffect, useRef, useState } from "react";
+ import { useTranslation } from "react-i18next";
+@@ -45,7 +46,19 @@ function UnrevealedFace({ index }: { index: number }) {
+   );
+ }
+ 
+-function RevealedFace({ index, ans, pnt }: { index: number; ans: string; pnt: number }) {
++function RevealedFace({
++  index,
++  ans,
++  pnt,
++  multiplier,
++  cleanup,
++}: {
++  index: number;
++  ans: string;
++  pnt: number;
++  multiplier: number;
++  cleanup: boolean;
++}) {
+   const { t } = useTranslation();
+   return (
+     <div
+@@ -65,12 +78,21 @@ function RevealedFace({ index, ans, pnt }: { index: number; ans: string; pnt: nu
+         />
+       </div>
+       <div
+-        className="flex shrink-0 items-center justify-center border-l-2 border-primary-900 bg-gradient-to-t from-primary-700 to-primary-500"
++        className={`flex shrink-0 flex-col items-center justify-center border-l-2 border-primary-900 bg-gradient-to-t from-primary-700 to-primary-500 ${
++          cleanup ? "opacity-50" : ""
++        }`}
+         style={{ aspectRatio: "9 / 10", textShadow: TEXT_SHADOW }}
++        title={cleanup ? t("not scored") : undefined}
+       >
+-        <span className="text-[64px] font-bold text-white" id={`answer${index}PointsText`}>
+-          {t("number", { count: pnt })}
++        {/* Show the value that actually goes into the pot (base x multiplier). */}
++        <span className="text-[64px] font-bold leading-none tabular-nums text-white" id={`answer${index}PointsText`}>
++          {t("number", { count: pnt * multiplier })}
+         </span>
++        {multiplier > 1 && (
++          <span className="mt-1 text-[22px] font-bold leading-none text-warning-200">
++            {t("number", { count: pnt })}×{t("number", { count: multiplier })}
++          </span>
++        )}
+       </div>
+     </div>
+   );
+@@ -94,12 +116,16 @@ function FlipCard({
+   ans,
+   pnt,
+   trig,
++  multiplier,
++  cleanup,
+   onFlipComplete,
+ }: {
+   index: number;
+   ans: string;
+   pnt: number;
+   trig: boolean;
++  multiplier: number;
++  cleanup: boolean;
+   onFlipComplete: () => void;
+ }) {
+   return (
+@@ -118,7 +144,7 @@ function FlipCard({
+       }}
+     >
+       <UnrevealedFace index={index} />
+-      <RevealedFace index={index} ans={ans} pnt={pnt} />
++      <RevealedFace index={index} ans={ans} pnt={pnt} multiplier={multiplier} cleanup={cleanup} />
+       <CardEdge />
+     </div>
+   );
+@@ -193,6 +219,8 @@ export default function QuestionBoard({ round }: QuestionBoardProps) {
+               ans={slot.ans}
+               pnt={slot.pnt}
+               trig={slot.trig}
++              multiplier={sanitizeMultiplier(displayedRound.multiply)}
++              cleanup={!!slot.cleanup}
+               onFlipComplete={handleFlipComplete}
+             />
+           )}
+diff --git a/src/components/Round.tsx b/src/components/Round.tsx
+index 828436a..9f04f36 100644
+--- a/src/components/Round.tsx
++++ b/src/components/Round.tsx
+@@ -1,4 +1,5 @@
+ import ScoreMonitor from "@/components/ScoreMonitor";
++import { isAwarded, roundPot, sanitizeMultiplier } from "@/lib/scoring";
+ import { Game } from "@/types/game";
+ import { useTranslation } from "react-i18next";
+ 
+@@ -6,29 +7,43 @@ interface RoundProps {
+   game: Game;
+ }
+ 
++function multiplierTitle(multiplier: number, t: (key: string, opts?: Record<string, unknown>) => string) {
++  if (multiplier === 2) return t("Double");
++  if (multiplier === 3) return t("Triple");
++  return `×${t("number", { count: multiplier })}`;
++}
++
+ export default function Round({ game }: RoundProps) {
+   const { t } = useTranslation();
+   const round = game.rounds[game.round];
+-  const points = game.point_tracker[game.round];
++  const multiplier = sanitizeMultiplier(round.multiply);
++  const awarded = isAwarded(round);
+ 
+   return (
+-    <div className="font-oswald flex flex-col items-center">
+-      <div className="relative inline-block">
+-        <ScoreMonitor points={points} id="roundPointsTeamtotal" className="w-60" />
+-        {round.multiply > 1 && (
+-          <span
+-            id="roundMultiplyText"
+-            className="absolute left-full ml-2 top-1/2 -translate-y-1/2 rounded bg-yellow-500 px-2 py-0.5 text-2xl font-bold text-black shadow"
+-          >
+-            x{t("number", { count: round.multiply })}
+-          </span>
+-        )}
+-      </div>
++    <div className="font-oswald flex w-full flex-col items-center gap-3">
+       {game.settings.hide_questions === false && (
+-        <p id="roundQuestionText" className="mt-1 max-w-[1060px] text-center text-2xl text-foreground opacity-80">
++        <p
++          id="roundQuestionText"
++          className="max-w-[1660px] rounded-2xl bg-black/85 px-8 py-3 text-center text-[44px] font-medium leading-tight tracking-wide text-white"
++        >
+           {round.question}
+         </p>
+       )}
++      <div className="relative flex flex-col items-center">
++        <span className="text-xl uppercase tracking-[0.3em] text-foreground">
++          {awarded ? t("Banked") : t("Round pot")}
++        </span>
++        <ScoreMonitor points={roundPot(round)} id="roundPointsTeamtotal" className="w-64" />
++        {multiplier > 1 && (
++          <div
++            id="roundMultiplyText"
++            className="absolute left-full top-1/2 ml-8 -translate-y-1/2 -rotate-6 rounded-xl border-4 border-black bg-warning-500 px-6 py-2 text-center font-bold uppercase leading-none text-black shadow-xl"
++          >
++            <span className="block text-6xl">{multiplierTitle(multiplier, t)}</span>
++            <span className="mt-1 block text-2xl tracking-widest">{t("×{{count}} points", { count: multiplier })}</span>
++          </div>
++        )}
++      </div>
+     </div>
+   );
+ }
+-- 
+2.47.3
+

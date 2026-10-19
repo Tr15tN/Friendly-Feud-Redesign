@@ -1,0 +1,181 @@
+From b1f8cc0f96831ed230f889d70c1e2e45e7904c6f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:46:17 +0300
+Subject: [PATCH 10/18] feat(board): count-up score animation and '+N' flourish
+
+Scores ease to their new value (700ms) with tabular numerals so digits don't
+jump; increases show a short '+N' pill. prefers-reduced-motion jumps straight to
+the value and only fades the pill. A timeout settles the final value even when
+the game window's tab is in the background.
+---
+ src/components/ScoreMonitor.tsx | 18 ++++++++--
+ src/global.css                  | 41 +++++++++++++++++++++
+ src/lib/hooks/useCountUp.ts     | 63 +++++++++++++++++++++++++++++++++
+ 3 files changed, 120 insertions(+), 2 deletions(-)
+ create mode 100644 src/lib/hooks/useCountUp.ts
+
+diff --git a/src/components/ScoreMonitor.tsx b/src/components/ScoreMonitor.tsx
+index a1d92de..d3f413e 100644
+--- a/src/components/ScoreMonitor.tsx
++++ b/src/components/ScoreMonitor.tsx
+@@ -1,3 +1,4 @@
++import { useCountUp, usePositiveDelta } from "@/lib/hooks/useCountUp";
+ import { useTranslation } from "react-i18next";
+ 
+ const TONES = {
+@@ -23,10 +24,12 @@ export default function ScoreMonitor({
+   tone = "primary",
+ }: ScoreMonitorProps) {
+   const { t } = useTranslation();
++  const shown = useCountUp(points);
++  const delta = usePositiveDelta(points);
+ 
+   return (
+     <div
+-      className={`font-oswald flex items-center justify-center rounded-lg bg-gradient-to-tr ${TONES[tone]}
++      className={`font-oswald relative flex items-center justify-center rounded-lg bg-gradient-to-tr ${TONES[tone]}
+         transition-[border-color,box-shadow] duration-300
+         ${highlight ? "border-warning-500 shadow-[0_0_32px_6px] shadow-warning-500/60" : "border-black"}
+         ${className}`}
+@@ -41,8 +44,19 @@ export default function ScoreMonitor({
+           paintOrder: "stroke fill",
+         }}
+       >
+-        {t("number", { count: points })}
++        {t("number", { count: shown })}
+       </span>
++      {/* "+N" flourish lives outside the id'd number so its text stays the plain score. */}
++      {delta && (
++        <span
++          key={delta.id}
++          aria-hidden
++          className="score-delta pointer-events-none absolute -top-2 right-2 rounded-full bg-warning-500 px-3 font-bold tabular-nums text-black shadow-lg"
++          style={{ fontSize: "28cqh" }}
++        >
++          +{t("number", { count: delta.amount })}
++        </span>
++      )}
+     </div>
+   );
+ }
+diff --git a/src/global.css b/src/global.css
+index f4665ee..ca6bc67 100644
+--- a/src/global.css
++++ b/src/global.css
+@@ -60,3 +60,44 @@ body.game-screen.chromaKey,
+     opacity: 1;
+   }
+ }
++
++/* Score "+N" flourish (ScoreMonitor). Reduced motion: fade only, no movement. */
++.score-delta {
++  animation: score-delta 1.8s ease-out both;
++}
++
++@keyframes score-delta {
++  0% {
++    opacity: 0;
++    transform: translateY(12px) scale(0.8);
++  }
++  15% {
++    opacity: 1;
++    transform: translateY(0) scale(1.05);
++  }
++  75% {
++    opacity: 1;
++    transform: translateY(-6px) scale(1);
++  }
++  100% {
++    opacity: 0;
++    transform: translateY(-24px) scale(1);
++  }
++}
++
++@keyframes score-delta-fade {
++  0%,
++  100% {
++    opacity: 0;
++  }
++  10%,
++  80% {
++    opacity: 1;
++  }
++}
++
++@media (prefers-reduced-motion: reduce) {
++  .score-delta {
++    animation-name: score-delta-fade;
++  }
++}
+diff --git a/src/lib/hooks/useCountUp.ts b/src/lib/hooks/useCountUp.ts
+new file mode 100644
+index 0000000..d581252
+--- /dev/null
++++ b/src/lib/hooks/useCountUp.ts
+@@ -0,0 +1,63 @@
++import { useEffect, useRef, useState } from "react";
++
++export function prefersReducedMotion(): boolean {
++  return typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
++}
++
++/**
++ * Animates a number towards `target` (ease-out). Jumps straight to the value when
++ * the user prefers reduced motion. A timeout guarantees the final value even when
++ * requestAnimationFrame is paused (e.g. the game window is in a background tab).
++ */
++export function useCountUp(target: number, durationMs = 700): number {
++  const [display, setDisplay] = useState(target);
++  const currentRef = useRef(target);
++
++  useEffect(() => {
++    const from = currentRef.current;
++    if (from === target || prefersReducedMotion()) {
++      currentRef.current = target;
++      setDisplay(target);
++      return;
++    }
++    const start = performance.now();
++    let frame = 0;
++    const step = (now: number) => {
++      const progress = Math.min(1, (now - start) / durationMs);
++      const eased = 1 - Math.pow(1 - progress, 3);
++      const value = Math.round(from + (target - from) * eased);
++      currentRef.current = value;
++      setDisplay(value);
++      if (progress < 1) frame = requestAnimationFrame(step);
++    };
++    frame = requestAnimationFrame(step);
++    const settle = setTimeout(() => {
++      currentRef.current = target;
++      setDisplay(target);
++    }, durationMs + 50);
++    return () => {
++      cancelAnimationFrame(frame);
++      clearTimeout(settle);
++    };
++  }, [target, durationMs]);
++
++  return display;
++}
++
++/** Positive change of `value` since the previous render, shown for `visibleMs` (null otherwise). */
++export function usePositiveDelta(value: number, visibleMs = 1800): { amount: number; id: number } | null {
++  const previousRef = useRef(value);
++  const [delta, setDelta] = useState<{ amount: number; id: number } | null>(null);
++
++  useEffect(() => {
++    const previous = previousRef.current;
++    previousRef.current = value;
++    if (value <= previous) return;
++    const next = { amount: value - previous, id: Date.now() };
++    setDelta(next);
++    const timer = setTimeout(() => setDelta((d) => (d?.id === next.id ? null : d)), visibleMs);
++    return () => clearTimeout(timer);
++  }, [value, visibleMs]);
++
++  return delta;
++}
+-- 
+2.47.3
+

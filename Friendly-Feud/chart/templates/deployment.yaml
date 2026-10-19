@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-dot-env
+data:
+  .env: |
+    NEXT_PUBLIC_APP_VERSION={{ .Values.frontend.tag | default .Chart.AppVersion }}
+    {{- range $val := .Values.frontend.env }}
+    {{ $val.name }}={{ $val.value | quote }}
+    {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "famf.fullname" . }}
+  labels:
+    {{- include "famf.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "famf.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "famf.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.volumes }}
+      volumes:
+        - name: frontend-dot-env
+          configMap:
+            name: frontend-dot-env
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: frontend
+          securityContext:
+            {{- toYaml .Values.frontend.securityContext | nindent 12 }}
+          image: "{{ .Values.frontend.repository }}:{{ .Values.frontend.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.frontend.pullPolicy }}
+          ports:
+            - name: fhttp
+              containerPort: {{ .Values.frontend.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: fhttp
+          readinessProbe:
+            httpGet:
+              path: /
+              port: fhttp
+          {{- with .Values.backend.volumeMounts }}
+          volumeMounts:
+            - name: frontend-dot-env
+              mountPath: /app/.env
+              subPath: .env
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+        - name: backend
+          securityContext:
+            {{- toYaml .Values.backend.securityContext | nindent 12 }}
+          image: "{{ .Values.backend.repository }}:{{ .Values.backend.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.backend.pullPolicy }}
+          ports:
+            - name: bhttp
+              containerPort: {{ .Values.backend.service.port }}
+              protocol: TCP
+          {{- with .Values.backend.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: bhttp
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: bhttp
+          {{- with .Values.backend.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

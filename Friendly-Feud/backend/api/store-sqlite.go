@@ -1,0 +1,207 @@
+package api
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"sync"
+	"time"
+
+	"gorm.io/datatypes"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+)
+
+type SQLiteStore struct {
+	// Keep game data in storage
+	db    *gorm.DB
+	rooms map[string]roomConnections
+	mu    sync.RWMutex
+}
+
+type Room struct {
+	gorm.Model
+	RoomCode     string `gorm:"primaryKey"`
+	HostPassword string
+	RoomJson     datatypes.JSON
+	RoomIcon     []byte
+	TitleMusic   []byte
+}
+
+func NewSQLiteStore() (*SQLiteStore, GameError) {
+	storePath := "famf.db"
+	if envPath := os.Getenv("GAME_STORE_SQLITE_PATH"); envPath != "" {
+		storePath = envPath
+	}
+	log.Println("Using sqlite store path", storePath)
+	db, err := gorm.Open(sqlite.Open(storePath), &gorm.Config{})
+	if err != nil {
+		return &SQLiteStore{}, GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}
+	}
+	db.AutoMigrate(&Room{})
+	s := &SQLiteStore{
+		db:    db,
+		rooms: make(map[string]roomConnections),
+	}
+	go s.sweepStaleRooms()
+	return s, GameError{}
+}
+
+func (s *SQLiteStore) currentRooms() []string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	roomList := make([]string, 0, len(s.rooms))
+	for code := range s.rooms {
+		roomList = append(roomList, code)
+	}
+	return roomList
+}
+
+func (s *SQLiteStore) getRoom(client *Client, roomCode string) (room, GameError) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var foundRoomDB Room
+
+	if err := s.db.Where("room_code = ?", roomCode).First(&foundRoomDB).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return room{}, GameError{code: ROOM_NOT_FOUND}
+	}
+	_, ok := s.rooms[roomCode]
+
+	// Reattach to the game creating a new hub
+	if !ok && roomCode != "" {
+		log.Println("getRoom recreating roomConnections map")
+		initRoom := InitalizeRoom(client, roomCode)
+		s.rooms[roomCode] = initRoom.roomConnections
+	}
+
+	foundRoom := s.rooms[roomCode]
+	foundRoom.ensureMu()
+	retrievedRoom := room{
+		HostPassword: foundRoomDB.HostPassword,
+		Game:         &game{},
+		roomConnections: roomConnections{
+			Hub:               foundRoom.Hub,
+			mu:                foundRoom.mu,
+			registeredClients: foundRoom.registeredClients,
+		},
+	}
+	json.Unmarshal(foundRoomDB.RoomJson, &retrievedRoom.Game)
+
+	return retrievedRoom, GameError{}
+}
+
+func (s *SQLiteStore) writeRoom(roomCode string, room room) GameError {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	room.ensureMu()
+	jsonData, err := json.Marshal(room.Game)
+	if err != nil {
+		return GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}
+	}
+	if err := s.db.Where("room_code = ?", roomCode).First(&Room{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		newRoom := Room{
+			RoomCode:     roomCode,
+			HostPassword: room.HostPassword,
+			RoomJson:     jsonData,
+		}
+		s.db.Create(&newRoom)
+		s.rooms[roomCode] = room.roomConnections
+		return GameError{}
+	}
+	s.db.Model(&Room{}).Where("room_code = ?", roomCode).Update("room_json", jsonData)
+	s.rooms[roomCode] = room.roomConnections
+	return GameError{}
+}
+
+func (s *SQLiteStore) deleteRoom(roomCode string) GameError {
+	log.Println("Try to delete room", roomCode)
+	s.db.Unscoped().Where("room_code = ?", roomCode).Delete(&Room{})
+	return GameError{}
+}
+
+func (s *SQLiteStore) saveLogo(roomCode string, logo []byte) GameError {
+	s.db.Model(&Room{}).Where("room_code = ?", roomCode).Update("room_icon", logo)
+	return GameError{}
+}
+
+func (s *SQLiteStore) loadLogo(roomCode string) ([]byte, GameError) {
+	var foundRoomDB Room
+
+	if err := s.db.Where("room_code = ?", roomCode).First(&foundRoomDB).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, GameError{code: SERVER_ERROR, message: "logo not found"}
+	}
+	return foundRoomDB.RoomIcon, GameError{}
+}
+
+func (s *SQLiteStore) deleteLogo(roomCode string) GameError {
+	s.db.Model(&Room{}).Where("room_code = ?", roomCode).Update("room_icon", nil)
+	return GameError{}
+}
+
+func (s *SQLiteStore) saveTitleMusic(roomCode string, audio []byte) GameError {
+	err := VerifyAudio(audio)
+	if err != nil {
+		if err.Error() == string(UNKNOWN_FILE_TYPE) {
+			return GameError{code: UNKNOWN_FILE_TYPE}
+		}
+		return GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}
+	}
+	s.db.Model(&Room{}).Where("room_code = ?", roomCode).Update("title_music", audio)
+	return GameError{}
+}
+
+func (s *SQLiteStore) loadTitleMusic(roomCode string) ([]byte, GameError) {
+	var foundRoomDB Room
+
+	if err := s.db.Where("room_code = ?", roomCode).First(&foundRoomDB).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, GameError{code: SERVER_ERROR, message: "title music not found"}
+	}
+	if len(foundRoomDB.TitleMusic) == 0 {
+		return nil, GameError{code: SERVER_ERROR, message: "title music not found"}
+	}
+	return foundRoomDB.TitleMusic, GameError{}
+}
+
+func (s *SQLiteStore) deleteTitleMusic(roomCode string) GameError {
+	s.db.Model(&Room{}).Where("room_code = ?", roomCode).Update("title_music", nil)
+	return GameError{}
+}
+
+func (s *SQLiteStore) sweepStaleRooms() {
+	// Clean up stale rooms on startup
+	s.deleteStaleRooms()
+
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+	for range ticker.C {
+		s.deleteStaleRooms()
+	}
+}
+
+func (s *SQLiteStore) deleteStaleRooms() {
+	timeout := time.Duration(cfg.roomTimeoutSeconds) * time.Second
+	cutoff := time.Now().UTC().Add(-timeout)
+	result := s.db.Unscoped().Where("updated_at < ?", cutoff).Delete(&Room{})
+	if result.RowsAffected > 0 {
+		log.Println("Swept", result.RowsAffected, "stale rooms older than", cutoff)
+	}
+}
+
+func (s *SQLiteStore) isHealthy() error {
+	sqlDB, err := s.db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get database instance: %v", err)
+	}
+
+	if err := sqlDB.Ping(); err != nil {
+		return fmt.Errorf("failed to ping database: %v", err)
+	}
+
+	if !s.db.Migrator().HasTable(&Room{}) {
+		return fmt.Errorf("rooms table does not exist")
+	}
+
+	return nil
+}

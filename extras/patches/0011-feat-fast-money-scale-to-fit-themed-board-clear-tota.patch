@@ -1,0 +1,756 @@
+From fe15205b8b4ebdab7926c600103438ea4f0b2d4c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:48:35 +0300
+Subject: [PATCH 11/18] feat(fast-money): scale-to-fit themed board, clear
+ total/timer, target setting, compact host rows
+
+- board is a fixed 1060px layout scaled to the screen like the main board and
+  uses the theme's fastm colours instead of hard-coded blue/black
+- timer and a large TOTAL box sit below the board (no overlap), with 'Target: N'
+- win threshold is a room setting (Settings.final_round_win_threshold, default 200)
+- host controls: one row per question (answer, pick, reveal, award, status)
+- awarding 'No answer' plays the try-again sound instead of flashing the strike X
+---
+ .../AdminSettings/FinalRoundWinThreshold.tsx  |  45 +++
+ src/components/Admin/AdminSettings/index.tsx  |   2 +
+ .../GameDisplay/FinalRoundButtonControls.tsx  | 346 ++++++++----------
+ .../GameDisplay/FinalRoundPointTotals.tsx     |   8 +-
+ src/components/Admin/GameDisplay/index.tsx    |  16 +-
+ src/components/FinalPage.tsx                  |  96 ++---
+ src/pages/game.tsx                            |   6 +-
+ 7 files changed, 274 insertions(+), 245 deletions(-)
+ create mode 100644 src/components/Admin/AdminSettings/FinalRoundWinThreshold.tsx
+
+diff --git a/src/components/Admin/AdminSettings/FinalRoundWinThreshold.tsx b/src/components/Admin/AdminSettings/FinalRoundWinThreshold.tsx
+new file mode 100644
+index 0000000..91436fe
+--- /dev/null
++++ b/src/components/Admin/AdminSettings/FinalRoundWinThreshold.tsx
+@@ -0,0 +1,45 @@
++import { DEFAULT_FINAL_ROUND_WIN_THRESHOLD, finalRoundWinThreshold } from "@/lib/scoring";
++import { Game, WSEvent } from "@/types/game";
++import { Dispatch, SetStateAction } from "react";
++import { useTranslation } from "react-i18next";
++import ToolTipIcon from "../../ui/tooltip";
++
++interface FinalRoundWinThresholdProps {
++  game: Game;
++  setGame: Dispatch<SetStateAction<Game | null>>;
++  send: (data: WSEvent) => void;
++}
++
++/** Fast money total needed for the win celebration (default 200). */
++export default function FinalRoundWinThreshold({ game, setGame, send }: FinalRoundWinThresholdProps) {
++  const { t } = useTranslation();
++
++  return (
++    <div className="flex flex-row items-center space-x-2">
++      <ToolTipIcon message={t("Fast money total needed to show the win celebration")} />
++      <label htmlFor="finalRoundWinThresholdInput" className="text-xl text-foreground">
++        {t("Fast money target")}:
++      </label>
++      <input
++        id="finalRoundWinThresholdInput"
++        type="number"
++        min="1"
++        className="w-24 rounded border-4 bg-secondary-500 p-1 text-xl tabular-nums text-foreground"
++        value={finalRoundWinThreshold(game)}
++        onChange={(e) => {
++          const parsed = parseInt(e.target.value, 10);
++          const value = Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_FINAL_ROUND_WIN_THRESHOLD;
++          setGame((prevGame) => {
++            if (prevGame === null) return prevGame;
++            const updatedGame = {
++              ...prevGame,
++              settings: { ...prevGame.settings, final_round_win_threshold: value },
++            };
++            send({ action: "data", data: updatedGame });
++            return updatedGame;
++          });
++        }}
++      />
++    </div>
++  );
++}
+diff --git a/src/components/Admin/AdminSettings/index.tsx b/src/components/Admin/AdminSettings/index.tsx
+index a7b0162..ce801ed 100644
+--- a/src/components/Admin/AdminSettings/index.tsx
++++ b/src/components/Admin/AdminSettings/index.tsx
+@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
+ import ToolTipIcon from "../../ui/tooltip";
+ import BuzzerSoundSettings from "./BuzzerSoundSettings";
+ import FinalRoundTitleChanger from "./FinalRoundTitleChanger";
++import FinalRoundWinThreshold from "./FinalRoundWinThreshold";
+ import SettingsCheckbox from "./SettingsCheckbox";
+ 
+ interface AdminSettingsProps {
+@@ -20,6 +21,7 @@ export default function AdminSettings({ game, setGame, send, hostPassword }: Adm
+       <div className="grid grid-cols-2 gap-x-48 gap-y-10">
+         <FinalRoundTitleChanger game={game} setGame={setGame} send={send} />
+         <BuzzerSoundSettings game={game} setGame={setGame} send={send} />
++        <FinalRoundWinThreshold game={game} setGame={setGame} send={send} />
+         <SettingsCheckbox
+           game={game}
+           setGame={setGame}
+diff --git a/src/components/Admin/GameDisplay/FinalRoundButtonControls.tsx b/src/components/Admin/GameDisplay/FinalRoundButtonControls.tsx
+index 743c146..2eb6dcd 100644
+--- a/src/components/Admin/GameDisplay/FinalRoundButtonControls.tsx
++++ b/src/components/Admin/GameDisplay/FinalRoundButtonControls.tsx
+@@ -1,5 +1,6 @@
++import { awardFinalAnswer, finalSelectionIndex } from "@/lib/scoring";
+ import { debounce } from "@/lib/utils";
+-import { Game, WSEvent } from "@/src/types/game";
++import { FinalRound, Game, WSEvent } from "@/src/types/game";
+ import { Dispatch, SetStateAction } from "react";
+ import { useTranslation } from "react-i18next";
+ 
+@@ -9,201 +10,162 @@ interface FinalRoundButtonControlsProps {
+   setGame: Dispatch<SetStateAction<Game | null>>;
+ }
+ 
++const CONTROL =
++  "rounded-lg border-2 border-secondary-700 bg-secondary-300 px-3 py-2 text-lg text-foreground placeholder:text-secondary-900";
++const BUTTON_BASE = "whitespace-nowrap rounded-lg border-2 px-3 py-2 text-lg font-semibold";
++const BUTTON = `${BUTTON_BASE} border-secondary-700 bg-secondary-300 text-foreground hover:bg-secondary-500`;
++const AWARD_BUTTON = `${BUTTON_BASE} border-primary-900 bg-primary-700 text-white hover:bg-primary-900`;
++
++/** Apply `update` to question `i` of whichever fast money half is active. */
++function updateActive(prev: Game, i: number, update: (round: FinalRound) => FinalRound): Game {
++  const apply = (rounds: FinalRound[]) => rounds.map((round, index) => (index === i ? update(round) : round));
++  return prev.is_final_second
++    ? { ...prev, final_round_2: apply(prev.final_round_2) }
++    : { ...prev, final_round: apply(prev.final_round) };
++}
++
++function Status({ round }: { round: FinalRound }) {
++  const { t } = useTranslation();
++  if (round.awarded) {
++    return round.points > 0 ? (
++      <span className="rounded-full bg-success-200 px-3 py-1 font-bold tabular-nums text-success-900">
++        ✓ {t("number", { count: round.points })}
++      </span>
++    ) : (
++      <span className="rounded-full bg-failure-200 px-3 py-1 font-bold text-failure-900">✗ 0</span>
++    );
++  }
++  if (round.revealed) {
++    return <span className="rounded-full bg-warning-200 px-3 py-1 text-sm text-black">{t("revealed")}</span>;
++  }
++  return <span className="px-3 py-1 text-secondary-900">—</span>;
++}
++
++/** One compact row per fast money question: answer, pick, reveal, award, status. */
+ export default function FinalRoundButtonControls({ game, send, setGame }: FinalRoundButtonControlsProps) {
+   const { t } = useTranslation();
+   const controlRound = game.is_final_second ? game.final_round_2 : game.final_round;
+-  return controlRound?.map((x, i) => (
+-    <div
+-      key={`${game.is_final_second ? "final-round-2" : "final-round-1"}-question-${i}`}
+-      className="flex flex-col space-y-5 border-2 p-12"
+-    >
+-      <p className="text-3xl font-bold text-foreground">{x.question}</p>
+-      {game.is_final_second && (
+-        <div className="flex flex-row space-x-5 pb-2">
+-          {/* PARTNER'S ANSWER PROVIDED FINAL ROUND */}
+-          <div className="w-48 grow p-5 align-middle text-3xl text-foreground">
+-            <i>{t("Partner's Answer")}</i>: {game.final_round[i].input || `(${t("No Answer")})`}
+-          </div>
+-          {game.final_round[i].input && (
+-            <button
+-              id={`alreadyAnswered${i}Button`}
+-              className="grow rounded border-4 bg-secondary-300 p-5 text-2xl text-foreground"
+-              onClick={() => send({ action: "duplicate" })}
+-            >
+-              {t("Already Answered")}
+-            </button>
+-          )}
+-        </div>
+-      )}
+-      <div className="flex flex-row space-x-5 pb-2">
+-        {/* ANSWER PROVIDED FINAL ROUND */}
+-        <input
+-          id={`finalRoundAnswer${i}Input`}
+-          className="w-48 grow rounded border-4 bg-secondary-300 p-5 text-2xl text-foreground placeholder:text-secondary-900"
+-          placeholder={t("Answer")}
+-          defaultValue={x.input}
+-          onChange={debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+-            const xInput = e.target.value;
+-            setGame((prevGame) => {
+-              if (prevGame === null) {
+-                return prevGame;
+-              }
+-
+-              const newValue = xInput;
+-              const propertyToUpdate = "input";
+-
+-              const updatedGame = {
+-                ...prevGame,
+-                final_round: prevGame.is_final_second
+-                  ? prevGame.final_round
+-                  : prevGame.final_round.map((round, index) =>
+-                      index === i ? { ...round, [propertyToUpdate]: newValue } : round
+-                    ),
+-                final_round_2: prevGame.is_final_second
+-                  ? prevGame.final_round_2.map((round, index) =>
+-                      index === i ? { ...round, [propertyToUpdate]: newValue } : round
++  if (!controlRound) return null;
++
++  const commit = (i: number, update: (round: FinalRound) => FinalRound, extra: WSEvent[] = []) => {
++    setGame((prevGame) => {
++      if (prevGame === null) return prevGame;
++      const updated = updateActive(prevGame, i, update);
++      send({ action: "data", data: updated });
++      extra.forEach(send);
++      return updated;
++    });
++  };
++
++  return (
++    <div className="rounded-xl border-2 border-secondary-500 p-4">
++      <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_auto_auto_5rem] items-center gap-x-3 gap-y-3">
++        <span className="text-sm uppercase tracking-wide text-secondary-900">{t("question")}</span>
++        <span className="text-sm uppercase tracking-wide text-secondary-900">{t("Answer")}</span>
++        <span className="text-sm uppercase tracking-wide text-secondary-900">{t("Award points")}</span>
++        <span />
++        <span />
++        <span className="text-sm uppercase tracking-wide text-secondary-900">{t("Status")}</span>
++
++        {controlRound.map((x, i) => {
++          const key = `${game.is_final_second ? "final-round-2" : "final-round-1"}-question-${i}`;
++          const partner = game.final_round[i];
++          return (
++            <div key={key} className="contents">
++              <div className="min-w-0 border-t border-secondary-500 pt-3">
++                <p className="line-clamp-2 text-base font-bold leading-snug text-foreground" title={x.question}>
++                  {x.question}
++                </p>
++                {game.is_final_second && (
++                  <p className="flex items-center gap-2 truncate text-sm text-secondary-900">
++                    <i>{t("Partner's Answer")}</i>: {partner?.input || `(${t("No Answer")})`}
++                    {partner?.input && (
++                      <button
++                        type="button"
++                        id={`alreadyAnswered${i}Button`}
++                        className="rounded border border-secondary-700 bg-secondary-300 px-2 text-xs text-foreground hover:bg-secondary-500"
++                        onClick={() => send({ action: "duplicate" })}
++                      >
++                        {t("Already Answered")}
++                      </button>
++                    )}
++                  </p>
++                )}
++              </div>
++              <div className="border-t border-secondary-500 pt-3">
++                <input
++                  id={`finalRoundAnswer${i}Input`}
++                  className={`${CONTROL} w-full`}
++                  placeholder={t("Answer")}
++                  defaultValue={x.input}
++                  onChange={debounce((e: React.ChangeEvent<HTMLInputElement>) => {
++                    const value = e.target.value;
++                    commit(i, (round) => ({ ...round, input: value }));
++                  })}
++                />
++              </div>
++              <div className="border-t border-secondary-500 pt-3">
++                <select
++                  id={`finalRoundAnswer${i}Selector`}
++                  value={finalSelectionIndex(x)}
++                  className={`${CONTROL} w-full`}
++                  onChange={(e) => {
++                    const selection = parseInt(e.target.value);
++                    // Negative encoding = chosen but not yet awarded (kept for compatibility).
++                    commit(i, (round) => ({ ...round, selection: -(selection + 1), awarded: false }));
++                  }}
++                >
++                  <option value={0}>({t("No Answer")}) 0</option>
++                  {x.answers.map((answer, index) => (
++                    <option key={`answers-${index}`} value={index + 1}>
++                      {answer[0]} {answer[1]}
++                    </option>
++                  ))}
++                </select>
++              </div>
++              <div className="border-t border-secondary-500 pt-3">
++                <button
++                  type="button"
++                  id={`finalRoundAnswer${i}RevealButton`}
++                  className={BUTTON}
++                  onClick={() =>
++                    commit(
++                      i,
++                      (round) =>
++                        // Legacy state used a non-negative selection before award; convert to pending.
++                        round.points === 0 && round.selection >= 0 && !round.awarded
++                          ? { ...round, revealed: true, selection: -(round.selection + 1) }
++                          : { ...round, revealed: true },
++                      [{ action: "final_reveal" }]
+                     )
+-                  : prevGame.final_round_2,
+-              };
+-
+-              send({ action: "data", data: updatedGame });
+-
+-              return updatedGame;
+-            });
+-          })}
+-        />
+-
+-        <button
+-          id={`finalRoundAnswer${i}RevealButton`}
+-          className="grow rounded border-4 bg-secondary-300 p-5 text-2xl text-foreground"
+-          onClick={() => {
+-            setGame((prevGame) => {
+-              if (prevGame === null) {
+-                return prevGame;
+-              }
+-
+-              const updateRoundOnReveal = (round: (typeof prevGame.final_round)[number], index: number) => {
+-                if (index !== i) return round;
+-
+-                // Legacy compatibility: old state used non-negative selection before award.
+-                // Convert to pending form so reveal does not immediately show 0 points.
+-                if (round.points === 0 && round.selection >= 0) {
+-                  return { ...round, revealed: true, selection: -(round.selection + 1) };
+-                }
+-
+-                return { ...round, revealed: true };
+-              };
+-
+-              const updatedGame = {
+-                ...prevGame,
+-                final_round: prevGame.is_final_second
+-                  ? prevGame.final_round
+-                  : prevGame.final_round.map(updateRoundOnReveal),
+-                final_round_2: prevGame.is_final_second
+-                  ? prevGame.final_round_2.map(updateRoundOnReveal)
+-                  : prevGame.final_round_2,
+-              };
+-
+-              send({ action: "data", data: updatedGame });
+-              send({ action: "final_reveal" });
+-
+-              return updatedGame;
+-            });
+-          }}
+-        >
+-          {t("Reveal Answer")}
+-        </button>
+-      </div>
+-      <div className="flex flex-row space-x-5">
+-        {/* POINTS AWARDED FINAL ROUND */}
+-        <select
+-          id={`finalRoundAnswer${i}Selector`}
+-          value={x.selection >= 0 ? x.selection : -x.selection - 1}
+-          className="w-48 grow rounded border-4 bg-secondary-300 p-5 text-2xl text-foreground"
+-          onChange={(e) => {
+-            const xSelection = parseInt(e.target.value);
+-            setGame((prevGame) => {
+-              if (prevGame === null) {
+-                return prevGame;
+-              }
+-
+-              const newValue = -(xSelection + 1);
+-              const propertyToUpdate = "selection";
+-
+-              const updatedGame = {
+-                ...prevGame,
+-                final_round: prevGame.is_final_second
+-                  ? prevGame.final_round
+-                  : prevGame.final_round.map((round, index) =>
+-                      index === i ? { ...round, [propertyToUpdate]: newValue } : round
+-                    ),
+-                final_round_2: prevGame.is_final_second
+-                  ? prevGame.final_round_2.map((round, index) =>
+-                      index === i ? { ...round, [propertyToUpdate]: newValue } : round
+-                    )
+-                  : prevGame.final_round_2,
+-              };
+-
+-              send({ action: "data", data: updatedGame });
+-
+-              return updatedGame;
+-            });
+-          }}
+-        >
+-          <option value={0}>({t("No Answer")}) 0</option>
+-          {x.answers.map((key, index) => (
+-            <option key={`answers-${key}`} value={index + 1}>
+-              {x.answers[index][0]} {x.answers[index][1]}
+-            </option>
+-          ))}
+-        </select>
+-
+-        <button
+-          className="grow rounded border-4 bg-secondary-300 p-5 text-2xl text-foreground"
+-          id={`finalRoundAnswers${i}SubmitButton`}
+-          onClick={() => {
+-            setGame((prevGame) => {
+-              if (prevGame === null) {
+-                return prevGame;
+-              }
+-
+-              const activeRounds = prevGame.is_final_second ? prevGame.final_round_2 : prevGame.final_round;
+-              const current = activeRounds[i];
+-              if (!current) {
+-                return prevGame;
+-              }
+-
+-              const effectiveSelection = current.selection >= 0 ? current.selection : -current.selection - 1;
+-              const selectedIndex = effectiveSelection - 1;
+-              const selectedAnswer = effectiveSelection !== 0 ? current.answers[selectedIndex] : null;
+-              const xPoints = selectedAnswer ? Number(selectedAnswer[1]) || 0 : 0;
+-
+-              const updatedGame = {
+-                ...prevGame,
+-                final_round: prevGame.is_final_second
+-                  ? prevGame.final_round
+-                  : prevGame.final_round.map((round, index) =>
+-                      index === i ? { ...round, points: xPoints, selection: effectiveSelection } : round
+-                    ),
+-                final_round_2: prevGame.is_final_second
+-                  ? prevGame.final_round_2.map((round, index) =>
+-                      index === i ? { ...round, points: xPoints, selection: effectiveSelection } : round
+-                    )
+-                  : prevGame.final_round_2,
+-              };
+-
+-              send({ action: "data", data: updatedGame });
+-              send({
+-                action: effectiveSelection !== 0 ? "final_submit" : "mistake",
+-              });
+-
+-              return updatedGame;
+-            });
+-          }}
+-        >
+-          {t("Award points")}
+-        </button>
++                  }
++                >
++                  {t("Reveal Answer")}
++                </button>
++              </div>
++              <div className="border-t border-secondary-500 pt-3">
++                <button
++                  type="button"
++                  id={`finalRoundAnswers${i}SubmitButton`}
++                  className={AWARD_BUTTON}
++                  onClick={() => {
++                    const index = finalSelectionIndex(x);
++                    // "No answer" plays the try-again sound instead of flashing the strike X.
++                    commit(i, (round) => awardFinalAnswer(round, finalSelectionIndex(round)), [
++                      { action: index > 0 ? "final_submit" : "final_wrong" },
++                    ]);
++                  }}
++                >
++                  {t("Award points")}
++                </button>
++              </div>
++              <div className="border-t border-secondary-500 pt-3" id={`finalRoundAnswer${i}Status`}>
++                <Status round={x} />
++              </div>
++            </div>
++          );
++        })}
+       </div>
+     </div>
+-  ));
++  );
+ }
+diff --git a/src/components/Admin/GameDisplay/FinalRoundPointTotals.tsx b/src/components/Admin/GameDisplay/FinalRoundPointTotals.tsx
+index e815422..8413b32 100644
+--- a/src/components/Admin/GameDisplay/FinalRoundPointTotals.tsx
++++ b/src/components/Admin/GameDisplay/FinalRoundPointTotals.tsx
+@@ -1,3 +1,4 @@
++import { finalRoundWinThreshold } from "@/lib/scoring";
+ import { FinalRound, Game } from "@/src/types/game";
+ import { useTranslation } from "react-i18next";
+ 
+@@ -19,7 +20,7 @@ function FinalRoundPointTotalsTextFunction({
+     (isFinalSecond && place === 1) || (!isFinalSecond && place === 0) ? "bg-primary-200" : "bg-secondary-300";
+   return (
+     <div
+-      className={`flex flex-row items-center space-x-2 rounded-3xl border-2 p-4 text-2xl text-foreground ${backgroundColor} text-foreground`}
++      className={`flex flex-row items-center space-x-2 rounded-3xl border-2 px-4 py-2 text-xl tabular-nums text-foreground ${backgroundColor}`}
+     >
+       <p id={`finalRoundPointTotal${place}TitleText`}>{t(title)}: </p>
+       <p id={`finalRoundPointTotal${place}TotalText`}>{total}</p>
+@@ -34,6 +35,7 @@ interface FinalRoundPointTotalsProps {
+ }
+ 
+ export default function FinalRoundPointTotals({ game }: FinalRoundPointTotalsProps) {
++  const { t } = useTranslation();
+   const roundOneTotal = calculateTotalPoints(game.final_round);
+   const roundTwoTotal = calculateTotalPoints(game.final_round_2);
+   return (
+@@ -56,6 +58,10 @@ export default function FinalRoundPointTotals({ game }: FinalRoundPointTotalsPro
+         isFinalSecond={game.is_final_second}
+         place={2}
+       />
++      <p id="finalRoundTargetAdminText" className="text-lg text-secondary-900">
++        {t("Target")}: {finalRoundWinThreshold(game)}
++        {roundOneTotal + roundTwoTotal >= finalRoundWinThreshold(game) ? ` · ${t("win")}` : ""}
++      </p>
+     </div>
+   );
+ }
+diff --git a/src/components/Admin/GameDisplay/index.tsx b/src/components/Admin/GameDisplay/index.tsx
+index 981af31..0475518 100644
+--- a/src/components/Admin/GameDisplay/index.tsx
++++ b/src/components/Admin/GameDisplay/index.tsx
+@@ -261,7 +261,7 @@ export default function GameDisplay({
+         <Players game={game} setGame={setGame} ws={ws} room={room} />
+         <div className="p-5">
+           {/* FINAL ROUND TEXT */}
+-          <h2 id="finalRoundNumberText" className="py-5 text-center text-6xl text-foreground">
++          <h2 id="finalRoundNumberText" className="py-3 text-center text-4xl text-foreground">
+             {t("Final Round")} {t("number", { count: game.is_final_second ? 2 : 1 })}
+           </h2>
+           <hr />
+@@ -270,7 +270,7 @@ export default function GameDisplay({
+             {!game.is_final_second ? (
+               <button
+                 id="startFinalRound2Button"
+-                className={`rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${timerStarted ? "opacity-50" : ""}`}
++                className={`rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500 ${timerStarted ? "opacity-50" : ""}`}
+                 disabled={timerStarted}
+                 onClick={() => {
+                   console.debug(game);
+@@ -293,7 +293,7 @@ export default function GameDisplay({
+                 {/* GO BACK TO FINAL ROUND 1 */}
+                 <button
+                   id="backToRound1FinalButton"
+-                  className={`rounded border-4 bg-secondary-300 p-5 text-3xl ${timerStarted ? "opacity-50" : ""}`}
++                  className={`rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg hover:bg-secondary-500 ${timerStarted ? "opacity-50" : ""}`}
+                   disabled={timerStarted}
+                   onClick={() => {
+                     game.is_final_round = true;
+@@ -316,7 +316,7 @@ export default function GameDisplay({
+                     {game.hide_first_round ? (
+                       <button
+                         id="revealFirstRoundFinalButton"
+-                        className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
++                        className="rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500"
+                         onClick={() => {
+                           game.hide_first_round = false;
+                           // @ts-expect-error: need a better way to update these values
+@@ -330,7 +330,7 @@ export default function GameDisplay({
+                       // HIDE FIRST ROUND ANSWERS
+                       <button
+                         id="hideFirstRoundAnswersButton"
+-                        className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
++                        className="rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500"
+                         onClick={() => {
+                           game.hide_first_round = true;
+                           // @ts-expect-error: need a better way to update these values
+@@ -350,7 +350,7 @@ export default function GameDisplay({
+                 /* START TIMER */
+                 <button
+                   id="startTimerButton"
+-                  className={`rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${timerCompleted ? "opacity-50" : ""}`}
++                  className={`rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500 ${timerCompleted ? "opacity-50" : ""}`}
+                   disabled={timerCompleted}
+                   onClick={() => {
+                     if (game.is_final_second) {
+@@ -374,7 +374,7 @@ export default function GameDisplay({
+                 /* STOP TIMER */
+                 <button
+                   id="stopTimerButton"
+-                  className="rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground"
++                  className="rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500"
+                   onClick={() => {
+                     send({ action: "stop_timer" });
+                     setTimerStarted(false);
+@@ -384,7 +384,7 @@ export default function GameDisplay({
+                 </button>
+               )}
+               <button
+-                className={`ml-2 rounded border-4 bg-secondary-300 p-5 text-3xl text-foreground ${!timerStarted ? "" : "opacity-50"}`}
++                className={`ml-2 rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500 ${!timerStarted ? "" : "opacity-50"}`}
+                 disabled={timerStarted}
+                 id="resetTimerButton"
+                 onClick={() => {
+diff --git a/src/components/FinalPage.tsx b/src/components/FinalPage.tsx
+index 2a82760..76851e6 100644
+--- a/src/components/FinalPage.tsx
++++ b/src/components/FinalPage.tsx
+@@ -1,3 +1,5 @@
++import { useCountUp } from "@/lib/hooks/useCountUp";
++import { finalRoundTotal, finalRoundWinThreshold, isFinalRoundWin } from "@/lib/scoring";
+ import { FinalRound, Game } from "@/types/game";
+ import { useEffect, useRef } from "react";
+ import { useTranslation } from "react-i18next";
+@@ -20,14 +22,14 @@ function Answers({ round, finalRoundNumber }: AnswersProps) {
+       }}
+     >
+       <div
+-        className="relative flex min-w-0 grow items-center overflow-hidden border-2 bg-black px-4 uppercase"
++        className="relative flex min-w-0 grow items-center overflow-hidden border-2 border-fastm-text/40 bg-fastm-background px-4 uppercase"
+         style={{ minHeight: 80 }}
+       >
+         {x.revealed && (
+           <div className="final-reveal w-full" style={{ animationDelay: `${i * 60}ms` }}>
+             <p
+               id={`finalRound${finalRoundNumber}Answer${i}Text`}
+-              className="w-full truncate text-left text-5xl font-bold leading-none text-white"
++              className="w-full truncate text-left text-5xl font-bold leading-none text-fastm-text"
+               style={{ textShadow: TEXT_SHADOW }}
+             >
+               {x.input}
+@@ -36,7 +38,7 @@ function Answers({ round, finalRoundNumber }: AnswersProps) {
+         )}
+       </div>
+       <div
+-        className="flex w-24 shrink-0 items-center justify-center border-2  bg-black font-extrabold uppercase text-white"
++        className="flex w-24 shrink-0 items-center justify-center border-2 border-fastm-text/40 bg-fastm-background font-extrabold uppercase tabular-nums text-fastm-text"
+         style={{ textShadow: TEXT_SHADOW }}
+       >
+         {x.revealed && x.selection >= 0 && (
+@@ -61,9 +63,11 @@ interface FinalPageProps {
+ export default function FinalPage({ game, timer }: FinalPageProps) {
+   const { t } = useTranslation();
+   const hasConfettiRef = useRef(false);
+-  const total = [...game.final_round, ...game.final_round_2].reduce((sum, round) => sum + round.points, 0);
++  const total = finalRoundTotal(game);
++  const shownTotal = useCountUp(total);
++  const target = finalRoundWinThreshold(game);
+   const showFirstRound = !game.hide_first_round;
+-  const showWin = total >= 200;
++  const showWin = isFinalRoundWin(game);
+ 
+   const emptyFinalRound: FinalRound = {
+     answers: [],
+@@ -108,11 +112,12 @@ export default function FinalPage({ game, timer }: FinalPageProps) {
+     };
+   }, [showWin]);
+ 
++  // Fixed 1060px layout; the game window scales it to fit the screen (ScaleToFit).
+   return (
+-    <div className="font-oswald flex w-full flex-col items-center gap-5">
+-      <div className="relative w-full max-w-[1060px]">
++    <div className="font-oswald flex w-[1060px] flex-col items-center gap-5">
++      <div className="relative w-full">
+         <svg
+-          className="absolute inset-x-0 top-4 h-24 w-full text-blue-900"
++          className="absolute inset-x-0 top-4 h-24 w-full text-fastm-holder"
+           viewBox="0 0 1000 200"
+           preserveAspectRatio="none"
+           aria-hidden="true"
+@@ -122,53 +127,62 @@ export default function FinalPage({ game, timer }: FinalPageProps) {
+             fill="currentColor"
+           />
+         </svg>
+-        <div className="relative flex items-center top-2 justify-center pt-12 text-center">
+-          <p id="finalRoundTitle" className="text-4xl font-bold uppercase text-white">
++        <div className="relative top-2 flex items-center justify-center pt-12 text-center">
++          <p id="finalRoundTitle" className="text-4xl font-bold uppercase text-fastm-text">
+             {game.settings.final_round_title || t("Fast Money")}
+           </p>
+         </div>
+       </div>
+ 
+-      <div className="relative w-full max-w-[1060px] overflow-hidden rounded-2xl bg-blue-900 px-5 pb-6 pt-8">
+-        <div className={`grid gap-4 lg:grid-cols-2`}>
+-          {showFirstRound ? (
+-            <div className="grid min-w-0 gap-3 lg:grid-flow-row">
+-              <Answers finalRoundNumber={1} round={game.final_round} />
+-            </div>
+-          ) : (
+-            <div className="grid min-w-0 gap-3 lg:grid-flow-row">
+-              <Answers finalRoundNumber={1} round={emptyFinalRounds} />
+-            </div>
+-          )}
+-
+-          <div className="grid min-w-0 gap-3 lg:grid-flow-row">
+-            <Answers finalRoundNumber={2} round={game.final_round_2} />
++      <div className="relative w-full overflow-hidden rounded-2xl bg-fastm-holder px-5 pb-6 pt-8">
++        <div className="grid grid-cols-2 gap-4">
++          <div className="grid min-w-0 gap-3">
++            <Answers finalRoundNumber={1} round={showFirstRound ? game.final_round : emptyFinalRounds} />
+           </div>
+-        </div>
+-        <div className="mt-6 w-full max-w-[1060px] items-center">
+-          <div className="flex h-14 w-56 items-center justify-center justify-self-end rounded-lg border-2 bg-black px-5 py-2 text-white">
+-            <p
+-              id="finalRoundTotalPointsText"
+-              className="text-4xl font-bold uppercase"
+-              style={{ textShadow: TEXT_SHADOW }}
+-            >
+-              {t("total")} {t("number", { count: total })}
+-            </p>
++          <div className="grid min-w-0 gap-3">
++            <Answers finalRoundNumber={2} round={game.final_round_2} />
+           </div>
+         </div>
+       </div>
+ 
+-      {/* TIMER */}
+-      <div className="relative bottom-16 flex h-24 w-24 items-center justify-center justify-self-center rounded-full border-4 bg-blue-900 text-white">
+-        <p id="finalRoundTimerLabel" className="text-5xl font-bold uppercase" style={{ textShadow: TEXT_SHADOW }}>
+-          <span id="finalRoundTimerValue">{t("number", { count: timer })}</span>
+-        </p>
++      {/* Timer and total sit below the board so nothing overlaps the answers. */}
++      <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-6">
++        <div />
++        <div
++          className="flex size-28 items-center justify-center rounded-full border-4 border-fastm-text bg-fastm-holder text-fastm-text"
++          aria-label={t("timer")}
++        >
++          <p
++            id="finalRoundTimerLabel"
++            className="text-6xl font-bold uppercase tabular-nums"
++            style={{ textShadow: TEXT_SHADOW }}
++          >
++            <span id="finalRoundTimerValue">{t("number", { count: timer })}</span>
++          </p>
++        </div>
++        <div className="flex flex-col items-end gap-1">
++          <div
++            className={`flex items-baseline gap-4 rounded-xl border-4 px-6 py-2 ${
++              showWin
++                ? "border-warning-500 bg-warning-500 text-black"
++                : "border-fastm-text bg-fastm-background text-fastm-text"
++            }`}
++          >
++            <span className="text-3xl font-bold uppercase tracking-widest">{t("total")}</span>
++            <span id="finalRoundTotalPointsText" className="text-7xl font-bold tabular-nums leading-none">
++              {t("number", { count: shownTotal })}
++            </span>
++          </div>
++          <span id="finalRoundTargetText" className="text-xl uppercase tracking-widest text-foreground opacity-80">
++            {t("Target")}: {t("number", { count: target })}
++          </span>
++        </div>
+       </div>
+ 
+       {/* WIN TEXT */}
+-      <div className="text-center">
++      <div className="h-24 text-center">
+         {showWin ? (
+-          <p id="finalRoundWinText" className="text-7xl font-bold uppercase leading-none text-foreground">
++          <p id="finalRoundWinText" className="text-8xl font-bold uppercase leading-none text-foreground">
+             {t("win")}
+           </p>
+         ) : null}
+diff --git a/src/pages/game.tsx b/src/pages/game.tsx
+index 94ba347..b7b107e 100644
+--- a/src/pages/game.tsx
++++ b/src/pages/game.tsx
+@@ -335,10 +335,10 @@ export default function GamePage() {
+       gameSession = <TitlePage game={game} />;
+     } else if (game.is_final_round) {
+       gameSession = (
+-        <div className="flex w-full justify-center">
+-          <div className="flex w-11/12 flex-col space-y-6 py-20 sm:w-11/12 sm:px-8 md:w-4/6 lg:w-5/6">
++        <div className="h-screen w-screen p-[2vw]">
++          <ScaleToFit contain className="flex h-full w-full items-center justify-center">
+             <FinalPage game={game} timer={timer} />
+-          </div>
++          </ScaleToFit>
+         </div>
+       );
+     } else {
+-- 
+2.47.3
+

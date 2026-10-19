@@ -1,0 +1,59 @@
+From e1dbd3402b527b8856674cd7d621cc7b02091519 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:43:34 +0300
+Subject: [PATCH 07/18] feat(board): three-slot strike tracker under each team
+
+Strikes render as 3 fixed slots (filled X / dashed empty) instead of a variable
+row of small icons, so the count is readable from across the room.
+---
+ src/components/TeamName.tsx | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
+
+diff --git a/src/components/TeamName.tsx b/src/components/TeamName.tsx
+index e65b1d3..a71eb1a 100644
+--- a/src/components/TeamName.tsx
++++ b/src/components/TeamName.tsx
+@@ -1,6 +1,6 @@
+ import FitText from "@/components/FitText";
+ import ScoreMonitor from "@/components/ScoreMonitor";
+-import { firstBuzzTeam, isAwarded, stealTeam } from "@/lib/scoring";
++import { firstBuzzTeam, isAwarded, MAX_STRIKES, stealTeam } from "@/lib/scoring";
+ import { teamColors } from "@/lib/utils/team-colors";
+ import { Game } from "@/types/game";
+ import Image from "next/image";
+@@ -60,12 +60,26 @@ export default function TeamName({ team, game, size = "tv" }: TeamNameProps) {
+         )}
+       </div>
+ 
+-      <div id={`team${team}MistakesList`} className={`flex ${tv ? "h-16" : "h-8"} space-x-1`}>
+-        {Array.from({ length: teamData.mistakes }, (_, i) => (
+-          <div key={`mistake-${i}-${team}`} className="h-full">
+-            <Image width={100} height={100} src="/x.svg" alt="Team Mistake Indicator" className="h-full w-auto" />
+-          </div>
+-        ))}
++      {/* Three fixed slots so "2 of 3" is readable at a glance. Filled strikes are <div>s
++          (the e2e tests count them); empty slots are <span>s. */}
++      <div
++        id={`team${team}MistakesList`}
++        className={`flex ${tv ? "h-16 gap-2" : "h-8 gap-1"}`}
++        role="img"
++        aria-label={t("Strikes {{count}} of {{max}}", { count: teamData.mistakes, max: MAX_STRIKES })}
++      >
++        {Array.from({ length: MAX_STRIKES }, (_, i) =>
++          i < teamData.mistakes ? (
++            <div key={`mistake-${i}-${team}`} className="aspect-square h-full">
++              <Image width={100} height={100} src="/x.svg" alt="" className="size-full" />
++            </div>
++          ) : (
++            <span
++              key={`slot-${i}-${team}`}
++              className={`block aspect-square h-full rounded-lg border-dashed border-foreground/30 ${tv ? "border-4" : "border-2"}`}
++            />
++          )
++        )}
+       </div>
+     </div>
+   );
+-- 
+2.47.3
+

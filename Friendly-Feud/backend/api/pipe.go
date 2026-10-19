@@ -1,0 +1,89 @@
+package api
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Event struct {
+	// Main decider in function
+	Action string `json:"action"`
+
+	// supplemental fields
+	File         string `json:"file"`
+	Lang         string `json:"lang"`
+	Data         any    `json:"data"`
+	LogoData     string `json:"logoData"`
+	AudioData    string `json:"audioData"`
+	Room         string `json:"room"`
+	Name         string `json:"name"`
+	Host         bool   `json:"host"`
+	ID           string `json:"id"`
+	HostPassword string `json:"hostPassword"`
+	Session      string `json:"session"`
+	Team         *int   `json:"team"`
+	MimeType     string `json:"mimetype"`
+}
+
+type ActionFunc func(*Client, *Event) GameError
+
+// Actions can be done by player and host
+var recieveActions = map[string]ActionFunc{
+	"buzz":              Buzz,
+	"game_window":       GameWindow,
+	"get_back_in":       GetBackIn,
+	"host_room":         HostRoom,
+	"join_room":         JoinRoom,
+	"pong":              Pong,
+	"quit":              Quit,
+	"registerbuzz":      RegisterBuzzer,
+	"registerspectator": RegisterSpectator,
+}
+
+// Actions that require a host password
+var hostRecieveActions = map[string]ActionFunc{
+	"data":                   NewData,
+	"change_lang":            ChangeLanguage,
+	"del_logo_upload":        DeleteLogoUpload,
+	"del_title_music_upload": DeleteTitleMusicUpload,
+	"logo_upload":            LogoUpload,
+	"title_music_upload":     TitleMusicUpload,
+	"register_buzzer_screen": RegisterBuzzerScreen,
+	"buzzer_screen_buzz":     BuzzerScreenBuzz,
+	"load_game":              LoadGame,
+	"clearbuzzers":           ClearBuzzers,
+}
+
+func parseEvent(message []byte) (*Event, error) {
+	var event *Event
+	err := json.Unmarshal(message, &event)
+	if err != nil {
+		return nil, err
+	}
+	return event, nil
+}
+
+func EventPipe(client *Client, message []byte) GameError {
+	event, err := parseEvent(message)
+	if err != nil {
+		return GameError{code: PARSE_ERROR, message: fmt.Sprint(err)}
+	}
+	if event.Action != "" {
+		if event.Action != "pong" && event.Action != "buzz" {
+			setTick(client, event)
+		}
+		action, ok := recieveActions[event.Action]
+		if ok {
+			return action(client, event)
+		}
+		action, ok = hostRecieveActions[event.Action]
+		if ok {
+			return HostPasswordHandler(client, event, action)
+		}
+		// Catch-all for generic host display messages (reveal, mistake, timers,
+		// final_reveal, duplicate, title music, timer_complete). These are
+		// broadcast verbatim to every client, so they are host-only.
+		return HostPasswordHandler(client, event, SendUnknown)
+	}
+	return GameError{}
+}

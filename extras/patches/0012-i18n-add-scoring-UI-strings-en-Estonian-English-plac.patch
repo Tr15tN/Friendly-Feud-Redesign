@@ -1,0 +1,312 @@
+From 372461821f3325707c8810551a4cfed44ee14ec3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:49:24 +0300
+Subject: [PATCH 12/18] i18n: add scoring UI strings (en + Estonian; English
+ placeholders for es/fr/id)
+
+---
+ public/locales/en/translation.json | 50 +++++++++++++++++++++++++++++-
+ public/locales/es/translation.json | 50 +++++++++++++++++++++++++++++-
+ public/locales/et/translation.json | 50 +++++++++++++++++++++++++++++-
+ public/locales/fr/translation.json | 50 +++++++++++++++++++++++++++++-
+ public/locales/id/translation.json | 50 +++++++++++++++++++++++++++++-
+ 5 files changed, 245 insertions(+), 5 deletions(-)
+
+diff --git a/public/locales/en/translation.json b/public/locales/en/translation.json
+index 9a75bac..24d52df 100644
+--- a/public/locales/en/translation.json
++++ b/public/locales/en/translation.json
+@@ -161,5 +161,53 @@
+     "unauthenticated": "Invalid authentication.",
+     "room_creation_paused": "New room creation is paused.",
+     "title_music_playback_error": "The game window needs a click before audio can start. Click the game window once, then press play again."
+-  }
++  },
++  "Adjusted {{team}} by {{amount}}": "Adjusted {{team}} by {{amount}}",
++  "Award {{points}} to {{team}}": "Award {{points}} to {{team}}",
++  "Awarded {{points}} to {{team}}": "Awarded {{points}} to {{team}}",
++  "Awarding locks the pot; leftover reveals won't change it.": "Awarding locks the pot; leftover reveals won't change it.",
++  "Bank the pot": "Bank the pot",
++  "Banked": "Banked",
++  "Banked by {{team}}": "Banked by {{team}}",
++  "Buzz-in X (no strike)": "Buzz-in X (no strike)",
++  "Click again to confirm": "Click again to confirm",
++  "Click an answer to reveal it on the board.": "Click an answer to reveal it on the board.",
++  "Double": "Double",
++  "Fast money target": "Fast money target",
++  "Fast money total needed to show the win celebration": "Fast money total needed to show the win celebration",
++  "Hid {{answer}}": "Hid {{answer}}",
++  "In control": "In control",
++  "Keys 1–8 toggle answers.": "Keys 1–8 toggle answers.",
++  "Last action": "Last action",
++  "Manual adjust": "Manual adjust",
++  "Multiplier set to x{{count}}": "Multiplier set to x{{count}}",
++  "Next Round starts a fresh pot.": "Next Round starts a fresh pot.",
++  "Nothing to undo": "Nothing to undo",
++  "Pot": "Pot",
++  "Pot banked": "Pot banked",
++  "Removed a strike from {{team}}": "Removed a strike from {{team}}",
++  "Revealed {{answer}}": "Revealed {{answer}}",
++  "Round awarded: further reveals are not scored.": "Round awarded: further reveals are not scored.",
++  "Round pot": "Round pot",
++  "Shows the big X on screen without adding a strike": "Shows the big X on screen without adding a strike",
++  "Status": "Status",
++  "Steal!": "Steal!",
++  "Strike for {{team}}": "Strike for {{team}}",
++  "Strikes": "Strikes",
++  "Strikes {{count}} of {{max}}": "Strikes {{count}} of {{max}}",
++  "Target": "Target",
++  "Titles, teams & settings": "Titles, teams & settings",
++  "Triple": "Triple",
++  "Undid: {{action}}": "Undid: {{action}}",
++  "Undo": "Undo",
++  "Undo: {{action}}": "Undo: {{action}}",
++  "banked": "banked",
++  "buzzed first": "buzzed first",
++  "not scored": "not scored",
++  "revealed": "revealed",
++  "strike": "strike",
++  "{{team}} banked {{points}}": "{{team}} banked {{points}}",
++  "{{team}} can steal: award the pot to whoever wins it.": "{{team}} can steal: award the pot to whoever wins it.",
++  "{{team}} has 3 strikes.": "{{team}} has 3 strikes.",
++  "×{{count}} points": "×{{count}} points"
+ }
+diff --git a/public/locales/es/translation.json b/public/locales/es/translation.json
+index 60202ca..3b40580 100644
+--- a/public/locales/es/translation.json
++++ b/public/locales/es/translation.json
+@@ -135,5 +135,53 @@
+     "missing_input": "Por favor complete el campo {{message}}",
+     "title_music_playback_error": "Haz clic una vez en la ventana del juego para permitir el audio y luego presiona reproducir de nuevo.",
+     "room_creation_paused": "La creación de nuevas salas está en pausa."
+-  }
++  },
++  "Adjusted {{team}} by {{amount}}": "Adjusted {{team}} by {{amount}}",
++  "Award {{points}} to {{team}}": "Award {{points}} to {{team}}",
++  "Awarded {{points}} to {{team}}": "Awarded {{points}} to {{team}}",
++  "Awarding locks the pot; leftover reveals won't change it.": "Awarding locks the pot; leftover reveals won't change it.",
++  "Bank the pot": "Bank the pot",
++  "Banked": "Banked",
++  "Banked by {{team}}": "Banked by {{team}}",
++  "Buzz-in X (no strike)": "Buzz-in X (no strike)",
++  "Click again to confirm": "Click again to confirm",
++  "Click an answer to reveal it on the board.": "Click an answer to reveal it on the board.",
++  "Double": "Double",
++  "Fast money target": "Fast money target",
++  "Fast money total needed to show the win celebration": "Fast money total needed to show the win celebration",
++  "Hid {{answer}}": "Hid {{answer}}",
++  "In control": "In control",
++  "Keys 1–8 toggle answers.": "Keys 1–8 toggle answers.",
++  "Last action": "Last action",
++  "Manual adjust": "Manual adjust",
++  "Multiplier set to x{{count}}": "Multiplier set to x{{count}}",
++  "Next Round starts a fresh pot.": "Next Round starts a fresh pot.",
++  "Nothing to undo": "Nothing to undo",
++  "Pot": "Pot",
++  "Pot banked": "Pot banked",
++  "Removed a strike from {{team}}": "Removed a strike from {{team}}",
++  "Revealed {{answer}}": "Revealed {{answer}}",
++  "Round awarded: further reveals are not scored.": "Round awarded: further reveals are not scored.",
++  "Round pot": "Round pot",
++  "Shows the big X on screen without adding a strike": "Shows the big X on screen without adding a strike",
++  "Status": "Status",
++  "Steal!": "Steal!",
++  "Strike for {{team}}": "Strike for {{team}}",
++  "Strikes": "Strikes",
++  "Strikes {{count}} of {{max}}": "Strikes {{count}} of {{max}}",
++  "Target": "Target",
++  "Titles, teams & settings": "Titles, teams & settings",
++  "Triple": "Triple",
++  "Undid: {{action}}": "Undid: {{action}}",
++  "Undo": "Undo",
++  "Undo: {{action}}": "Undo: {{action}}",
++  "banked": "banked",
++  "buzzed first": "buzzed first",
++  "not scored": "not scored",
++  "revealed": "revealed",
++  "strike": "strike",
++  "{{team}} banked {{points}}": "{{team}} banked {{points}}",
++  "{{team}} can steal: award the pot to whoever wins it.": "{{team}} can steal: award the pot to whoever wins it.",
++  "{{team}} has 3 strikes.": "{{team}} has 3 strikes.",
++  "×{{count}} points": "×{{count}} points"
+ }
+diff --git a/public/locales/et/translation.json b/public/locales/et/translation.json
+index a5455bc..6e1a663 100644
+--- a/public/locales/et/translation.json
++++ b/public/locales/et/translation.json
+@@ -159,5 +159,53 @@
+     "forbidden": "Te ei tohi seda toimingut teha.",
+     "title_music_playback_error": "Heli lubamiseks klõpsa korra mänguaknal, seejärel vajuta uuesti mängi.",
+     "room_creation_paused": "Uute mängude loomine on peatatud."
+-  }
++  },
++  "Adjusted {{team}} by {{amount}}": "Muudetud: {{team}} {{amount}}",
++  "Award {{points}} to {{team}}": "Anna {{points}} punkti: {{team}}",
++  "Awarded {{points}} to {{team}}": "{{team}} sai {{points}} punkti",
++  "Awarding locks the pot; leftover reveals won't change it.": "Punktide andmine lukustab poti; hilisemad avamised seda ei muuda.",
++  "Bank the pot": "Anna pott",
++  "Banked": "Kirjas",
++  "Banked by {{team}}": "Pott: {{team}}",
++  "Buzz-in X (no strike)": "X ekraanile (vigu ei lisa)",
++  "Click again to confirm": "Klõpsa uuesti kinnitamiseks",
++  "Click an answer to reveal it on the board.": "Klõpsa vastusel, et see tablool avada.",
++  "Double": "Topelt",
++  "Fast money target": "Kiirraha eesmärk",
++  "Fast money total needed to show the win celebration": "Kiirraha punktisumma, mis on vajalik võidu näitamiseks",
++  "Hid {{answer}}": "Peideti: {{answer}}",
++  "In control": "Mängus",
++  "Keys 1–8 toggle answers.": "Klahvid 1–8 avavad/peidavad vastuseid.",
++  "Last action": "Viimane tegevus",
++  "Manual adjust": "Käsitsi parandus",
++  "Multiplier set to x{{count}}": "Kordaja: x{{count}}",
++  "Next Round starts a fresh pot.": "Järgmine voor alustab uue potiga.",
++  "Nothing to undo": "Pole midagi tagasi võtta",
++  "Pot": "Pott",
++  "Pot banked": "Pott antud",
++  "Removed a strike from {{team}}": "Eemaldati viga: {{team}}",
++  "Revealed {{answer}}": "Avati: {{answer}}",
++  "Round awarded: further reveals are not scored.": "Voor on antud: edasised avamised punkte ei too.",
++  "Round pot": "Vooru pott",
++  "Shows the big X on screen without adding a strike": "Näitab suurt X-i ekraanil ilma viga lisamata",
++  "Status": "Olek",
++  "Steal!": "Vargus!",
++  "Strike for {{team}}": "Viga: {{team}}",
++  "Strikes": "Vead",
++  "Strikes {{count}} of {{max}}": "Vigu {{count}}/{{max}}",
++  "Target": "Eesmärk",
++  "Titles, teams & settings": "Pealkirjad, tiimid ja seaded",
++  "Triple": "Kolmekordne",
++  "Undid: {{action}}": "Tagasi võetud: {{action}}",
++  "Undo": "Võta tagasi",
++  "Undo: {{action}}": "Võta tagasi: {{action}}",
++  "banked": "punktid kirjas",
++  "buzzed first": "vajutas esimesena",
++  "not scored": "punkte ei loe",
++  "revealed": "avatud",
++  "strike": "viga",
++  "{{team}} banked {{points}}": "{{team}} sai {{points}}",
++  "{{team}} can steal: award the pot to whoever wins it.": "{{team}} saab varastada: anna pott võitjale.",
++  "{{team}} has 3 strikes.": "{{team}}: 3 viga.",
++  "×{{count}} points": "×{{count}} punktid"
+ }
+diff --git a/public/locales/fr/translation.json b/public/locales/fr/translation.json
+index 70eee51..5442349 100644
+--- a/public/locales/fr/translation.json
++++ b/public/locales/fr/translation.json
+@@ -134,5 +134,53 @@
+     "missing_input": "Veuillez remplir le champ {{message}}",
+     "room_creation_paused": "La création de nouvelles salles est suspendue.",
+     "title_music_playback_error": "Cliquez une fois sur la fenêtre de jeu pour autoriser le son, puis appuyez de nouveau sur jouer."
+-  }
++  },
++  "Adjusted {{team}} by {{amount}}": "Adjusted {{team}} by {{amount}}",
++  "Award {{points}} to {{team}}": "Award {{points}} to {{team}}",
++  "Awarded {{points}} to {{team}}": "Awarded {{points}} to {{team}}",
++  "Awarding locks the pot; leftover reveals won't change it.": "Awarding locks the pot; leftover reveals won't change it.",
++  "Bank the pot": "Bank the pot",
++  "Banked": "Banked",
++  "Banked by {{team}}": "Banked by {{team}}",
++  "Buzz-in X (no strike)": "Buzz-in X (no strike)",
++  "Click again to confirm": "Click again to confirm",
++  "Click an answer to reveal it on the board.": "Click an answer to reveal it on the board.",
++  "Double": "Double",
++  "Fast money target": "Fast money target",
++  "Fast money total needed to show the win celebration": "Fast money total needed to show the win celebration",
++  "Hid {{answer}}": "Hid {{answer}}",
++  "In control": "In control",
++  "Keys 1–8 toggle answers.": "Keys 1–8 toggle answers.",
++  "Last action": "Last action",
++  "Manual adjust": "Manual adjust",
++  "Multiplier set to x{{count}}": "Multiplier set to x{{count}}",
++  "Next Round starts a fresh pot.": "Next Round starts a fresh pot.",
++  "Nothing to undo": "Nothing to undo",
++  "Pot": "Pot",
++  "Pot banked": "Pot banked",
++  "Removed a strike from {{team}}": "Removed a strike from {{team}}",
++  "Revealed {{answer}}": "Revealed {{answer}}",
++  "Round awarded: further reveals are not scored.": "Round awarded: further reveals are not scored.",
++  "Round pot": "Round pot",
++  "Shows the big X on screen without adding a strike": "Shows the big X on screen without adding a strike",
++  "Status": "Status",
++  "Steal!": "Steal!",
++  "Strike for {{team}}": "Strike for {{team}}",
++  "Strikes": "Strikes",
++  "Strikes {{count}} of {{max}}": "Strikes {{count}} of {{max}}",
++  "Target": "Target",
++  "Titles, teams & settings": "Titles, teams & settings",
++  "Triple": "Triple",
++  "Undid: {{action}}": "Undid: {{action}}",
++  "Undo": "Undo",
++  "Undo: {{action}}": "Undo: {{action}}",
++  "banked": "banked",
++  "buzzed first": "buzzed first",
++  "not scored": "not scored",
++  "revealed": "revealed",
++  "strike": "strike",
++  "{{team}} banked {{points}}": "{{team}} banked {{points}}",
++  "{{team}} can steal: award the pot to whoever wins it.": "{{team}} can steal: award the pot to whoever wins it.",
++  "{{team}} has 3 strikes.": "{{team}} has 3 strikes.",
++  "×{{count}} points": "×{{count}} points"
+ }
+diff --git a/public/locales/id/translation.json b/public/locales/id/translation.json
+index 6924a5a..6fa403f 100644
+--- a/public/locales/id/translation.json
++++ b/public/locales/id/translation.json
+@@ -134,5 +134,53 @@
+     "missing_input": "Silakan isi kolom {{message}}",
+     "room_creation_paused": "Pembuatan room baru sedang dijeda.",
+     "title_music_playback_error": "Klik jendela game sekali untuk mengaktifkan audio, lalu tekan play lagi."
+-  }
++  },
++  "Adjusted {{team}} by {{amount}}": "Adjusted {{team}} by {{amount}}",
++  "Award {{points}} to {{team}}": "Award {{points}} to {{team}}",
++  "Awarded {{points}} to {{team}}": "Awarded {{points}} to {{team}}",
++  "Awarding locks the pot; leftover reveals won't change it.": "Awarding locks the pot; leftover reveals won't change it.",
++  "Bank the pot": "Bank the pot",
++  "Banked": "Banked",
++  "Banked by {{team}}": "Banked by {{team}}",
++  "Buzz-in X (no strike)": "Buzz-in X (no strike)",
++  "Click again to confirm": "Click again to confirm",
++  "Click an answer to reveal it on the board.": "Click an answer to reveal it on the board.",
++  "Double": "Double",
++  "Fast money target": "Fast money target",
++  "Fast money total needed to show the win celebration": "Fast money total needed to show the win celebration",
++  "Hid {{answer}}": "Hid {{answer}}",
++  "In control": "In control",
++  "Keys 1–8 toggle answers.": "Keys 1–8 toggle answers.",
++  "Last action": "Last action",
++  "Manual adjust": "Manual adjust",
++  "Multiplier set to x{{count}}": "Multiplier set to x{{count}}",
++  "Next Round starts a fresh pot.": "Next Round starts a fresh pot.",
++  "Nothing to undo": "Nothing to undo",
++  "Pot": "Pot",
++  "Pot banked": "Pot banked",
++  "Removed a strike from {{team}}": "Removed a strike from {{team}}",
++  "Revealed {{answer}}": "Revealed {{answer}}",
++  "Round awarded: further reveals are not scored.": "Round awarded: further reveals are not scored.",
++  "Round pot": "Round pot",
++  "Shows the big X on screen without adding a strike": "Shows the big X on screen without adding a strike",
++  "Status": "Status",
++  "Steal!": "Steal!",
++  "Strike for {{team}}": "Strike for {{team}}",
++  "Strikes": "Strikes",
++  "Strikes {{count}} of {{max}}": "Strikes {{count}} of {{max}}",
++  "Target": "Target",
++  "Titles, teams & settings": "Titles, teams & settings",
++  "Triple": "Triple",
++  "Undid: {{action}}": "Undid: {{action}}",
++  "Undo": "Undo",
++  "Undo: {{action}}": "Undo: {{action}}",
++  "banked": "banked",
++  "buzzed first": "buzzed first",
++  "not scored": "not scored",
++  "revealed": "revealed",
++  "strike": "strike",
++  "{{team}} banked {{points}}": "{{team}} banked {{points}}",
++  "{{team}} can steal: award the pot to whoever wins it.": "{{team}} can steal: award the pot to whoever wins it.",
++  "{{team}} has 3 strikes.": "{{team}} has 3 strikes.",
++  "×{{count}} points": "×{{count}} points"
+ }
+-- 
+2.47.3
+

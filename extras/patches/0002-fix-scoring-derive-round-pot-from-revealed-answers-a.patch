@@ -1,0 +1,75 @@
+From bfc988a31922153ea7e58ae0fbe1b11255a61d02 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Tristan=20M=C3=B5ts?= <tristan@localhost>
+Date: Sun, 18 Oct 2026 18:34:53 +0300
+Subject: [PATCH 02/18] fix(scoring): derive round pot from revealed answers
+ and sanitise multiplier
+
+The pot was updated incrementally, so changing the multiplier mid-round left it
+stale, un-revealing could go negative (clamped to 0) and an empty multiplier
+produced NaN. The pot is now recomputed from the round on every change.
+---
+ src/components/Admin/GameDisplay/index.tsx | 34 +++++-----------------
+ 1 file changed, 8 insertions(+), 26 deletions(-)
+
+diff --git a/src/components/Admin/GameDisplay/index.tsx b/src/components/Admin/GameDisplay/index.tsx
+index 6479083..c514be3 100644
+--- a/src/components/Admin/GameDisplay/index.tsx
++++ b/src/components/Admin/GameDisplay/index.tsx
+@@ -5,6 +5,7 @@ import TitleMusic from "@/components/Admin/GameDisplay/TitleMusic";
+ import HideGameQuestions from "@/components/Admin/HideGameQuestions";
+ import Players from "@/components/Admin/Players";
+ import BuzzerTable from "@/components/BuzzerTable";
++import { setMultiplier, toggleAnswer } from "@/lib/scoring";
+ import { Game, WSEvent } from "@/src/types/game";
+ import Image from "next/image";
+ import { Dispatch, RefObject, SetStateAction } from "react";
+@@ -288,14 +289,9 @@ export default function GameDisplay({
+                   value={current_round.multiply}
+                   placeholder={t("multiplier")}
+                   onChange={(e) => {
+-                    let value = parseInt(e.target.value);
+-                    if (value === 0) {
+-                      value = 1;
+-                    }
+-                    current_round.multiply = value;
+-                    // @ts-expect-error: need a better way to update these values
+-                    setGame((prv) => ({ ...prv }));
+-                    send({ action: "data", data: game });
++                    const updated = setMultiplier(game, e.target.value);
++                    setGame(updated);
++                    send({ action: "data", data: updated });
+                   }}
+                 />
+               </div>
+@@ -315,24 +311,10 @@ export default function GameDisplay({
+                   className="flex min-h-full min-w-full flex-row items-center justify-center p-5"
+                   id={`question${index}Button`}
+                   onClick={() => {
+-                    x.trig = !x.trig;
+-                    // @ts-expect-error: need a better way to update these values
+-                    setGame((prv) => ({ ...prv }));
+-
+-                    if (x.trig) {
+-                      game.point_tracker[game.round] = game.point_tracker[game.round] + x.pnt * current_round.multiply;
+-                      // @ts-expect-error: need a better way to update these values
+-                      setGame((prv) => ({ ...prv }));
+-                      send({ action: "reveal" });
+-                    } else {
+-                      game.point_tracker[game.round] = game.point_tracker[game.round] - x.pnt * current_round.multiply;
+-                      if (game.point_tracker[game.round] < 0) {
+-                        game.point_tracker[game.round] = 0;
+-                      }
+-                      // @ts-expect-error: need a better way to update these values
+-                      setGame((prv) => ({ ...prv }));
+-                    }
+-                    send({ action: "data", data: game });
++                    const { game: updated, revealed } = toggleAnswer(game, index);
++                    setGame(updated);
++                    if (revealed) send({ action: "reveal" });
++                    send({ action: "data", data: updated });
+                   }}
+                 >
+                   <div className="grow">{x.ans}</div>
+-- 
+2.47.3
+
