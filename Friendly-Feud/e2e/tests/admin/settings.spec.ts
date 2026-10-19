@@ -54,6 +54,7 @@ test("can hide questions", async () => {
   const gamePage = new GamePage(spectator.page);
 
   await adminPage.startRoundOneButton.click();
+  await adminPage.openFlowMenu();
   await adminPage.hideQuestionsInput.click();
   await expect(gamePage.roundQuestionText).toBeVisible();
 });

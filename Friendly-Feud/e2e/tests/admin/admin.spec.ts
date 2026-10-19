@@ -46,6 +46,7 @@ test("can select final round answers", async () => {
   await fileChooser.setFiles(PATHS.GAME_JSON);
   await adminPage.startRoundOneButton.click();
   const buzzerPage = new BuzzerPage(player.page);
+  await adminPage.openFlowMenu();
   await adminPage.finalRound.button.click();
 
   await adminPage.finalRound.answers[0].input.fill("test 1");
@@ -86,6 +87,7 @@ test("can hide game board from player", async () => {
   await adminPage.gameSelector.selectOption({ index: 1 });
   await adminPage.startRoundOneButton.click({ timeout: 2000 });
   await expect(buzzerPage1.playerBlindFoldedText).not.toBeVisible({ timeout: 2000 });
+  await adminPage.openPlayers();
   await adminPage.players.hideGameButtons.team1[0].click({ timeout: 2000 });
   await expect(buzzerPage1.playerBlindFoldedText).toBeVisible({ timeout: 2000 });
 });
@@ -95,6 +97,7 @@ test("can answer final round questions", async () => {
   const gamePage = new GamePage(spectator.page);
 
   await adminPage.gameSelector.selectOption({ index: 1 });
+  await adminPage.openFlowMenu();
   await adminPage.finalRound.button.click();
 
   await adminPage.finalRound.answers[0].input.fill("Answer One");

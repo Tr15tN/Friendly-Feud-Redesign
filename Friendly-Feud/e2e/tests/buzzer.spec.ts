@@ -19,6 +19,7 @@ test("can use buzzers", async ({ browser }) => {
   const adminPage = new AdminPage(host.page);
   await adminPage.gameSelector.selectOption({ index: 1 });
   await adminPage.startRoundOneButton.click();
+  await adminPage.openPlayers();
 
   await buzzerPage1.buzzerButton.click();
   await buzzerPage2.buzzerButton.click();

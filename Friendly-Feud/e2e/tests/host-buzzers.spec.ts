@@ -17,9 +17,9 @@ test.describe("Buzzers screen on seperate browser.", () => {
     await adminPage.teamOneNameInput.fill("Alpha");
     await adminPage.teamTwoNameInput.fill("Beta");
     await adminPage.gameSelector.selectOption({ index: 1 });
+    const hostPassword = await adminPage.hostPassword.innerText();
     await adminPage.startRoundOneButton.click();
 
-    const hostPassword = await adminPage.hostPassword.innerText();
     buzzersPage.buzzersPasswordInput.fill(hostPassword);
     buzzersPage.buzzersSubmitButton.click();
     // Wait for host buzzers screen to be ready
@@ -27,6 +27,7 @@ test.describe("Buzzers screen on seperate browser.", () => {
   });
 
   test.afterEach(async () => {
+    await adminPage.openPlayers();
     // Clear only if there is something to clear; otherwise fallback to disabled state
     const canClear = await adminPage.clearBuzzersButton.isVisible({ timeout: 5000 }).catch(() => false);
     if (canClear) {
@@ -35,6 +36,7 @@ test.describe("Buzzers screen on seperate browser.", () => {
     } else {
       await expect(adminPage.clearBuzzersButtonDisabled).toBeVisible({ timeout: 5000 });
     }
+    await adminPage.closeDrawer();
   });
 
   test("can use host buzzers touch screen", async () => {

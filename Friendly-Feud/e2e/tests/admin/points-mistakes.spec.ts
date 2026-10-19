@@ -55,6 +55,7 @@ test("can track points between rounds", async () => {
     expect(await gamePage.roundPointsTeam1.textContent()).toBe(points2TotalPlusPrevious.toString());
     expect(await gamePage.roundPointsTeamtotal.textContent()).toBe(points2Total.toString());
   }).toPass({ timeout: 2000 });
+  await adminPage.openFlowMenu();
   await adminPage.roundSelector.selectOption({ index: 0 });
 
   await expect(async () => {

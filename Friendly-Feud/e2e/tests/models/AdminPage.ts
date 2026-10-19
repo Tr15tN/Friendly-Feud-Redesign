@@ -96,6 +96,12 @@ class AdminPage {
   playTitleMusicButton: Locator;
   pauseTitleMusicButton: Locator;
   hostPassword: Locator;
+  flowMenuButton: Locator;
+  roundToolsButton: Locator;
+  playersDrawerButton: Locator;
+  settingsDrawerButton: Locator;
+  playersDrawer: Locator;
+  settingsDrawer: Locator;
 
   /**
    * @param {import('playwright').Page} page
@@ -205,6 +211,45 @@ class AdminPage {
     this.playTitleMusicButton = page.locator("#playTitleMusicButton");
     this.pauseTitleMusicButton = page.locator("#pauseTitleMusicButton");
     this.hostPassword = page.getByTestId("hostPassword")
+    this.flowMenuButton = page.getByTestId("flowMenuButton");
+    this.roundToolsButton = page.getByTestId("roundToolsButton");
+    this.playersDrawerButton = page.getByTestId("playersDrawerButton");
+    this.settingsDrawerButton = page.getByTestId("settingsDrawerButton");
+    this.playersDrawer = page.getByTestId("playersDrawer");
+    this.settingsDrawer = page.getByTestId("settingsDrawer");
+  }
+
+  /** Open the Flow menu (round selector, hide questions, title card, restart, final round). Idempotent. */
+  async openFlowMenu() {
+    if ((await this.flowMenuButton.getAttribute("aria-expanded")) !== "true") {
+      await this.flowMenuButton.click();
+    }
+  }
+
+  /** Open the round tools menu (remove strike, reset strikes, flash X, manual adjust). Idempotent. */
+  async openRoundTools() {
+    if ((await this.roundToolsButton.getAttribute("aria-expanded")) !== "true") {
+      await this.roundToolsButton.click();
+    }
+  }
+
+  /** Open the Players & buzzers drawer (buzz order, clear buzzers, per-player controls). Idempotent. */
+  async openPlayers() {
+    if (!(await this.playersDrawer.isVisible())) {
+      await this.playersDrawerButton.click();
+    }
+  }
+
+  /** Make the setup controls reachable: inline in the lobby, otherwise via the Settings drawer. */
+  async openSettings() {
+    if (await this.gameSelector.isVisible()) return;
+    if (!(await this.settingsDrawer.isVisible())) {
+      await this.settingsDrawerButton.click();
+    }
+  }
+
+  async closeDrawer() {
+    await this.page.keyboard.press("Escape");
   }
 }
 

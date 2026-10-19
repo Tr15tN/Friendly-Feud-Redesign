@@ -22,6 +22,7 @@ test.beforeEach(async ({ browser }) => {
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(PATHS.QUICK_GAME_JSON);
 
+  await adminPage.openFlowMenu();
   await adminPage.finalRound.button.click();
 });
 
