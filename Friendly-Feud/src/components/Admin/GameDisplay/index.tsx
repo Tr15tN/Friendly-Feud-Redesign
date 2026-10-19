@@ -129,19 +129,41 @@ export default function GameDisplay({
     );
   }
 
-  if (phase === "fastmoney") {
-    return (
-      <FastMoneyConsole
+  // Title music can still be playing after leaving the lobby; keep its controls reachable until it is paused.
+  const musicControls = titleMusicPlaying ? (
+    <div className="mx-auto max-w-[1400px] px-3 pt-3 text-foreground sm:px-5">
+      <TitleMusic
+        send={send}
+        room={room}
         game={game}
         setGame={setGame}
-        send={send}
-        timerStarted={timerStarted}
-        timerCompleted={timerCompleted}
-        setTimerStarted={setTimerStarted}
-        setTimerCompleted={setTimerCompleted}
+        isPlaying={titleMusicPlaying}
+        setIsPlaying={setTitleMusicPlaying}
       />
+    </div>
+  ) : null;
+
+  if (phase === "fastmoney") {
+    return (
+      <>
+        {musicControls}
+        <FastMoneyConsole
+          game={game}
+          setGame={setGame}
+          send={send}
+          timerStarted={timerStarted}
+          timerCompleted={timerCompleted}
+          setTimerStarted={setTimerStarted}
+          setTimerCompleted={setTimerCompleted}
+        />
+      </>
     );
   }
 
-  return <RoundsConsole game={game} scoring={scoring} flow={flow} send={send} />;
+  return (
+    <>
+      {musicControls}
+      <RoundsConsole game={game} scoring={scoring} flow={flow} send={send} />
+    </>
+  );
 }
