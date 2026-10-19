@@ -223,5 +223,20 @@
   "Switch to the Fast Money round": "Lülitu kiirraha voorule",
   "{{count}} joined": "{{count}} liitunud",
   "{{count}} player(s) still choosing a team.": "{{count}} mängija(t) valib veel tiimi.",
-  "How to play": "Kuidas mängida"
+  "How to play": "Kuidas mängida",
+  "Flow": "Men\u00fc\u00fc",
+  "Game flow": "M\u00e4ngu kulg",
+  "Players & buzzers": "M\u00e4ngijad ja m\u00e4rguanded",
+  "Settings": "Seaded",
+  "Close": "Sulge",
+  "Strike": "Viga",
+  "Bank {{points}}": "Anna {{points}}",
+  "Banked {{points}}": "Antud {{points}}",
+  "Remove a strike": "Eemalda viga",
+  "Jump to round": "H\u00fcppa vooru",
+  "Restart from Round 1": "Alusta uuesti vooru 1",
+  "Round tools": "Vooru t\u00f6\u00f6riistad",
+  "Buzzed first: {{team}}": "Esimesena m\u00e4rguande andis: {{team}}",
+  "Show questions": "N\u00e4ita k\u00fcsimusi",
+  "help": "abi"
 }

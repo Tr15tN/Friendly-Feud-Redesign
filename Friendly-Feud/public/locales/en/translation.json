@@ -225,5 +225,20 @@
   "Switch to the Fast Money round": "Switch to the Fast Money round",
   "{{count}} joined": "{{count}} joined",
   "{{count}} player(s) still choosing a team.": "{{count}} player(s) still choosing a team.",
-  "How to play": "How to play"
+  "How to play": "How to play",
+  "Flow": "Flow",
+  "Game flow": "Game flow",
+  "Players & buzzers": "Players & buzzers",
+  "Settings": "Settings",
+  "Close": "Close",
+  "Strike": "Strike",
+  "Bank {{points}}": "Bank {{points}}",
+  "Banked {{points}}": "Banked {{points}}",
+  "Remove a strike": "Remove a strike",
+  "Jump to round": "Jump to round",
+  "Restart from Round 1": "Restart from Round 1",
+  "Round tools": "Round tools",
+  "Buzzed first: {{team}}": "Buzzed first: {{team}}",
+  "Show questions": "Show questions",
+  "help": "help"
 }

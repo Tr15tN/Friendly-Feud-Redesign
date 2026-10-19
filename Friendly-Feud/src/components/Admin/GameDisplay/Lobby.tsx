@@ -1,5 +1,5 @@
-import { teamColors } from "@/lib/utils/team-colors";
 import { defaultLanguage } from "@/i18n/languages";
+import { teamColors } from "@/lib/utils/team-colors";
 import { Game } from "@/src/types/game";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";

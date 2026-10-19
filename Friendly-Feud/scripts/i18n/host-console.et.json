@@ -1,0 +1,17 @@
+{
+  "Flow": "Menüü",
+  "Game flow": "Mängu kulg",
+  "Players & buzzers": "Mängijad ja märguanded",
+  "Settings": "Seaded",
+  "Close": "Sulge",
+  "Strike": "Viga",
+  "Bank {{points}}": "Anna {{points}}",
+  "Banked {{points}}": "Antud {{points}}",
+  "Remove a strike": "Eemalda viga",
+  "Jump to round": "Hüppa vooru",
+  "Restart from Round 1": "Alusta uuesti vooru 1",
+  "Round tools": "Vooru tööriistad",
+  "Buzzed first: {{team}}": "Esimesena märguande andis: {{team}}",
+  "Show questions": "Näita küsimusi",
+  "help": "abi"
+}

@@ -1,12 +1,15 @@
-import AdminSettings from "@/components/Admin/AdminSettings";
+import BuzzersPlayersPanel from "@/components/Admin/Console/BuzzersPlayersPanel";
+import SettingsPanel from "@/components/Admin/Console/SettingsPanel";
+import TopBar from "@/components/Admin/Console/TopBar";
+import { useFlowActions } from "@/components/Admin/Console/useFlowActions";
 import CSVLoader from "@/components/Admin/CSVLoader";
 import GameDisplay from "@/components/Admin/GameDisplay";
-import RoomSettings from "@/components/Admin/RoomSettings";
-import TitlesAndLogoSettings from "@/components/Admin/TitlesAndLogoSettings";
+import { useScoring } from "@/components/Admin/GameDisplay/useScoring";
+import Drawer from "@/components/ui/Drawer";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { normalizeLanguage } from "@/i18n/languages";
 import { Game, WSAction, WSEvent } from "@/types/game";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { GameContext } from "../pages";
@@ -16,7 +19,7 @@ interface AdminPageProps {
   game: Game;
   setGame: React.Dispatch<React.SetStateAction<Game | null>>;
   room: string;
-  quitGame: () => void;
+  quitGame: (host?: boolean) => void;
   playerId: string | null;
   hostPassword: string;
 }
@@ -33,18 +36,23 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
   const [titleMusicPlaying, setTitleMusicPlaying] = useState(false);
   const [csvFileUpload, setCsvFileUpload] = useState<File | null>(null);
   const [csvFileUploadText, setCsvFileUploadText] = useState("");
-  // Open on the title screen (setup), collapsed while a round is being played.
-  const inRound = game.rounds != null && !game.title;
-  const [settingsOpen, setSettingsOpen] = useState(!inRound);
-  useEffect(() => {
-    setSettingsOpen(!inRound);
-  }, [inRound]);
+  const [drawer, setDrawer] = useState<"players" | "settings" | null>(null);
+  const closeDrawer = useCallback(() => setDrawer(null), []);
   const refreshCounterRef = useRef(0);
+
+  // Setup controls are shown inline in the lobby (and when no game is loaded); during play they live in a drawer.
+  const settingsInline = game.rounds == null || game.title;
+  useEffect(() => {
+    if (settingsInline) setDrawer((current) => (current === "settings" ? null : current));
+  }, [settingsInline]);
 
   function send(data: WSEvent) {
     console.debug("Sending", data);
     ws.current.send(JSON.stringify({ ...data, room, id: playerId, hostPassword: hostPassword }));
   }
+
+  const scoring = useScoring(game, setGame, send);
+  const flow = useFlowActions(game, scoring);
 
   const handleMessage = (evt: MessageEvent) => {
     const received_msg = evt.data;
@@ -108,76 +116,58 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
     );
   }
 
+  const settingsPanel = (
+    <SettingsPanel
+      game={game}
+      room={room}
+      gameSelector={gameSelector}
+      hostPassword={hostPassword}
+      send={send}
+      setGame={setGame}
+      setCsvFileUpload={setCsvFileUpload}
+      setCsvFileUploadText={setCsvFileUploadText}
+      imageUploaded={imageUploaded}
+      setImageUploaded={setImageUploaded}
+    />
+  );
+
   return (
-    <div
-      className="lg:min-w-0"
-      style={{
-        minWidth: "100vh",
-      }}
-    >
-      <RoomSettings
-        room={room}
+    // `darkTheme` makes the legacy themed components inside render on the dark palette.
+    <div className="darkTheme min-h-screen bg-pro-bg font-pro text-pro-text">
+      <TopBar
         game={game}
-        gameSelector={gameSelector}
-        send={send}
+        room={room}
+        flow={flow}
         setGame={setGame}
-        setCsvFileUpload={setCsvFileUpload}
-        setCsvFileUploadText={setCsvFileUploadText}
+        send={send}
         quitGame={quitGame}
-        variant={inRound ? "header" : "full"}
+        settingsInline={settingsInline}
+        onOpenPlayers={() => setDrawer("players")}
+        onOpenSettings={() => setDrawer("settings")}
       />
-      {/* Settings collapse during play so the scoring console stays above the fold. */}
-      <details
-        id="roomSettingsDetails"
-        className="mx-5 my-2 rounded-xl border-2 border-secondary-500 text-foreground"
-        open={settingsOpen}
-        onToggle={(e) => setSettingsOpen((e.target as HTMLDetailsElement).open)}
-      >
-        <summary className="cursor-pointer select-none px-5 py-2 text-lg font-semibold">
-          {t("Titles, teams & settings")}
-        </summary>
-        <div className="pb-8">
-          {inRound && (
-            <>
-              <RoomSettings
-                room={room}
-                game={game}
-                gameSelector={gameSelector}
-                send={send}
-                setGame={setGame}
-                setCsvFileUpload={setCsvFileUpload}
-                setCsvFileUploadText={setCsvFileUploadText}
-                quitGame={quitGame}
-                variant="setup"
-              />
-              <hr className="my-8" />
-            </>
-          )}
-          <TitlesAndLogoSettings
-            game={game}
-            send={send}
-            room={room}
-            setGame={setGame}
-            setImageUploaded={setImageUploaded}
-            imageUploaded={imageUploaded}
-          />
-          <hr className="my-8" />
-          <AdminSettings game={game} setGame={setGame} send={send} hostPassword={hostPassword} />
-        </div>
-      </details>
       <GameDisplay
-        ws={ws}
-        setGame={setGame}
         game={game}
+        setGame={setGame}
         room={room}
         send={send}
+        scoring={scoring}
+        flow={flow}
         timerStarted={timerStarted}
         timerCompleted={timerCompleted}
         setTimerStarted={setTimerStarted}
         setTimerCompleted={setTimerCompleted}
         titleMusicPlaying={titleMusicPlaying}
         setTitleMusicPlaying={setTitleMusicPlaying}
+        settingsPanel={settingsPanel}
       />
+      <Drawer id="playersDrawer" open={drawer === "players"} title={t("Players & buzzers")} onClose={closeDrawer}>
+        <BuzzersPlayersPanel game={game} setGame={setGame} ws={ws} room={room} send={send} />
+      </Drawer>
+      {!settingsInline && (
+        <Drawer id="settingsDrawer" open={drawer === "settings"} title={t("Settings")} onClose={closeDrawer}>
+          {settingsPanel}
+        </Drawer>
+      )}
       {/* Modal over whole admin page */}
       {csvFileUpload && (
         <CSVLoader
