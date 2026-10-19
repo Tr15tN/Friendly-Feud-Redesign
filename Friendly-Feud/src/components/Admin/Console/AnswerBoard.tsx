@@ -36,7 +36,7 @@ export default function AnswerBoard({ game, scoring }: AnswerBoardProps) {
           : t("Click an answer to reveal it on the board.")}{" "}
         {t("Keys 1–8 toggle answers.")}
       </p>
-      <div className="grid grid-cols-1 gap-2 sm:grid-flow-col sm:grid-rows-4">
+      <div className="grid grid-cols-1 gap-2 sm:auto-cols-fr sm:grid-flow-col sm:grid-rows-4">
         {round.answers.map((answer, index) => {
           const state = !answer.trig ? "hidden" : answer.cleanup ? "cleanup" : "scored";
           return (
