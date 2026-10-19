@@ -1,4 +1,6 @@
-import { Game, WSEvent } from "@/src/types/game";
+import { Button } from "@/components/ui/Button";
+import { Game, WSEvent } from "@/types/game";
+import { Eye, EyeOff } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -10,16 +12,14 @@ interface HideGameQuestionsProps {
 
 export default function HideGameQuestions({ game, setGame, send }: HideGameQuestionsProps) {
   const { t } = useTranslation();
-
-  const textColor = game.settings.hide_questions ? "text-foreground" : "text-foreground";
-  const buttonColor = game.settings.hide_questions ? "bg-secondary-500" : "bg-secondary-300";
-  const textContent = game.settings.hide_questions ? t("Show questions") : t("Hide questions");
-  const disabledOpacity = game.is_final_round ? "opacity-50" : "";
+  const hidden = game.settings.hide_questions;
 
   return (
-    <button
+    <Button
       id="hideQuestionsInput"
-      className={`rounded-lg border-2 border-secondary-700 px-4 py-3 text-lg hover:bg-secondary-500 ${textColor} ${buttonColor} ${disabledOpacity}`}
+      aria-pressed={hidden}
+      disabled={game.is_final_round}
+      className="w-full justify-start"
       onClick={() => {
         setGame((prevGame) => {
           if (prevGame === null) {
@@ -41,10 +41,9 @@ export default function HideGameQuestions({ game, setGame, send }: HideGameQuest
           return updatedGame;
         });
       }}
-      type="button"
-      disabled={game.is_final_round}
     >
-      {textContent}
-    </button>
+      {hidden ? <Eye size={16} aria-hidden /> : <EyeOff size={16} aria-hidden />}
+      {hidden ? t("Show questions") : t("Hide questions")}
+    </Button>
   );
 }
