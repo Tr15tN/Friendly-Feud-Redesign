@@ -17,3 +17,4 @@ backend/.cache/
 .env
 .env.local
 .env.*.local
+tsconfig.tsbuildinfo
