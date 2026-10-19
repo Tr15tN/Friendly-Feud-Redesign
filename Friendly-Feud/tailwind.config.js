@@ -3,7 +3,32 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   darkMode: "media",
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        // Host console / player pages "pro" palette. Fixed (not themed).
+        pro: {
+          bg: "#0e1013",
+          panel: "#16191f",
+          raised: "#1d2129",
+          line: "#252a33",
+          text: "#e8eaee",
+          mute: "#8b93a3",
+          accent: "#5b5ff0",
+          "accent-hover": "#4a4ed8",
+          gold: "#fbbf24",
+          ok: "#34d399",
+          danger: "#ef4444",
+          "danger-text": "#f87171",
+          team0: "#fb7185",
+          "team0-on": "#2a0610",
+          team1: "#34d399",
+          "team1-on": "#04251a",
+        },
+      },
+      fontFamily: {
+        pro: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+      },
+    },
   },
   variants: {
     extend: {},
