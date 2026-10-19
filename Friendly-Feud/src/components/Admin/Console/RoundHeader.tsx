@@ -91,6 +91,7 @@ export default function RoundHeader({ game, scoring, flow, send, showTools }: Ro
             id="undoButton"
             disabled={!scoring.canUndo}
             title={scoring.undoLabel ? t("Undo: {{action}}", { action: scoring.undoLabel }) : t("Nothing to undo")}
+            aria-label={t("Undo")}
             aria-keyshortcuts="Control+Z"
             onClick={scoring.undo}
           >
