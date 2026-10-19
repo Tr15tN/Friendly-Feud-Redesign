@@ -109,6 +109,15 @@ describe("teamColumnState", () => {
     expect(teamColumnState(g, 0)).toMatchObject({ banked: false, bankedPoints: 0, roundAwarded: true, canBank: false });
   });
 
+  it("treats team index 0 as a valid banking team", () => {
+    const g = makeGame();
+    g.rounds[0].answers[0].trig = true;
+    g.rounds[0].awarded_to = 0;
+    g.rounds[0].awarded_points = 40;
+    expect(teamColumnState(g, 0)).toMatchObject({ banked: true, bankedPoints: 40, roundAwarded: true });
+    expect(teamColumnState(g, 1).banked).toBe(false);
+  });
+
   it("marks the first buzzing team in control until the round is banked", () => {
     const g = makeGame();
     g.registeredPlayers.p1 = { start: new Date(), latencies: [], team: 1, latency: 0, name: "Sam", hidden: false };

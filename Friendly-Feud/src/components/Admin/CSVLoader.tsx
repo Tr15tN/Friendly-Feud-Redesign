@@ -199,7 +199,12 @@ export default function CSVLoader({ csvFileUpload, csvFileUploadText, setCsvFile
   }, [csvData, roundCount, roundFinalCount, noHeader, t]);
   const headerOffSet = noHeader ? 0 : 1;
   return (
-    <div className="bg-opacity/50 fixed inset-0 size-full overflow-y-auto bg-gray-600">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={t("CSV file upload")}
+      className="bg-opacity/50 fixed inset-0 z-[60] size-full overflow-y-auto bg-gray-600"
+    >
       <div className="relative top-20 mx-auto flex w-3/4 flex-col space-y-5 rounded-md border bg-background p-5 shadow-lg">
         <div className="flex flex-row items-center space-x-2">
           <div className="w-4">

@@ -22,6 +22,9 @@ export default function TeamColumn({ game, team, scoring }: TeamColumnProps) {
   const ui = teamUi(team);
   const actions = useTeamActions(game, scoring);
   const name = actions.name(team);
+  const bankLabel = state.banked
+    ? t("Banked {{points}}", { points: state.bankedPoints })
+    : t("Bank {{points}}", { points: state.pot });
 
   return (
     <aside aria-label={name} className={`flex flex-col gap-3 rounded-[14px] border bg-pro-panel p-4 ${ui.border}`}>
@@ -35,7 +38,12 @@ export default function TeamColumn({ game, team, scoring }: TeamColumnProps) {
         {t("number", { count: state.points })}
       </p>
       <StrikePips team={team} count={state.strikes} max={state.maxStrikes} />
-      <Button id={`team${team}MistakeButton`} variant={ui.outline} onClick={() => actions.strike(team)}>
+      <Button
+        id={`team${team}MistakeButton`}
+        variant={ui.outline}
+        aria-label={`${t("Strike")}: ${name}`}
+        onClick={() => actions.strike(team)}
+      >
         <X size={16} strokeWidth={3} aria-hidden />
         {t("Strike")}
       </Button>
@@ -43,17 +51,12 @@ export default function TeamColumn({ game, team, scoring }: TeamColumnProps) {
         id={`team${team}GivePointsButton`}
         variant={ui.solid}
         disabled={!state.canBank && !state.banked}
+        aria-label={`${name}: ${bankLabel}`}
         aria-pressed={state.banked}
         onClick={() => actions.bank(team)}
       >
-        {state.banked ? (
-          <>
-            <Check size={16} strokeWidth={3} aria-hidden />
-            {t("Banked {{points}}", { points: state.bankedPoints })}
-          </>
-        ) : (
-          t("Bank {{points}}", { points: state.pot })
-        )}
+        {state.banked && <Check size={16} strokeWidth={3} aria-hidden />}
+        {bankLabel}
       </Button>
     </aside>
   );

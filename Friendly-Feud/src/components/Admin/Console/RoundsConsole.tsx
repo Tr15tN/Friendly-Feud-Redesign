@@ -35,7 +35,7 @@ export default function RoundsConsole({ game, scoring, flow, send }: RoundsConso
         <TeamColumn game={game} team={0} scoring={scoring} />
         <div className="flex min-w-0 flex-col gap-3">
           <StealHint game={game} />
-          <RoundHeader game={game} scoring={scoring} flow={flow} send={send} showTools />
+          <RoundHeader game={game} scoring={scoring} flow={flow} send={send} showTools showUndo />
           <AnswerBoard game={game} scoring={scoring} />
           <div className="flex justify-end">
             <Button
@@ -58,7 +58,7 @@ export default function RoundsConsole({ game, scoring, flow, send }: RoundsConso
     <div className="mx-auto flex max-w-3xl flex-col gap-3 px-3 pb-44 pt-3">
       <ScoreStrip game={game} />
       <StealHint game={game} />
-      <RoundHeader game={game} scoring={scoring} flow={flow} send={send} showTools={false} />
+      <RoundHeader game={game} scoring={scoring} flow={flow} send={send} showTools={false} showUndo={false} />
       <AnswerBoard game={game} scoring={scoring} />
       <ActionBar game={game} scoring={scoring} flow={flow} send={send} />
     </div>

@@ -23,7 +23,7 @@ describe("buttonClass", () => {
   it("keeps unrelated base utilities", () => {
     const cls = buttonClass("ghost", "px-2");
     expect(cls).toMatch(/\binline-flex\b/);
-    expect(cls).toMatch(/\bborder\b/);
+    expect(cls.split(/\s+/)).toContain("border");
     expect(cls).toMatch(/\btext-sm\b/);
   });
 

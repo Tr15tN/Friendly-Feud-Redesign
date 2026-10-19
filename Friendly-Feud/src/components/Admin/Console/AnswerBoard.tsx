@@ -16,7 +16,8 @@ const TILE_STYLES = {
 } as const;
 
 const BADGE_STYLES = {
-  // The digit comes from CSS (see the gotcha above), so it is not part of innerText.
+  // The key digit is drawn by CSS (before:content-[attr(data-key)]) instead of a text node because
+  // the e2e suite parses points from the tile's innerText.
   hidden: "bg-pro-bg text-pro-mute before:content-[attr(data-key)]",
   scored: "bg-pro-ok text-pro-team1-on",
   cleanup: "bg-pro-line text-pro-mute",

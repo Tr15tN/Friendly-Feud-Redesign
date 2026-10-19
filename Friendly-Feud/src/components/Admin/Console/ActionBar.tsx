@@ -2,7 +2,7 @@ import { ScoringApi } from "@/components/Admin/GameDisplay/useScoring";
 import { Button } from "@/components/ui/Button";
 import { teamColumnState } from "@/lib/host/console";
 import { Game, WSEvent } from "@/types/game";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight, Undo2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import RoundToolsMenu from "./RoundToolsMenu";
 import { teamUi } from "./team-ui";
@@ -23,7 +23,7 @@ export default function ActionBar({ game, scoring, flow, send }: ActionBarProps)
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-pro-line bg-pro-bg/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur">
-      <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2">
+      <div className="mx-auto grid max-w-3xl grid-cols-[1fr_1fr_auto_auto] gap-2">
         {[0, 1].map((team) => (
           <Button
             key={`strike-${team}`}
@@ -37,7 +37,19 @@ export default function ActionBar({ game, scoring, flow, send }: ActionBarProps)
             <span className="truncate">{actions.name(team)}</span>
           </Button>
         ))}
-        <RoundToolsMenu game={game} scoring={scoring} send={send} direction="up" buttonClassName="w-full" />
+        <Button
+          id="undoButton"
+          disabled={!scoring.canUndo}
+          title={scoring.undoLabel ? t("Undo: {{action}}", { action: scoring.undoLabel }) : t("Nothing to undo")}
+          aria-label={t("Undo")}
+          aria-keyshortcuts="Control+Z"
+          onClick={scoring.undo}
+        >
+          <Undo2 size={18} aria-hidden />
+        </Button>
+        <RoundToolsMenu game={game} scoring={scoring} send={send} direction="up" buttonClassName="px-3" />
+      </div>
+      <div className="mx-auto mt-2 grid max-w-3xl grid-cols-3 gap-2">
         {[0, 1].map((team) => {
           const state = teamColumnState(game, team);
           return (

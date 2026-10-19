@@ -19,10 +19,12 @@ interface RoundHeaderProps {
   send: (data: WSEvent) => void;
   /** Desktop shows the tools menu here; touch shows it in the action bar. */
   showTools: boolean;
+  /** Desktop shows Undo here; touch shows it in the action bar. */
+  showUndo: boolean;
 }
 
 /** Pot, multiplier, undo, round navigation, first-buzz chip and the question. */
-export default function RoundHeader({ game, scoring, flow, send, showTools }: RoundHeaderProps) {
+export default function RoundHeader({ game, scoring, flow, send, showTools, showUndo }: RoundHeaderProps) {
   const { t } = useTranslation();
   const round = game.rounds[game.round];
   const multiplier = sanitizeMultiplier(round.multiply);
@@ -87,17 +89,19 @@ export default function RoundHeader({ game, scoring, flow, send, showTools }: Ro
               className="min-h-11 w-16 rounded-[10px] border border-pro-line bg-pro-raised px-2 text-pro-text disabled:opacity-40 lg:min-h-9"
             />
           </label>
-          <Button
-            id="undoButton"
-            disabled={!scoring.canUndo}
-            title={scoring.undoLabel ? t("Undo: {{action}}", { action: scoring.undoLabel }) : t("Nothing to undo")}
-            aria-label={t("Undo")}
-            aria-keyshortcuts="Control+Z"
-            onClick={scoring.undo}
-          >
-            <Undo2 size={16} aria-hidden />
-            <span className="hidden sm:inline">{t("Undo")}</span>
-          </Button>
+          {showUndo && (
+            <Button
+              id="undoButton"
+              disabled={!scoring.canUndo}
+              title={scoring.undoLabel ? t("Undo: {{action}}", { action: scoring.undoLabel }) : t("Nothing to undo")}
+              aria-label={t("Undo")}
+              aria-keyshortcuts="Control+Z"
+              onClick={scoring.undo}
+            >
+              <Undo2 size={16} aria-hidden />
+              <span className="hidden sm:inline">{t("Undo")}</span>
+            </Button>
+          )}
           {showTools && <RoundToolsMenu game={game} scoring={scoring} send={send} />}
         </div>
       </div>
