@@ -1,5 +1,5 @@
 import { ScoringApi } from "@/components/Admin/GameDisplay/useScoring";
-import { addStrike, awardRound, roundPot } from "@/lib/scoring";
+import { addStrike, awardRound, isAwarded, roundPot } from "@/lib/scoring";
 import { getTeamDisplayName } from "@/lib/utils";
 import { Game } from "@/types/game";
 import { useTranslation } from "react-i18next";
@@ -18,7 +18,10 @@ export function useTeamActions(game: Game, scoring: ScoringApi) {
       ]);
     },
     bank: (team: number) => {
-      const pot = roundPot(game.rounds[game.round]);
+      const round = game.rounds[game.round];
+      // The banked team's button stays clickable (it shows "Banked N"); ignore it so no empty undo entry is recorded.
+      if (isAwarded(round)) return;
+      const pot = roundPot(round);
       scoring.commit(awardRound(game, team), t("Awarded {{points}} to {{team}}", { points: pot, team: name(team) }));
     },
   };
