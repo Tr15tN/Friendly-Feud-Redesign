@@ -1,10 +1,11 @@
+import { useDemo } from "@/components/Demo/DemoContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import TitleLogo from "@/components/TitleLogo";
 import { buttonClass } from "@/components/ui/button-class";
 import { inputClass } from "@/components/ui/form";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { defaultLanguage, normalizeLanguage } from "@/i18n/languages";
-import { CircleHelp } from "lucide-react";
+import { CircleHelp, FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ export default function LoginPage({
   joinRoom,
 }: LoginPageProps) {
   const { t, i18n } = useTranslation();
+  const demo = useDemo();
   const language = normalizeLanguage(i18n.resolvedLanguage ?? i18n.language ?? defaultLanguage);
 
   const isValidRoomCode = (code: string) => code.length === 4;
@@ -127,6 +129,16 @@ export default function LoginPage({
             {t("host")}
           </button>
           <p className="text-sm text-pro-mute">{t("Run your own game. You get a code to share with players.")}</p>
+          {!demo && (
+            <Link
+              href="/demo"
+              id="demoLink"
+              className={buttonClass("ghost", "min-h-10 w-full justify-center text-sm")}
+            >
+              <FlaskConical size={16} aria-hidden />
+              {t("Try the interactive demo")}
+            </Link>
+          )}
         </div>
       </div>
     </div>

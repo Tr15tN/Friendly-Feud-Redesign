@@ -7,6 +7,7 @@ import WhoWasFirst from "@/components/Admin/Console/WhoWasFirst";
 import CSVLoader from "@/components/Admin/CSVLoader";
 import GameDisplay from "@/components/Admin/GameDisplay";
 import { useScoring } from "@/components/Admin/GameDisplay/useScoring";
+import { useDemo } from "@/components/Demo/DemoContext";
 import Drawer from "@/components/ui/Drawer";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { normalizeLanguage } from "@/i18n/languages";
@@ -31,6 +32,7 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
   const { i18n, t } = useTranslation();
 
   const { hostPassword } = useContext(GameContext);
+  const demo = useDemo();
 
   const [gameSelector, setGameSelector] = useState<string[]>([]);
   const [imageUploaded, setImageUploaded] = useState<File | null>(null);
@@ -49,7 +51,7 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
 
   // First-time hosts get the short walkthrough; the Help menu replays it.
   useEffect(() => {
-    if (shouldAutoStartTour(window.localStorage, navigator.webdriver)) setTourOpen(true);
+    if (!demo && shouldAutoStartTour(window.localStorage, navigator.webdriver)) setTourOpen(true);
   }, []);
   const closeTour = useCallback(() => {
     markTourDone(window.localStorage);

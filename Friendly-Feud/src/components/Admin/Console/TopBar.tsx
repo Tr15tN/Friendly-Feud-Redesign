@@ -1,8 +1,9 @@
+import { useDemo } from "@/components/Demo/DemoContext";
 import { Button, buttonClass } from "@/components/ui/Button";
 import Menu from "@/components/ui/Menu";
 import { normalizeLanguage } from "@/i18n/languages";
 import { Game, WSEvent } from "@/types/game";
-import { BookOpen, CircleHelp, LogOut, Monitor, Play, ScrollText, Settings, Users } from "lucide-react";
+import { BookOpen, CircleHelp, FlaskConical, LogOut, Monitor, Play, ScrollText, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,6 +38,7 @@ export default function TopBar({
   onStartTour,
 }: TopBarProps) {
   const { t, i18n } = useTranslation();
+  const demo = useDemo();
   const docsLanguage = normalizeLanguage(i18n.resolvedLanguage ?? i18n.language);
   const hasGame = game.rounds != null;
   const buzzCount = game.buzzed?.length ?? 0;
@@ -86,10 +88,17 @@ export default function TopBar({
               <span className="hidden md:inline">{t("Settings")}</span>
             </Button>
           )}
-          <Link id="openGameWindowButton" href="/game" target="_blank" className={buttonClass("secondary")}>
-            <Monitor size={16} aria-hidden />
-            <span className="hidden md:inline">{t("Open Game Window")}</span>
-          </Link>
+          {demo ? (
+            <Button id="openGameWindowButton" onClick={demo.onOpenGameWindow}>
+              <Monitor size={16} aria-hidden />
+              <span className="hidden md:inline">{t("Open Game Window")}</span>
+            </Button>
+          ) : (
+            <Link id="openGameWindowButton" href="/game" target="_blank" className={buttonClass("secondary")}>
+              <Monitor size={16} aria-hidden />
+              <span className="hidden md:inline">{t("Open Game Window")}</span>
+            </Link>
+          )}
           <Menu
             buttonId="helpMenuButton"
             ariaLabel={t("Help")}
@@ -100,18 +109,31 @@ export default function TopBar({
           >
             {({ close }) => (
               <>
-                <Button
-                  id="startTourButton"
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    close();
-                    onStartTour();
-                  }}
-                >
-                  <Play size={16} aria-hidden />
-                  {t("Take the tour")}
-                </Button>
+                {!demo && (
+                  <>
+                    <Button
+                      id="startTourButton"
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        close();
+                        onStartTour();
+                      }}
+                    >
+                      <Play size={16} aria-hidden />
+                      {t("Take the tour")}
+                    </Button>
+                    <Link
+                      id="demoLink"
+                      href="/demo"
+                      target="_blank"
+                      className={buttonClass("ghost", "w-full justify-start")}
+                    >
+                      <FlaskConical size={16} aria-hidden />
+                      {t("Try the interactive demo")}
+                    </Link>
+                  </>
+                )}
                 <Link
                   id="quickstartLink"
                   href={`/docs/${docsLanguage}/quickstart`}

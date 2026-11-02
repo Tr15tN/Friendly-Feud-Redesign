@@ -1,3 +1,4 @@
+import { useDemo } from "@/components/Demo/DemoContext";
 import FinalPage from "@/components/FinalPage";
 import QuestionBoard from "@/components/QuestionBoard";
 import Round from "@/components/Round";
@@ -32,6 +33,7 @@ interface BuzzerPageProps {
 
 export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team }: BuzzerPageProps) {
   const { i18n, t } = useTranslation();
+  const demo = useDemo();
   const [buzzed, setBuzzed] = useState(false);
   const [timer, setTimer] = useState(0);
   const [showMistake, setShowMistake] = useState<number | null>(null);
@@ -52,7 +54,8 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
   };
 
   useEffect(() => {
-    cookieCutter.set("session", `${room}:${id}:0`);
+    // The demo must never overwrite the visitor's real session cookie.
+    if (!demo) cookieCutter.set("session", `${room}:${id}:0`);
     const retryInterval = setInterval(() => {
       if (ws.current.readyState !== 1) {
         refreshCounterRef.current++;
@@ -76,8 +79,10 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
         console.debug(id);
         send({ action: "pong", id: id });
       } else if (json.action === "mistake" || json.action === "show_mistake") {
-        const audio = new Audio("wrong.mp3");
-        audio.play();
+        if (!demo) {
+          const audio = new Audio("wrong.mp3");
+          audio.play();
+        }
         if (mistakeTimeoutRef.current) clearTimeout(mistakeTimeoutRef.current);
         setShowMistake(typeof json.data === "number" ? json.data : 1);
         mistakeTimeoutRef.current = setTimeout(() => {
@@ -222,10 +227,11 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                   <div className="flex flex-col">
                     {game.buzzed.map((x, i) => {
                       const player = game.registeredPlayers[x.id];
-                      const teamIndex = player?.team;
+                      // A physical buzzer press has no player: it names a team, or waits for the host to.
+                      const teamIndex = player ? player.team : x.team;
 
-                      let teamName = t("Team not found");
-                      if (teamIndex != null) {
+                      let teamName = x.id || x.team != null ? t("Team not found") : t("Waiting for the host…");
+                      if (teamIndex != null && game.teams[teamIndex]) {
                         teamName = game.teams[teamIndex].name;
                       }
 
@@ -236,7 +242,7 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                         >
                           <div className="grow">
                             <p id={`buzzedList${i}Name`} className="w-20 truncate text-left text-foreground">
-                              {t("number", { count: i + 1 })}. {game.registeredPlayers[x.id].name}
+                              {t("number", { count: i + 1 })}. {player?.name ?? ""}
                             </p>
                           </div>
                           <div className="grow">

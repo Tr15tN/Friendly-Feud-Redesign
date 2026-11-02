@@ -1,3 +1,4 @@
+import { useDemo } from "@/components/Demo/DemoContext";
 import { BuzzedState } from "@/types/game";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,6 +26,7 @@ function buzzKey(buzzed: BuzzedState | undefined): string | null {
  */
 export default function BuzzerPopup({ buzzed, suppressed = false }: BuzzerPopupProps) {
   const { t } = useTranslation();
+  const demo = useDemo();
   const key = buzzKey(buzzed);
   const [shownKey, setShownKey] = useState<string | null>(null);
   const lastKeyRef = useRef<string | null>(null);
@@ -45,7 +47,7 @@ export default function BuzzerPopup({ buzzed, suppressed = false }: BuzzerPopupP
     // "Quiz Show Buzzer 2" by JapanYoshiTheGamer
     // Source: https://freesound.org/s/423219/
     // License: Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)
-    if (!resolvingPending) {
+    if (!resolvingPending && !demo) {
       new Audio("buzzer.wav").play().catch((error) => console.warn("Error playing buzzer sound:", error));
     }
 

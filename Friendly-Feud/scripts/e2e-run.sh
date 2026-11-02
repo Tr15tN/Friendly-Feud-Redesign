@@ -19,6 +19,7 @@ exec docker run --rm --network host --ipc=host \
   -e HOME=/tmp \
   -e npm_config_cache=/tmp/.npm \
   -e PLAYWRIGHT_BASE_URL="$BASE_URL" \
+  -e DEMO_SHOTS \
   -v "$PWD":/app \
   -v "$VOLUME":/app/node_modules \
   -w /app \
