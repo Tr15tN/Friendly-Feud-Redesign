@@ -262,8 +262,8 @@ export default function Home() {
   function getPage() {
     if (ws.current != null && registeredRoomCode && host && game) {
       return (
-        <div className="w-full lg:flex lg:flex-row lg:justify-center">
-          <div className="sm:w-full md:w-full lg:w-3/4">
+        <div className="w-full bg-pro-bg">
+          <div className="w-full">
             <AdminPage
               // @ts-expect-error: null check isn't working for typescript
               ws={ws}
@@ -311,7 +311,8 @@ export default function Home() {
   }
 
   if (typeof window !== "undefined") {
-    document.body.className = (game?.settings?.theme ?? "default") + " bg-background";
+    const hosting = host && registeredRoomCode && game;
+    document.body.className = hosting ? "bg-pro-bg" : (game?.settings?.theme ?? "default") + " bg-background";
   }
   return (
     <>
@@ -332,12 +333,7 @@ export default function Home() {
             setHostPassword: setHostPassword,
           }}
         >
-          <div
-            style={{
-              width: "100vh",
-            }}
-            className={`${game?.settings?.theme ?? "default"} h-screen w-screen`}
-          >
+          <div className={`${game?.settings?.theme ?? "default"} min-h-screen w-full`}>
             {/* TODO put in the theme switcher and put setting here */}
             {getPage()}
           </div>
