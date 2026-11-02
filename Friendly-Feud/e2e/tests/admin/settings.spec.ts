@@ -24,7 +24,9 @@ test("can edit title text", async () => {
   const gamePage = new GamePage(spectator.page);
 
   await adminPage.titleTextInput.fill("New Game Title");
-  await expect(gamePage.titleLogoImg).toContainText("New Game Title");
+  // A long name is balanced over two lines.
+  await expect(gamePage.titleLogoImg).toContainText("New Game");
+  await expect(gamePage.titleLogoImg).toContainText("Title");
 });
 
 test("can edit first team name text", async () => {

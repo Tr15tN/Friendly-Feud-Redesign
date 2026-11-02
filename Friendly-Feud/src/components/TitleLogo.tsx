@@ -16,6 +16,27 @@ function adjustTextSize(text: string, limit = 8, startingSize = 80) {
   return startingSize;
 }
 
+/** The text goes into SVG markup, so it must never be able to add elements or attributes. */
+function escapeXml(text: string) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/** A custom name is balanced over at most two lines, split at the space closest to the middle. */
+export function splitTitle(text: string): [string, string] {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  if (words.length < 2 || text.trim().length <= 9) return [words.join(" "), ""];
+  let best = 1;
+  let bestGap = Infinity;
+  for (let i = 1; i < words.length; i++) {
+    const gap = Math.abs(words.slice(0, i).join(" ").length - words.slice(i).join(" ").length);
+    if (gap < bestGap) {
+      bestGap = gap;
+      best = i;
+    }
+  }
+  return [words.slice(0, best).join(" "), words.slice(best).join(" ")];
+}
+
 interface TitleLogoProps {
   insert: string;
 }
@@ -27,8 +48,14 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
     setIsMounted(true);
   }, []);
 
-  const hasTitle = insert.length > 0 ? true : false;
   const { t } = useTranslation();
+  // The default brand ("Friendly Feud" / "Lendude Sõda") is replaced, not extended, by a custom name.
+  const hasTitle = insert.trim().length > 0;
+  const [first, second] = hasTitle ? splitTitle(insert) : [t("friendly"), t("feud")];
+  const line1 = escapeXml(first);
+  const line2 = escapeXml(second);
+  const y1 = line2 ? 124 : 158;
+  const y2 = 187;
 
   if (!isMounted) {
     return <div className="w-full" />;
@@ -92,8 +119,8 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
       xlink:href="#b"
       x1="15.48"
       x2="14.362"
-      y1="${hasTitle ? 10 : 10}"
-      y2="${hasTitle ? 60 : 60}"
+      y1="10"
+      y2="60"
       gradientUnits="userSpaceOnUse"
     />
     <linearGradient
@@ -102,16 +129,16 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
       gradientUnits="userSpaceOnUse"
       x1="15.48"
       x2="14.362"
-      y1="${hasTitle ? 100 : 50}"
-      y2="${hasTitle ? 140 : 120}"
+      y1="${y1 - 74}"
+      y2="${y1 - 4}"
     />
     <linearGradient
       id="h"
       xlink:href="#b"
       x1="21.422001"
       x2="19.037001"
-      y1="${hasTitle ? 150 : 120}"
-      y2="${hasTitle ? 180 : 150}"
+      y1="${y2 - 67}"
+      y2="${y2 - 37}"
       gradientUnits="userSpaceOnUse"
     />
   </defs>
@@ -158,55 +185,11 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
     </g>
     <g fill="#404040" id="g52" transform="translate(-2.3250272e-6,-2.2138205)">
       <text
-        transform="rotate(-4.3169998)"
-        id="text36"
-      >
-        <tspan x="162" y="84" id="tspan34">
-          <tspan
-            style="
-              -inkscape-font-specification: 'C059 Bold';
-              text-align: center;
-            "
-            font-weight="700"
-            font-size="${adjustTextSize(insert)}"
-            font-family="C059"
-            text-anchor="middle"
-            id="tspan32"
-          >
-            ${insert}
-          </tspan>
-        </tspan>
-      </text>
-    <text
-      transform="rotate(-4.3169998)"
-      id="text58"
-    >
-      <tspan
-        style="fill:url(#f);"
-        y="80.058754"
-        x="160.03912"
-        font-weight="700"
-        font-family="C059"
-        id="tspan56"
-      >
-        <tspan
-          style="fill: url(#f);"
-          font-size="${adjustTextSize(insert)}"
-          text-anchor="middle"
-          stroke="#000000"
-          stroke-width="1.13319"
-          id="tspan54"
-        >
-          ${insert}
-        </tspan>
-      </tspan>
-    </text>
-      <text
         id="text50"
          transform="rotate(-4.3169998)"
       >
         <tspan
-          y="${hasTitle ? 218 : 190}"
+          y="${y2 + 3}"
           font-weight="700"
           x="159"
           font-family="C059"
@@ -215,14 +198,14 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
           <tspan
             text-anchor="middle"
             stroke-width="0.7"
-            font-size="${adjustTextSize(t("feud"))}"
+            font-size="${adjustTextSize(second || t("feud"))}"
             stroke-linejoin="round"
             id="tspan46"
           >
             <tspan
               id="tspan44"
             >
-              ${t("feud")}
+              ${line2}
             </tspan>
           </tspan>
         </tspan>
@@ -233,7 +216,7 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
       id="text70"
     >
       <tspan
-        y="${hasTitle ? 218 : 187}"
+        y="${y2}"
         x="156"
         font-weight="700"
         font-family="C059"
@@ -245,12 +228,12 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
             text-align: center;
             fill: url(#h);
           "
-         font-size="${adjustTextSize(t("feud"))}"
+         font-size="${adjustTextSize(second || t("feud"))}"
           text-anchor="middle"
           stroke-width="1.13319"
           id="tspan66"
         >
-          ${t("feud")}
+          ${line2}
         </tspan>
       </tspan>
     </text>
@@ -262,7 +245,7 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
       >
         <tspan
           style="-inkscape-font-specification: 'C059 Bold'"
-          y="${hasTitle ? 148 : 124}"
+          y="${y1 + 4}"
           x="158"
           font-weight="700"
           font-family="C059"
@@ -273,13 +256,13 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
               -inkscape-font-specification: 'C059 Bold';
               text-align: center;
             "
-            font-size="${adjustTextSize(t("friendly"))}"
+            font-size="${adjustTextSize(first)}"
             text-anchor="middle"
             stroke-width="0.7"
             stroke-linejoin="round"
             id="tspan38"
           >
-            ${t("friendly")}
+            ${line1}
           </tspan>
         </tspan>
       </text>
@@ -289,7 +272,7 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
       id="text64"
     >
       <tspan
-        y="${hasTitle ? 148 : 120}"
+        y="${y1}"
         x="155.30832"
         font-weight="700"
         font-family="C059"
@@ -297,14 +280,14 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
       >
         <tspan
           style="fill: url(#g);"
-          font-size="${adjustTextSize(t("friendly"))}"
+          font-size="${adjustTextSize(first)}"
           text-anchor="middle"
           stroke="#000000"
           stroke-width="1.13319"
           stroke-linejoin="round"
           id="tspan60"
         >
-          ${t("friendly")}
+          ${line1}
         </tspan>
       </tspan>
     </text>
