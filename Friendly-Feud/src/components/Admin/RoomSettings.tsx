@@ -1,5 +1,7 @@
 import CreateNewGameButton from "@/components/Admin/CreateNewGameButton";
 import GameLoader from "@/components/Admin/GameLoader";
+import TeamColorPicker from "@/components/Admin/TeamColorPicker";
+import ThemePicker from "@/components/Admin/ThemePicker";
 import ThemeSwitcher from "@/components/Admin/ThemeSwitcher";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Section } from "@/components/ui/form";
@@ -58,6 +60,8 @@ export default function RoomSettings({
           />
           <ThemeSwitcher variant="pro" game={game} setGame={setGame} send={send} />
         </div>
+        <ThemePicker />
+        <TeamColorPicker game={game} setGame={setGame} send={send} />
       </Section>
     </>
   );

@@ -19,3 +19,4 @@ backend/.cache/
 .env.*.local
 tsconfig.tsbuildinfo
 e2e/live/screens/
+e2e/live/theme-shots/

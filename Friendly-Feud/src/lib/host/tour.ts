@@ -35,7 +35,7 @@ export const HOST_TOUR_STEPS: TourStep[] = [
   {
     id: "buzzers",
     title: "Buzzers",
-    body: "Players buzz from their phones. With a real buzzer, join from a second device, choose Host Buzzers and enter your host password. Any key can be bound as the button.",
+    body: "Players buzz from their phones. With a real buzzer, press Host Buzzers in the top bar, enter your host password and bind any key as the button.",
   },
   {
     id: "fastmoney",

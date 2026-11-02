@@ -143,9 +143,8 @@ const Overlay = forwardRef<OverlayHandle>(function Overlay(_props, ref) {
             ref={(el) => void (rings.current[i] = el)}
             rx="14"
             fill="none"
-            stroke="#5b5ff0"
             strokeWidth="3"
-            style={{ opacity: 0 }}
+            style={{ opacity: 0, stroke: "rgb(var(--pro-gold))" }}
           />
         ))}
       </svg>

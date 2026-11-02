@@ -37,7 +37,7 @@
       "question": "Nimeta populaarne suveüritus.",
       "answers": [
         { "ans": "Jaanituli", "pnt": 48 },
-        { "ans": "Õllesummer ", "pnt": 31 },
+        { "ans": "Õllesummer", "pnt": 31 },
         { "ans": "Viljandi folk", "pnt": 26 },
         { "ans": "Pärnu Beach Grind", "pnt": 8 },
         { "ans": "Võsu Rannafestival", "pnt": 7 },
@@ -79,7 +79,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta suvise reisi sihtkoht. ",
+      "question": "Nimeta suvise reisi sihtkoht.",
       "answers": [
         { "ans": "Saaremaa", "pnt": 33 },
         { "ans": "Pärnu", "pnt": 31 },
@@ -90,7 +90,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta enda lemmiktegevus suvel. ",
+      "question": "Nimeta enda lemmiktegevus suvel.",
       "answers": [
         { "ans": "Ujumine", "pnt": 53 },
         { "ans": "Puhkamine", "pnt": 44 },
@@ -101,7 +101,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta tegevus, mida sa suvel kindlasti EI tee. ",
+      "question": "Nimeta tegevus, mida sa suvel kindlasti EI tee.",
       "answers": [
         { "ans": "Suusatamine", "pnt": 85 },
         { "ans": "Lume lükkamine", "pnt": 23 },
@@ -111,7 +111,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta koht, kus võiks asuda/asub sinu unistuste suvekodu. ",
+      "question": "Nimeta koht, kus võiks asuda/asub sinu unistuste suvekodu.",
       "answers": [
         { "ans": "Saaremaa", "pnt": 27 },
         { "ans": "Pärnu", "pnt": 18 },
@@ -136,7 +136,7 @@
       "question": "Küsimus 1",
       "answers": [
         ["Vastus 1", 5],
-        ["Vasts 2", 3]
+        ["Vastus 2", 3]
       ]
     },
     { "question": "Küsimus 2", "answers": [] },

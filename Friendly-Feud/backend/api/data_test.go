@@ -69,3 +69,37 @@ func TestMergeGameKeepsScoringFields(t *testing.T) {
 		t.Fatalf("unawarded round should serialise awarded_to as null: %v", rounds[1])
 	}
 }
+
+// Team colours are relayed to the TV and phones, but only preset ids / #rrggbb survive.
+func TestMergeGameKeepsOnlyValidTeamColors(t *testing.T) {
+	payload := []byte(`{"teams":[
+		{"name":"A","points":0,"mistakes":0,"color":"blue"},
+		{"name":"B","points":0,"mistakes":0,"color":"red;background:url(//evil)"}
+	]}`)
+	var incoming game
+	if err := json.Unmarshal(payload, &incoming); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	current := &game{}
+	mergeGame(current, &incoming)
+	if current.Teams[0].Color != "blue" {
+		t.Fatalf("preset colour lost: %q", current.Teams[0].Color)
+	}
+	if current.Teams[1].Color != "" {
+		t.Fatalf("invalid colour kept: %q", current.Teams[1].Color)
+	}
+	for _, c := range []string{"#00ff7f", "#ABCDEF", "teal", ""} {
+		if !validTeamColor(c) {
+			t.Fatalf("%q should be valid", c)
+		}
+	}
+	for _, c := range []string{"#fff", "#12345g", "rgb(0,0,0)", "red;", "#1234567"} {
+		if validTeamColor(c) {
+			t.Fatalf("%q should be invalid", c)
+		}
+	}
+	out, _ := json.Marshal(current.Teams[1])
+	if string(out) != `{"name":"B","points":0,"mistakes":0}` {
+		t.Fatalf("empty colour should be omitted: %s", out)
+	}
+}

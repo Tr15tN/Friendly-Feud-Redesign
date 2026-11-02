@@ -11,6 +11,7 @@ import { useDemo } from "@/components/Demo/DemoContext";
 import Drawer from "@/components/ui/Drawer";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { normalizeLanguage } from "@/i18n/languages";
+import { useTeamColors } from "@/lib/hooks/useTeamColors";
 import { markTourDone, shouldAutoStartTour } from "@/lib/host/tour";
 import { Game, WSAction, WSEvent } from "@/types/game";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -33,6 +34,7 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
 
   const { hostPassword } = useContext(GameContext);
   const demo = useDemo();
+  useTeamColors(game?.teams);
 
   const [gameSelector, setGameSelector] = useState<string[]>([]);
   const [imageUploaded, setImageUploaded] = useState<File | null>(null);

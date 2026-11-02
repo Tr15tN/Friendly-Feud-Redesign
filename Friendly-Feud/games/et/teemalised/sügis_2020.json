@@ -9,7 +9,7 @@
           "pnt": 166
         },
         {
-          "ans": "Hea temperatuur (ei ole liiga palav, ega külm)",
+          "ans": "Hea temperatuur (ei ole liiga palav ega külm)",
           "pnt": 32
         },
         {
@@ -54,7 +54,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta toit, mida sünnipäeva pakutakse.",
+      "question": "Nimeta toit, mida sünnipäeval pakutakse.",
       "answers": [
         {
           "ans": "Salat",
@@ -80,7 +80,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta tuntud eestlane, kellel on Instagramis palju jälgijad.",
+      "question": "Nimeta tuntud eestlane, kellel on Instagramis palju jälgijaid.",
       "answers": [
         {
           "ans": "BSH",
@@ -129,7 +129,7 @@
           "pnt": 19
         },
         {
-          "ans": "Youtube",
+          "ans": "YouTube",
           "pnt": 14
         },
         {

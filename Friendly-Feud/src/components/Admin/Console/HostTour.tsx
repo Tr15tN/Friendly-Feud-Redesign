@@ -62,11 +62,11 @@ export default function HostTour({ open, onClose, docsLanguage }: HostTourProps)
       <p className="mt-1 text-sm text-pro-mute">{t(step.body)}</p>
       {last && (
         <p className="mt-3 text-sm">
-          <Link href={`/docs/${docsLanguage}/quickstart`} target="_blank" className="text-pro-accent underline">
+          <Link href={`/docs/${docsLanguage}/quickstart`} target="_blank" className="text-pro-link underline">
             {t("Host quickstart")}
           </Link>
           {" · "}
-          <Link href={`/docs/${docsLanguage}/guide`} target="_blank" className="text-pro-accent underline">
+          <Link href={`/docs/${docsLanguage}/guide`} target="_blank" className="text-pro-link underline">
             {t("Full game guide")}
           </Link>
         </p>

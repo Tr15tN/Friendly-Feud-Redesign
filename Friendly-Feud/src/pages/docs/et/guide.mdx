@@ -13,174 +13,174 @@ import BackToLoginButton from "@/components/BackToLoginButton";
 
 # Lendude Sõda — mängujuhend
 
-Täielik juhend Lendude Sõja korraldamiseks ja mängimiseks. See kirjeldab täpselt, kuidas see mäng töötab.
+Täielik juhend Lendude Sõja korraldamiseks ja mängimiseks. Siin on täpselt kirjas, kuidas mäng töötab.
 Kui mäng jätab otsuse sinu hooleks, on see märgitud **majareeglina**.
 
-> **Lühidalt mängujuhile:** korralda mäng → ava mängu aken teleris → mängijad liituvad telefonis mängu koodiga →
-> Alusta 1. vooru → avalda vastuseid, märgi vead, anna pott → korda → lõppvoor → loe lõpptulemus ette.
+> **Lühidalt mängujuhile:** korralda mäng → ava mänguaken teleris → mängijad liituvad telefonis mängukoodiga →
+> Alusta 1. vooru → ava vastuseid, märgi vead, anna pott → korda → lõppvoor → loe lõpptulemus ette.
 
 Alles alustad? Vaata enne [mängujuhi kiirjuhendit](/docs/et/quickstart).
 
 ## 1. Mängujuhi kiirstart
 
-1. **Loo mäng** — vajuta **Korralda mäng**. Saad 4-tähelise **mängu koodi** ja mängujuhi parooli, mis liigub
-   sinu juhtnuppudega automaatselt kaasa (seda ei pea kunagi sisestama).
-2. **Lae mäng** — vali valmis küsimustik või lae üles enda `.json`/`.csv` fail. Samas saad määrata ka
+1. **Loo mäng** — vajuta **Korralda mäng**. Saad 4-tähelise **mängukoodi** ja mängujuhi parooli, mis liigub
+   sinu juhtpaneeliga automaatselt kaasa (seda ei pea kunagi sisestama).
+2. **Lae mäng** — vali valmis küsimustik või lae üles oma `.json`- või `.csv`-fail. Samas saad määrata ka
    tiimide nimed, pealkirja, logo ja teema.
-3. **Ava mängu aken teleris** — **Ava mängu aken** avab tabloo (`/game`) uues vahekaardis; pane see teleri või projektori peale.
-4. **Mängijad liituvad telefonis** — nad sisestavad **mängu koodi** ja nime, valivad tiimi ja vajutavad
+3. **Ava mänguaken teleris** — **Ava mänguaken** avab tabloo (`/game`) uues vahekaardis; pane see teleri või projektori peale.
+4. **Mängijad liituvad telefonis** — nad sisestavad **mängukoodi** ja nime, valivad tiimi ja vajutavad
    **Mängi**, et nupp valmis panna.
-5. **Vaatajad ja lisaekraanid** — tiimi asemel võib valida **Ava mängu aken** (näita tablood mujal) või
-   **Ühised nupud** (ühine kahe nupuga paneel).
+5. **Vaatajad ja lisaekraanid** — tiimi asemel võib valida **Ava mänguaken** (näita tablood mujal) või
+   **Ühised nupud** (ühine kahe nupuga ekraan).
 6. **Alusta mängu** — vajuta **Alusta 1. vooru**.
 
 ## 2. Mängujuhi paneel ühe pilguga
 
 Paneelil on kolm etappi, mida näitab etapiriba: **Ooteruum → Voorud N/N → Lõppvoor**.
-Igal etapil on alati üks selge peamine (sinine) nupp, ülejäänud on teisejärgulised, ja üherealine vihje ütleb, mida järgmiseks teha.
+Igal etapil on alati üks selge peamine (sinine) nupp, ülejäänud on teisejärgulised ning üherealine vihje ütleb, mida järgmiseks teha.
 
 ## 3. Põhivoorud
 
 ### 3.1 Esimene vajutus (nupud)
 
 Nupud nullitakse vooru alguses. Mängijad vajutavad nuppu telefonis (või ühiste nuppude ekraanil).
-Tablool on näha, **kes vajutas esimesena**, ja paneel märgib selle tiimi „vajutas esimesena / juhib“.
+Tablool on näha, **kes vajutas esimesena**, ja paneel märgib selle tiimi „vajutas esimesena“ / „juhib“.
 
 Märge „juhib“ on **informatiivne** — mäng ei sunni järjekorda peale ega lukusta kedagi välja.
 **Majareegel:** mängi nagu klassikalises Lendude Sõjas — kiireimad mängijad võistlevad kõige populaarsema vastuse nimel;
-parema vastuse andja tiim saab kontrolli ning otsustab, kas mängida või loobuda.
+parema vastuse andnud tiim saab kontrolli ning otsustab, kas mängida või loobuda.
 
-### 3.2 Vastuste avaldamine
+### 3.2 Vastuste avamine
 
-Klõpsa vastusel (või vajuta klahve **1–8**), et see tablool avaldada; uuesti klõpsates või vajutades peidad selle.
-Avaldatud vastused lisanduvad **vooru potti**; kaartidel on `punktid × kordaja`.
-Küsimuse tekst on teleris **vaikimisi peidetud** — lülita seda nuppudega **Näita küsimusi / Peida küsimused**.
+Klõpsa vastusel (või vajuta klahve **1–8**), et see tablool avada; uuesti klõpsates või vajutades peidad selle.
+Avatud vastused lisanduvad **vooru potti**; kaartidel on `punktid × kordaja`.
+Küsimuse tekst on teleris **vaikimisi peidetud** — lülita seda nuppudega **Näita küsimusi** / **Peida küsimused**.
 
-### 3.3 Vead, kolm viga ja vastuse üle võtmine
+### 3.3 Vead, kolm viga ja ülevõtmine
 
-Vale vastuse korral lisa tiimile **viga** nupuga **Viga**. Igal tiimil on kolm vea kohta (rohkem ei lisa).
+Vale vastuse korral lisa tiimile **viga** nupuga **Viga**. Igal tiimil on kolm veakohta (rohkem vigu lisada ei saa).
 
-- **X ekraanile (viga ei lisa)** näitab tablool suurt ✕-i ilma vigu lisamata; tiimi **Viga** nupud lisavad päris vea.
+- **X ekraanile (viga ei lisa)** näitab tablool suurt ✕-i ilma viga lisamata; tiimi **Viga** nupud lisavad päris vea.
 - Paranda nupuga **Eemalda viga** või **Nulli vead**.
-- **Kolme vea** korral annab kollane vihje teada, et teine tiim saab vastuse üle võtta. Rakendus ainult **vihjab** —
-  sina otsustad ja vajutad punktide andmise nuppu. **Majareegel:** üle võtmisel annab teine tiim ühe vastuse;
+- **Kolme vea** korral annab kollane vihje teada, et teine tiim saab poti üle võtta. Rakendus ainult **vihjab** —
+  sina otsustad ja vajutad punktide andmise nuppu. **Majareegel:** ülevõtmisel annab teine tiim ühe vastuse;
   kui see on tablool, saab tiim kogu poti, vastasel juhul jääb pott juhtivale tiimile.
 
 ### 3.4 Kuidas vooru pott arvutatakse
 
-> pott = (kõigi avaldatud vastuste punktide summa) × vooru kordaja
+> pott = (kõigi avatud vastuste punktide summa) × vooru kordaja
 
-**Kordaja** annab topelt- (×2) ja kolmekordsed (×3) voorud — see on määratud mängufailis iga vooru kohta
-või muudetav otse nuppudega ×1/×2/×3 või kordaja lahtriga. Tühi või vigane kordaja loetakse ×1-ks.
-Avaldatud vastuse peitmine eemaldab selle väärtuse uuesti.
+**Kordaja** teeb voorudest kahekordsed (×2) või kolmekordsed (×3) — seda saab määrata mängufailis iga vooru jaoks
+või muuta otse nuppudega ×1/×2/×3 või kordaja lahtriga. Tühi või vigane kordaja loetakse ×1-ks.
+Avatud vastuse peitmine eemaldab selle väärtuse potist.
 
 ### 3.5 Poti andmine
 
-Vajuta **Anna N punkti: [tiim]**, et pott tiimile anda. See lisab punktid tema skoorile ja **lukustab vooru**:
-andmise nupud ja kordaja on keelatud ning tablool on kirjas „Pott: [tiim]“.
+Vajuta **Anna N punkti: [tiim]**, et pott tiimile anda. See lisab punktid tema punktisummale ja **lukustab vooru**:
+andmise nupud ja kordaja pole enam kasutatavad ning tablool on kirjas „Pott läks: [tiim]“.
 
-### 3.6 Pärast andmist avaldatud vastused (ei lähe arvesse)
+### 3.6 Pärast andmist avatud vastused (ei lähe arvesse)
 
-Pärast andmist on pott lukus selle väärtuse peale, mis anti. Allesjäänud vastuste avaldamine märgib need
-**(punkte ei loe)** ja tuhmistab teleris; need ei muuda ühtegi skoori.
+Pärast andmist jääb pott lukku sellele väärtusele, mis anti. Allesjäänud vastuste avamine märgib need
+**(ei lähe arvesse)** ja tuhmistab teleris; need ei muuda ühtegi punktisummat.
 
-### 3.7 Vigade parandamine: tagasivõtmine ja käsitsi parandus
+### 3.7 Eksimuste parandamine: tagasivõtmine ja käsitsi parandus
 
-**Võta tagasi** (↶, või **Ctrl/Cmd+Z**) astub punktitoimingutes sammhaaval tagasi (kuni 50 sammu),
-puudutamata mängijaid ega seadeid. **Käsitsi parandus** lisab või lahutab tiimi punktidest kindla arvu (alla 0 ei lähe).
+**Võta tagasi** (↶ või **Ctrl/Cmd+Z**) käib punktitoimingutes samm-sammult tagasi (kuni 50 sammu),
+mängijaid ja seadeid puudutamata. **Käsitsi parandus** lisab tiimi punktidele kindla arvu või lahutab selle (alla 0 ei lange).
 
 ### 3.8 Punktiarvestuse näide
 
 Vastused: Must kapuuts ja keep 43, Vikat 20, Skelett 13, Mask 11, Meik 8. Voor on seatud **×2**.
 
-1. Avalda Must kapuuts ja keep (43) → pott = 43 × 2 = **86**.
-2. Avalda Skelett (13) → pott = (43 + 13) × 2 = **112**.
+1. Ava Must kapuuts ja keep (43) → pott = 43 × 2 = **86**.
+2. Ava Skelett (13) → pott = (43 + 13) × 2 = **112**.
 3. Alpha saab kolmanda vea; Bravo võtab õige vastusega üle.
-4. **Anna 112 tiimile Bravo** → Bravo **+112**, voor lukustub.
-5. Avalda Meik (8), et tablood täiendada → **(punkte ei loe)**; pott jääb **112**, skoor ei muutu.
+4. **Anna 112 punkti: Bravo** → Bravo **+112**, voor lukustub.
+5. Ava Meik (8), et tabloo täis saada → **(ei lähe arvesse)**; pott jääb **112**, punktisumma ei muutu.
 
 ## 4. Lõppvoor
 
 Vajuta **Lõppvoor**. Kaks mängijat mängivad ükshaaval samade küsimustega; eesmärk on koguda
-kokku punkte vähemalt **võiduni vajaliku summani**.
+kokku vähemalt **võiduks vajalik punktisumma**.
 
 ### 4.1 Kuidas mängitakse
 
 Iga küsimuse real: kirjuta mängija **vastus**, vali rippmenüüst **Anna punktid** sobiv tabloo vastus (ja punktid)
-(või jäta **Vastust pole 0**), vajuta **Avalda vastus** ja siis **Anna punktid**. Vastuse **Vastust pole** andmine
-mängib uuesti-proovi heli ja näitab **✗ 0** — see ei virgata viga.
+(või jäta valituks **Vastust pole 0**), vajuta **Ava vastus** ja seejärel **Anna punktid**. Valik **Vastust pole**
+mängib „proovi uuesti“ heli ja näitab **✗ 0** — see ei lisa viga.
 
-Teise mängija jaoks vajuta **Alusta lõppvooru 2**. Teine pool peidab esimese mängija vastused, kuni vajutad
-**Avalda esimese vooru vastused**, ja näitab kaaslase vastust, et saaksid kordusi hinnata.
+Teise mängija jaoks vajuta **Alusta: Lõppvoor 2**. Teine pool peidab esimese mängija vastused, kuni vajutad
+**Ava esimese vooru vastused**, ja näitab kaaslase vastust, et saaksid korduvaid vastuseid hinnata.
 
 ### 4.2 Taimerid
 
 Igal poolel on oma tagasiloendus (`final_round_timers`, vaikimisi 20 s ja 25 s).
-Kasuta **Käivita / Peata / Lähtesta taimer**. Tabloo ringikujuline taimer loendab alla ja annab nulli jõudes paneelile märku.
+Kasuta nuppe **Käivita taimer**, **Peata taimer** ja **Nulli taimer**. Tabloo ringikujuline taimer loendab alla ja annab nulli jõudes paneelile märku.
 
 ### 4.3 Korduvad vastused
 
-Teises pooles vajuta küsimusel **Juba vastatud**, kui mängija kordab esimese mängija vastust; see mängib kordushelli.
-Korduste hindamine on mängujuhi otsustada.
+Teises pooles vajuta küsimusel **Juba vastatud**, kui mängija kordab esimese mängija vastust; see mängib korduse heli.
+Korduste üle otsustab mängujuht.
 
 ### 4.4 Kogusumma ja võidu eesmärk
 
-**Kokku** = mõlema poole punktid. **Eesmärk** on vaikimisi **200** ja seda saab mängu kohta muuta:
+**Kokku** = mõlema poole punktid. **Eesmärk** on vaikimisi **200** ja seda saab iga mängu jaoks muuta:
 **Pealkirjad, tiimid ja seaded → Lõppvooru eesmärk**. Eesmärgi saavutamisel või ületamisel näitab tabloo **VÕIT**
 koos konfettiga. **Majareegel:** klassikalises lõppvoorus on 5 küsimust ja eesmärk 200.
 
 ## 5. Võit ja mängu lõpp
 
-Rakendus **ei kuuluta** põhimängu võitjat välja — see hoiab tiimide kogusummasid ja **tulemused loed ette sina**.
-**Majareegel:** võidab see, kellel on kokkulepitud arvu voorude järel rohkem punkte, või juhtiv tiim mängib lõppvooru.
-Ainus automaatne „võit“ on lõppvooru eesmärgi tähistamine. Lõpetamiseks näita uuesti **tiitelekraani** või vajuta **Välju**.
+Rakendus **ei kuuluta** põhimängu võitjat välja — see peab vaid tiimide punktisummasid ja **tulemused loed ette sina**.
+**Majareegel:** võidab tiim, kellel on kokkulepitud arvu voorude järel rohkem punkte, või mängib lõppvooru juhtiv tiim.
+Ainus automaatne „võit“ on lõppvooru eesmärgi tähistamine. Lõpetamiseks näita uuesti **pealkirjaekraani** või vajuta **Välju**.
 
 ## 6. Kiirklahvid
 
-Mängujuhi paneel (ei toimi kirjutamise ajal, tiitelekraanil ega lõppvoorus):
+Mängujuhi paneel (ei toimi kirjutamise ajal, pealkirjaekraanil ega lõppvoorus):
 
-- **1–8** — avalda / peida selle numbriga vastus praeguses voorus.
+- **1–8** — ava / peida selle numbriga vastus praeguses voorus.
 - **Ctrl/Cmd + Z** — võta viimane punktitoiming tagasi.
 
 Ühiste nuppude ekraan:
 
-- **j** — nupp tiimile 1 (Alpha). **k** — nupp tiimile 2 (Bravo). (Seo kaks päris klaviatuuriklahvi nuppudeks.)
-- Mis tahes **seotud nupu klahv** (vaikimisi **Enter**; muuda nupuga **Nupu klahvid**) — ühist nuppu vajutati.
-  Mängujuht saab akna **Kes oli esimene?** ja valib tiimi (töötavad ka **1** / **2**).
+- **j** — nupp tiimile 1 (Alpha). **k** — nupp tiimile 2 (Bravo). (Seo kaks füüsilist nuppu nende klahvidega.)
+- Mis tahes **seotud klahv** (vaikimisi **Enter**; muuda nupuga **Nupu klahvid**) — ühist nuppu vajutati.
+  Mängujuhile avaneb aken **Kes oli esimene?**, kus ta valib tiimi (töötavad ka klahvid **1** / **2**).
 
 ## 7. Mängujuhi paneeli ülevaade
 
-**Ülariba:** mängu kood · Ava mängu aken · Abimenüü (tutvustus, kiirjuhend, see juhend) · Välju (ainult mängujuht).
+**Ülariba:** mängukood · Ava mänguaken · Abimenüü (tutvustus, kiirjuhend, see juhend) · Välju (ainult mängujuht).
 
-**Kulg:** etapiriba · Tiitelekraan (näitab tiitlit; alustab otsast, kinnita keset mängu topeltklõpsuga) · Alusta 1. vooru ·
-vooru valik · Järgmine voor → (nullib vead, uus pott, nullib nupud) · Näita / Peida küsimused · Lõppvoor.
+**Kulg:** etapiriba · Pealkirjaekraan (näitab pealkirja; alustab otsast, keset mängu kinnita topeltklõpsuga) · Alusta 1. vooru ·
+vooru valik · Järgmine voor → (nullib vead ja nupud, alustab uue potiga) · Näita / Peida küsimused · Lõppvoor.
 
-**Ooteruum:** suur liitumiskood (ja „Liitu: [aadress]“, kui see on määratud), tiimide koosseisud, tiitelmuusika.
+**Ooteruum:** suur mängukood (ja „Liitu aadressil [aadress]“, kui see on määratud), tiimide koosseisud, pealkirjamuusika.
 
-**Skooririba:** iga tiimi nimi, skoor, kolm vea täppi ning märked „punktid antud / vajutas esimesena“;
-keskel on voor, pott (või „Pott: [tiim]“), ×1/×2/×3 ja kordaja lahter ning ↶ Võta tagasi.
+**Punktiriba:** iga tiimi nimi, punktid, kolm vea märki ning märked „punktid antud“ / „vajutas esimesena“;
+keskel on voor, pott (või „Pott läks: [tiim]“), ×1/×2/×3 ja kordaja lahter ning ↶ Võta tagasi.
 
 **Vastuste ruudustik:** iga vastuse jaoks üks nupp (klahvid 1–8); algväärtus → kordajaga väärtus,
-pärast andmist märge **(punkte ei loe)**, viimase toimingu tagasivõtmise kapsel.
+pärast andmist märge **(ei lähe arvesse)** ning viimase toimingu tagasivõtmise nupp.
 
 **Vead ja poti andmine:** Viga (tiim) · Eemalda viga · Nulli vead · X ekraanile (viga ei lisa) ·
-üle võtmise vihje kolme vea korral · Anna N punkti: [tiim] · Käsitsi parandus.
+ülevõtmise vihje kolme vea korral · Anna N punkti: [tiim] · Käsitsi parandus.
 
-**Lõppvooru juhtnupud:** Alusta lõppvooru 2 / Tagasi lõppvooru 1 juurde · Avalda / Peida esimese vooru vastused ·
-Käivita / Peata / Lähtesta taimer · küsimuse kohta: vastus, punktide rippmenüü, avalda, anna, olek ja (2. poolel)
-kaaslase vastus nupuga Juba vastatud · Esimene voor / Teine voor / Kokku ja Eesmärk.
+**Lõppvooru juhtnupud:** Alusta: Lõppvoor 2 / Tagasi: Lõppvoor 1 · Ava / Peida esimese vooru vastused ·
+Käivita taimer / Peata taimer / Nulli taimer · iga küsimuse juures: vastus, punktide rippmenüü, Ava vastus, Anna punktid, olek ja (2. poolel)
+kaaslase vastus koos nupuga Juba vastatud · Kokku ja Eesmärk.
 
 **Mängijad ja nupud:** nuppude järjekord koos nupuga Nulli nupud; mängijate loend, kus saab iga mängija ekraani
-peita ja mängija eemaldada.
+peita ja mängija mängust eemaldada.
 
 ## 8. Enda mängude loomine
 
-Kasuta sisseehitatud loojat aadressil **/new** (või **Loo enda küsimustik**), kirjuta `.json` käsitsi või impordi `.csv`.
+Kasuta sisseehitatud loojat aadressil **/new** (või nuppu **Loo enda küsimustik**), kirjuta `.json`-fail käsitsi või impordi `.csv`-fail.
 
 **/new looja:** lisa voorud (küsimus, kordaja 1/2/3, vastuse ja punktide paarid); lisa lõppvooru küsimused
-(vastus + punktid) ja kaks taimeri väärtust; **Salvesta** laadib alla `.json` faili, mille saad tagasi laadida nupuga **Lae mäng**.
+(vastus + punktid) ja kaks taimeri väärtust; **Salvesta** laadib alla `.json`-faili, mille saad tagasi laadida nupuga **Lae mäng**.
 
-**JSON-i põhiosad:**
+**JSON-faili põhiosad:**
 
 ```json
 {
@@ -209,31 +209,31 @@ Kasuta sisseehitatud loojat aadressil **/new** (või **Loo enda küsimustik**), 
 ```
 
 Põhivoorude vastused on `{ "ans", "pnt" }`; lõppvooru vastused on `["tekst", punktid]` paarid.
-`multiply` on topelt-/kolmekordne kordaja; `final_round_win_threshold` pole kohustuslik (vaikimisi 200).
+`multiply` on vooru kordaja (1, 2 või 3); `final_round_win_threshold` pole kohustuslik (vaikimisi 200).
 
 **CSV:** üks voor rea kohta — `Küsimus, Vastus, Punktid, Vastus, Punktid, ...`. Importimisel valid,
-mitu rida on voorud ja mitu lõppvoor.
+mitu rida on põhivoorud ja mitu lõppvooru küsimused.
 
 ## 9. Mängija lühijuhend
 
-Liitu mängu koodi ja nimega, vali tiim ja vajuta **Mängi**. Esimese vajutuse ajal puuduta **NUPP**
-(nupud nullitakse iga vooru alguses). Näed oma tiimi, skoori ja vigu; mängujuht võib sinu vaate „peita“.
-Ei mängi? Vali tiimi asemel **Ava mängu aken** või **Ühised nupud**.
+Liitu mängukoodi ja nimega, vali tiim ja vajuta **Mängi**. Esimese vajutuse ajal puuduta nuppu **NUPP**
+(nupud nullitakse iga vooru alguses). Näed oma tiimi, punkte ja vigu; mängujuht võib sinu ekraani „peita“.
+Ei taha mängida? Vali tiimi asemel **Ava mänguaken** või **Ühised nupud**.
 
 ## 10. Tõrkeotsing ja KKK
 
 **Uuesti ühendumine:** brauser jätab sinu seansi meelde; lehe uuesti avamine viib sind tavaliselt tagasi.
-„Mängu ei leitud“ tähendab, et mäng suleti või aegus — liitu uue koodiga.
+„Mängu ei leitud“ tähendab, et mäng suleti või aegus — liitu uue mängukoodiga.
 
-**Tabloo eraldi seadmes:** korralda mäng juhtseadmes, siis teleri seadmes **liitu** ja vajuta tiimi valimise asemel
-**Ava mängu aken**. Ühise päris nupu jaoks vali **Ühised nupud** ja sisesta mängujuhi lehel näidatud parool;
-see ekraan reageerib klahvidele **j** ja **k** ning kõigile klahvidele, mille sead alt **Nupu klahvid**.
+**Tabloo eraldi seadmes:** korralda mäng juhtseadmes, seejärel liitu teleri seadmes mänguga ja vajuta tiimi valimise asemel
+**Ava mänguaken**. Ühise päris nupu jaoks vali **Ühised nupud** ja sisesta mängujuhi lehel näidatud parool;
+see ekraan reageerib klahvidele **j** ja **k** ning kõigile klahvidele, mille oled sidunud nupuga **Nupu klahvid**.
 
 **Turvamärkus:** mängu saab juhtida ainult **mängujuht** (brauser, mis mängu lõi ja millel on mängujuhi parool) —
-vastuseid avaldada, punkte anda, seadeid muuta või mäng lõpetada. Mängijad, vaatajad ja teiste mängude inimesed ei saa seda teha,
-isegi kui nad mängu koodi teavad. Hoia mängujuhi vahekaart ja seanss enda käes.
+vastuseid avada, punkte anda, seadeid muuta või mängu lõpetada. Mängijad, vaatajad ja teiste mängude osalejad ei saa seda teha,
+isegi kui nad mängukoodi teavad. Hoia mängujuhi vahekaart ja seanss enda käes.
 
-**Mängu aken ei uuene:** laadi mängu akna vahekaart uuesti (see liitub salvestatud seansiga tagasi)
+**Mänguaken ei uuene:** laadi mänguakna vahekaart uuesti (see liitub salvestatud seansiga automaatselt tagasi)
 ja veendu, et tegutsed mängujuhi vahekaardil, mitte vaataja või mängija vahekaardil.
 
 </div>

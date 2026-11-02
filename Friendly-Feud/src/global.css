@@ -2,6 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---- UI themes (host console, phones, login). Per-device, set as html[data-theme].
+   Values are space-separated RGB so Tailwind opacity utilities (bg-pro-bg/40) keep working.
+   Team colours (--pro-team0/1, --team1/2-*) are set at runtime from the game state. ---- */
+:root {
+  --pro-team0: 251 113 133;
+  --pro-team0-on: 0 0 0;
+  --pro-team1: 52 211 153;
+  --pro-team1-on: 0 0 0;
+  --team1-900: 85 38 45;
+  --team1-700: 188 85 100;
+  --team1-500: 251 113 133;
+  --team1-200: 254 229 233;
+  --team2-900: 14 57 41;
+  --team2-700: 31 127 92;
+  --team2-500: 52 211 153;
+  --team2-200: 218 247 237;
+}
+
+:root, [data-theme="dark"] {
+  --pro-bg: 14 16 19;
+  --pro-panel: 22 25 31;
+  --pro-raised: 29 33 41;
+  --pro-line: 37 42 51;
+  --pro-text: 232 234 238;
+  --pro-mute: 139 147 163;
+  --pro-accent: 91 95 240;
+  --pro-accent-hover: 74 78 216;
+  --pro-link: 158 161 247;
+  --pro-gold: 251 191 36;
+  --pro-ok: 52 211 153;
+  --pro-danger: 220 38 38;
+  --pro-danger-text: 248 113 113;
+}
+
+[data-theme="classic"] {
+  --pro-bg: 7 20 56;
+  --pro-panel: 13 32 88;
+  --pro-raised: 17 40 107;
+  --pro-line: 58 95 184;
+  --pro-text: 255 255 255;
+  --pro-mute: 188 202 240;
+  --pro-accent: 200 16 46;
+  --pro-accent-hover: 166 13 38;
+  --pro-link: 255 214 102;
+  --pro-gold: 255 200 61;
+  --pro-ok: 74 222 128;
+  --pro-danger: 220 38 38;
+  --pro-danger-text: 255 163 163;
+}
+
+[data-theme="sunset"] {
+  --pro-bg: 29 16 32;
+  --pro-panel: 42 22 48;
+  --pro-raised: 56 32 63;
+  --pro-line: 95 58 102;
+  --pro-text: 255 243 234;
+  --pro-mute: 214 184 192;
+  --pro-accent: 194 65 12;
+  --pro-accent-hover: 154 52 18;
+  --pro-link: 255 179 138;
+  --pro-gold: 255 179 71;
+  --pro-ok: 94 234 212;
+  --pro-danger: 220 38 38;
+  --pro-danger-text: 255 154 154;
+}
+
+[data-theme="forest"] {
+  --pro-bg: 12 26 18;
+  --pro-panel: 18 40 27;
+  --pro-raised: 26 54 38;
+  --pro-line: 47 92 66;
+  --pro-text: 234 246 238;
+  --pro-mute: 163 199 176;
+  --pro-accent: 21 128 61;
+  --pro-accent-hover: 17 107 51;
+  --pro-link: 110 231 160;
+  --pro-gold: 233 196 106;
+  --pro-ok: 134 239 172;
+  --pro-danger: 220 38 38;
+  --pro-danger-text: 255 154 154;
+}
+
+[data-theme="neon"] {
+  --pro-bg: 4 8 15;
+  --pro-panel: 10 18 32;
+  --pro-raised: 16 28 51;
+  --pro-line: 36 66 109;
+  --pro-text: 234 252 255;
+  --pro-mute: 146 188 203;
+  --pro-accent: 14 116 144;
+  --pro-accent-hover: 11 93 117;
+  --pro-link: 34 211 238;
+  --pro-gold: 250 204 21;
+  --pro-ok: 74 222 128;
+  --pro-danger: 220 38 38;
+  --pro-danger-text: 255 138 160;
+}
+
+[data-theme="candy"] {
+  --pro-bg: 26 16 51;
+  --pro-panel: 38 23 72;
+  --pro-raised: 51 31 92;
+  --pro-line: 90 62 150;
+  --pro-text: 253 242 255;
+  --pro-mute: 208 188 240;
+  --pro-accent: 190 24 93;
+  --pro-accent-hover: 157 23 77;
+  --pro-link: 249 168 212;
+  --pro-gold: 253 224 71;
+  --pro-ok: 94 234 212;
+  --pro-danger: 220 38 38;
+  --pro-danger-text: 255 154 154;
+}
+
 @font-face {
   font-family: "Roboto Bold";
   src: url("/fonts/Roboto/Roboto-Bold.ttf");

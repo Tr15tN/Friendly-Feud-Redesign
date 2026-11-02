@@ -8,6 +8,7 @@ import TeamName from "@/components/TeamName";
 import TitleLogo from "@/components/TitleLogo";
 import { buttonClass } from "@/components/ui/button-class";
 import { ERROR_CODES } from "@/i18n/errorCodes";
+import { useTeamColors } from "@/lib/hooks/useTeamColors";
 import { getTeamDisplayName } from "@/lib/utils";
 import { Game, WSEvent } from "@/types/game";
 // @ts-expect-error cookie-cutter is not typed
@@ -34,6 +35,7 @@ interface BuzzerPageProps {
 export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team }: BuzzerPageProps) {
   const { i18n, t } = useTranslation();
   const demo = useDemo();
+  useTeamColors(game?.teams);
   const [buzzed, setBuzzed] = useState(false);
   const [timer, setTimer] = useState(0);
   const [showMistake, setShowMistake] = useState<number | null>(null);

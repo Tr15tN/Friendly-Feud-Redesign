@@ -61,7 +61,7 @@ export function ToggleRow({ id, label, hint, checked, disabled, onChange }: Togg
       <input
         id={id}
         type="checkbox"
-        className="mt-0.5 size-5 shrink-0 cursor-pointer accent-[#5b5ff0] disabled:cursor-not-allowed"
+        className="mt-0.5 size-5 shrink-0 cursor-pointer accent-pro-accent disabled:cursor-not-allowed"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}

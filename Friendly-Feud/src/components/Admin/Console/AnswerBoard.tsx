@@ -19,7 +19,7 @@ const BADGE_STYLES = {
   // The key digit is drawn by CSS (before:content-[attr(data-key)]) instead of a text node because
   // the e2e suite parses points from the tile's innerText.
   hidden: "bg-pro-bg text-pro-mute before:content-[attr(data-key)]",
-  scored: "bg-pro-ok text-pro-team1-on",
+  scored: "bg-pro-ok text-black",
   cleanup: "bg-pro-line text-pro-mute",
 } as const;
 

@@ -44,6 +44,8 @@ type team struct {
 	Name     string `json:"name"`
 	Points   int    `json:"points"`
 	Mistakes int    `json:"mistakes"`
+	// Team colour: a preset id or "#rrggbb"; empty means the default colour.
+	Color string `json:"color,omitempty"`
 }
 
 type answer struct {

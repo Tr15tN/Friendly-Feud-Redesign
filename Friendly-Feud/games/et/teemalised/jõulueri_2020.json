@@ -83,7 +83,7 @@
       "question": "Nimeta populaarne jõulufilm.",
       "answers": [
         {
-          "ans": "Üksinda kodsu",
+          "ans": "Üksinda kodus",
           "pnt": 211
         },
         {
@@ -95,7 +95,7 @@
           "pnt": 20
         },
         {
-          "ans": "Love actually",
+          "ans": "Love Actually",
           "pnt": 8
         },
         {
@@ -139,7 +139,7 @@
       "question": "Nimeta ettevõte, kelle jõulureklaame telekast näinud oled.",
       "answers": [
         {
-          "ans": "Coca Cola",
+          "ans": "Coca-Cola",
           "pnt": 212
         },
         {
@@ -225,7 +225,7 @@
       "question": "Nimeta perekondlik jõulutraditsioon.",
       "answers": [
         {
-          "ans": "Kinkid",
+          "ans": "Kingid",
           "pnt": 126
         },
         {
@@ -238,7 +238,7 @@
   ],
   "final_round": [
     {
-      "question": "Nimeta midagi, mida inimesed jõulu päeval teevad",
+      "question": "Nimeta midagi, mida inimesed jõulupäeval teevad",
       "answers": [
         ["Kingituste avamine", 70],
         ["Söömine", 10],
@@ -258,7 +258,7 @@
       ]
     },
     {
-      "question": "Nimeta põhjus, miks Jõuluvana naine võiks Põhjapolaarilt põgeneda",
+      "question": "Nimeta põhjus, miks Jõuluvana naine võiks Põhjapooluselt põgeneda",
       "answers": [
         ["Külm", 33],
         ["Jõuluvana", 31],

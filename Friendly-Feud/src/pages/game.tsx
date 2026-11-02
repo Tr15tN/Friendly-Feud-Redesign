@@ -3,6 +3,7 @@ import BuzzerPopup from "@/components/BuzzerPopup";
 import StrikeOverlay from "@/components/StrikeOverlay";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { hasPendingBuzz } from "@/lib/host/console";
+import { useTeamColors } from "@/lib/hooks/useTeamColors";
 import { getWebSocketUrl } from "@/lib/utils";
 import { BuzzedState, Game, WSAction, WSEvent } from "@/types/game";
 // @ts-expect-error: not sure if cookie-cutter is typed
@@ -17,6 +18,7 @@ let timerInterval: NodeJS.Timeout | null = null;
 export default function GamePage() {
   const { i18n, t } = useTranslation();
   const [game, setGame] = useState<Game | null>(null);
+  useTeamColors(game?.teams);
   const [timer, setTimer] = useState(0);
   const [showMistake, setShowMistake] = useState<number | null>(null);
   const [isHost, setIsHost] = useState(false);

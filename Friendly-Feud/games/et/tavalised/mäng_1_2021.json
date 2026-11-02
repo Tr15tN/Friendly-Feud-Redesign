@@ -2,7 +2,7 @@
   "settings": {},
   "rounds": [
     {
-      "question": "Nimeta midagi, mis iseloomustab 90.ndaid Eestis.",
+      "question": "Nimeta midagi, mis iseloomustab 90ndaid Eestis.",
       "answers": [
         {
           "ans": "Kuritegevus (maffia, tapmised, vargused)",
@@ -132,7 +132,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta midagi, mis seostub Sinu jaoks pokkeriga.",
+      "question": "Nimeta midagi, mis seostub sinu jaoks pokkeriga.",
       "answers": [
         {
           "ans": "Raha",
@@ -184,7 +184,7 @@
       "multiply": 1
     },
     {
-      "question": "Nimeta midagi, mis kuulub hea tööandja \"motivatsioonipaketti\".",
+      "question": "Nimeta midagi, mis kuulub hea tööandja „motivatsioonipaketti“.",
       "answers": [
         {
           "ans": "Hea palk",

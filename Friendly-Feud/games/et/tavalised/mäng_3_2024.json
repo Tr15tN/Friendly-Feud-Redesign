@@ -187,11 +187,11 @@
       "question": "Nimeta elukutse, kelle palk on häbiväärselt väike.",
       "answers": [
         {
-          "ans": "Õpetajad",
+          "ans": "Õpetaja",
           "pnt": 103
         },
         {
-          "ans": "Päästjad",
+          "ans": "Päästja",
           "pnt": 92
         },
         {
@@ -199,7 +199,7 @@
           "pnt": 53
         },
         {
-          "ans": "Koristajad",
+          "ans": "Koristaja",
           "pnt": 45
         },
         {

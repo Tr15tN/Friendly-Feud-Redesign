@@ -3,8 +3,22 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"time"
 )
+
+var teamColorPresets = map[string]bool{
+	"red": true, "orange": true, "yellow": true, "green": true,
+	"teal": true, "blue": true, "purple": true, "pink": true,
+}
+
+var teamColorHex = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
+
+// validTeamColor accepts "" (default), a preset id or "#rrggbb". The value is rendered
+// into CSS variables by clients, so anything else is dropped.
+func validTeamColor(c string) bool {
+	return c == "" || teamColorPresets[c] || teamColorHex.MatchString(c)
+}
 
 func mergeGame(game *game, newData *game) {
 	game.Round = newData.Round 
@@ -16,6 +30,11 @@ func mergeGame(game *game, newData *game) {
 	game.IsFinalSecond = newData.IsFinalSecond
 	game.PointTracker = newData.PointTracker
 	game.Settings = newData.Settings
+	for i := range newData.Teams {
+		if !validTeamColor(newData.Teams[i].Color) {
+			newData.Teams[i].Color = ""
+		}
+	}
 	game.Teams = newData.Teams
 	game.Title = newData.Title
 	game.TitleText = newData.TitleText

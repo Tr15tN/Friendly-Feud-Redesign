@@ -121,6 +121,8 @@ export interface Team {
   name: string;
   points: number;
   mistakes: number;
+  // Team colour: a preset id (see lib/theme/team-palette.ts) or "#rrggbb". Unset = default.
+  color?: string;
 }
 
 export interface Answer {

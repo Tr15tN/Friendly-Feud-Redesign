@@ -76,11 +76,11 @@ export default function StepBar({
           </p>
           {last && !running && (
             <p className="mt-1 text-sm">
-              <Link href={`/docs/${language}/quickstart`} target="_blank" className="text-pro-accent underline">
+              <Link href={`/docs/${language}/quickstart`} target="_blank" className="text-pro-link underline">
                 {t("Host quickstart")}
               </Link>
               {" · "}
-              <Link href={`/docs/${language}/guide`} target="_blank" className="text-pro-accent underline">
+              <Link href={`/docs/${language}/guide`} target="_blank" className="text-pro-link underline">
                 {t("Full game guide")}
               </Link>
             </p>
