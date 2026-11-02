@@ -56,3 +56,22 @@ test("quit game should return to home page", async ({ browser }) => {
   await buzzerPage.quitButton.click();
   await expect(host.page).toHaveURL("/");
 });
+
+test("with 'Physical buzzer' picked, players get no on-screen buzz button", async ({ browser }) => {
+  const s = new Setup(browser);
+  const host = await s.host();
+  const player = await s.addPlayer();
+  const adminPage = new AdminPage(host.page);
+
+  await adminPage.gameSelector.selectOption({ index: 1 });
+  await host.page.getByLabel("Physical buzzer").check();
+  await adminPage.startRoundOneButton.click();
+
+  await expect(player.page.getByTestId("physicalBuzzerNote")).toBeVisible({ timeout: 10000 });
+  await expect(player.page.getByTestId("buzzerButton")).toHaveCount(0);
+
+  // Untick it from the Settings drawer and the button comes back.
+  await host.page.getByTestId("settingsDrawerButton").click();
+  await host.page.getByLabel("Physical buzzer").uncheck();
+  await expect(player.page.getByTestId("buzzerButton")).toBeVisible({ timeout: 10000 });
+});

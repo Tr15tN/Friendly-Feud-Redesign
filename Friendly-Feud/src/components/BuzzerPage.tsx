@@ -186,7 +186,11 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
 
                 {/* Buzzer Section TODO replace with function*/}
                 <div className="w-full text-center">
-                  {buzzed || game.buzzed.map((a) => a.id).includes(id) ? (
+                  {game.settings.physical_buzzer ? (
+                    <p id="physicalBuzzerNote" className="rounded-xl border-2 border-secondary-900 p-4 text-lg text-foreground">
+                      {t("The host is using a physical buzzer. Watch the board!")}
+                    </p>
+                  ) : buzzed || game.buzzed.map((a) => a.id).includes(id) ? (
                     <Image
                       className="inline-block w-1/2"
                       id="buzzerButtonPressed"
@@ -214,7 +218,9 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                       alt="Buzzer Button Pressed"
                     />
                   )}
-                  <p className="p-2 italic text-secondary-900">{t("buzzer is reset between rounds")}</p>
+                  {!game.settings.physical_buzzer && (
+                    <p className="p-2 italic text-secondary-900">{t("buzzer is reset between rounds")}</p>
+                  )}
                 </div>
                 {/* END Buzzer Section TODO replace with function*/}
                 <div className="flex w-full justify-around">

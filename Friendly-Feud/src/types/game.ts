@@ -109,6 +109,8 @@ export interface Settings {
   player_buzzer_sound: boolean;
   first_buzzer_sound_only: boolean;
   hide_join_info: boolean;
+  // The host uses a physical buzzer: players get no on-screen buzz button.
+  physical_buzzer: boolean;
   // Fast money total needed to show the "win" celebration. Defaults to 200 when unset.
   final_round_win_threshold?: number;
 }

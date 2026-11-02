@@ -18,11 +18,28 @@
 
 <img src="docs/screenshots/host-round.png" alt="The redesigned host console" width="860">
 
-**[▶ Play it live](https://m0usetrap.ee)** · **[Quickstart for hosts](https://m0usetrap.ee/docs/en/quickstart)** · **[Hosting guide](Friendly-Feud/deploy/README.md)**
+**[🎮 Try the interactive demo](https://m0usetrap.ee/demo)** · **[▶ Play it live](https://m0usetrap.ee)** · **[Quickstart for hosts](https://m0usetrap.ee/docs/en/quickstart)** · **[Hosting guide](Friendly-Feud/deploy/README.md)**
 
 </div>
 
 ---
+
+## 🎮 Try it in two minutes, no setup
+
+**[Open the interactive demo →](https://m0usetrap.ee/demo)** It is a guided, hands-off playthrough of a whole game that runs
+in your browser, with nothing to host and no account:
+
+- **Watch it happen in real time.** A cursor clicks through the real host console, highlights what it is explaining,
+  types the team names, and has a player join from a phone while the TV board updates next to it.
+- **See every screen:** the lobby, the round board with buzz, reveal, strikes and steals, banking points, the next round,
+  a real USB buzzer ("Who was first?") and Fast Money.
+- **Never locked in.** It is a separate button, not the first-run tour: *Skip animation*, *Back*, *Replay* and *Exit* are
+  always there, and you can take over the console at any step and click around yourself.
+- **Safe.** The demo runs against an in-browser fake server, so it never creates a room or touches the real game server.
+
+<p align="center">
+  <a href="https://m0usetrap.ee/demo"><img src="docs/screenshots/demo.png" alt="The interactive demo: the host console on the left, the TV board and a player's phone docked on the right" width="860"></a>
+</p>
 
 ## ✨ What's new
 
@@ -32,7 +49,9 @@ the TV board are the original's; most of what you touch as a host has been rebui
 | | |
 |---|---|
 | 🎛️ **New host console** | A dark, dense console built for one hand on the mouse: round stepper, one-click Strike and Bank, ×1/×2/×3 multipliers, **Undo**, and keys `1`-`8` to reveal answers. |
-| 🔔 **USB buzzer** | Bind any key (a USB arcade button works as a keyboard) to a physical buzzer. A press starts the buzz, and the host gets a **"Who was first?"** prompt to give it to the right team. |
+| 🔔 **USB buzzer** | Bind any key (a USB arcade button works as a keyboard) to a physical buzzer. A press starts the buzz, and the host gets a **"Who was first?"** prompt to give it to the right team. Tick **Physical buzzer** and players get no on-screen buzz button. |
+| 🎮 **Interactive demo** | A hands-off playthrough at [`/demo`](https://m0usetrap.ee/demo): a cursor drives the real console while the TV board and a player's phone react live. Skippable, replayable, no setup. |
+| 🎨 **Themes and team colours** | Six console themes (Dark, Classic, Sunset, Forest, Neon, Candy) and a colour picker for each team that shows on the console, the TV and the phones. |
 | 🧭 **Guided tour** | First-time hosts get an interactive walkthrough. It's replayable from the Help menu, and there's a written quickstart. |
 | 🇪🇪 **Estonian, properly** | Full Estonian UI and docs, plus Estonian question sets. The game is branded **Lendude Sõda**. |
 | 🗂️ **Better setup** | Card-style lobby and settings, question sets grouped into *Classic* and *Themed*, Fast Money rebuilt to match. |

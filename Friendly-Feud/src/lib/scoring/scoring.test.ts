@@ -35,6 +35,7 @@ function makeGame(): Game {
       player_buzzer_sound: false,
       first_buzzer_sound_only: false,
       hide_join_info: false,
+      physical_buzzer: false,
     },
     teams: [
       { name: "Alpha", points: 0, mistakes: 0 },

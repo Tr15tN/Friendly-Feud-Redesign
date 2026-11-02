@@ -62,6 +62,10 @@ func RegisterBuzzer(client *Client, event *Event) GameError {
 	if !clientOwnsID(&room, event.ID, client) {
 		return GameError{code: FORBIDDEN}
 	}
+	// With a physical buzzer only the host's buzzer counts; ignore stray on-screen buzzes.
+	if room.Game.Settings.PhysicalBuzzer {
+		return GameError{}
+	}
 	player, ok := room.Game.RegisteredPlayers[event.ID]
 	if !ok {
 		return GameError{code: PLAYER_NOT_FOUND}

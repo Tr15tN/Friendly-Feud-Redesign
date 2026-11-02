@@ -33,6 +33,14 @@ export default function AdminSettings({ game, setGame, send, hostPassword }: Adm
           tooltip="Hide the room code and team info on the title screen"
           settingKey="hide_join_info"
         />
+        <SettingsCheckbox
+          game={game}
+          setGame={setGame}
+          send={send}
+          label="Physical buzzer"
+          tooltip="You buzz with a real buzzer: players get no on-screen buzz button on their phones"
+          settingKey="physical_buzzer"
+        />
       </Section>
       <Section title={t("Fast Money")}>
         <div className="grid gap-4 sm:grid-cols-2">

@@ -36,6 +36,8 @@ type settings struct {
 	PlayerBuzzerSound    bool   `json:"player_buzzer_sound"`
 	FirstBuzzerSoundOnly bool   `json:"first_buzzer_sound_only"`
 	HideJoinInfo         bool   `json:"hide_join_info"`
+	// The host buzzes with a physical buzzer, so players get no on-screen buzz button.
+	PhysicalBuzzer bool `json:"physical_buzzer"`
 	// Fast money total required for the win celebration. 0 means use the default (200).
 	FinalRoundWinThreshold int `json:"final_round_win_threshold,omitempty"`
 }
