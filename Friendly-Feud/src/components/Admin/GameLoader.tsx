@@ -1,6 +1,8 @@
-import ToolTipIcon from "@/components/ui/tooltip";
+import { buttonClass } from "@/components/ui/button-class";
+import { Field, inputClass } from "@/components/ui/form";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { normalizeLanguage } from "@/i18n/languages";
+import { groupGames } from "@/lib/host/games";
 import { handleCsvFile, handleJsonFile, isValidFileType } from "@/lib/utils";
 import { WSEvent } from "@/src/types";
 import { FileUp } from "lucide-react";
@@ -71,66 +73,67 @@ const GameLoader = ({ gameSelector, send, setCsvFileUpload, setCsvFileUploadText
     // allow same file to be selected again
     fileInputRef.current!.value = "";
   }
+  const groups = groupGames(gameSelector);
+  const groupTitle = { classic: t("Classic games"), themed: t("Themed games"), other: t("More games") };
   return (
-    <div className="flex flex-col rounded  border-2">
-      <div className="flex translate-y-3 flex-row  items-center justify-center space-x-5 p-2">
-        {gameSelector.length > 0 ? (
-          <div>
-            <select
-              id="gameSelector"
-              value={selectedGame}
-              className="rounded border-2 bg-secondary-500 text-foreground"
-              onChange={(e) => {
-                setSelectedGame(e.target.value);
-                send({
-                  action: "load_game",
-                  file: e.target.value,
-                  lang: normalizeLanguage(i18n.resolvedLanguage ?? i18n.language),
-                });
-              }}
-            >
-              <option disabled value="">
-                {t("Select question set")}
-              </option>
-              {gameSelector.map((value, index) => (
-                <option key={`set-${index}`} value={value}>
-                  {value.replace(".json", "")}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : null}
-        <div id="gamePickerFileUploadButton">
-          <label htmlFor="gamePickerFileUpload">
-            <div className="flow-row flex items-center space-x-2">
-              <ToolTipIcon
-                Icon={FileUp}
-                size={32}
-                cursor="pointer"
-                message={`CSV ${t("Expected format")}: ${t("Question")}, ${t("Answer")}, ${t("Points")}, ${t("Answer")}, ${t("Points")} ...`}
-              />
-              <div>
-                <p className="text-s text-secondary-900">{t("upload game")}</p>
-                <p className="text-xs text-secondary-900">.json, .csv</p>
-              </div>
-            </div>
-          </label>
-          {/* CSV Upload */}
-          <input
-            className="hidden"
-            type="file"
-            accept=".json, .csv"
-            id="gamePickerFileUpload"
-            ref={fileInputRef}
-            onChange={handleGameUpload}
-          />
-        </div>
-      </div>
-      <div className="flex flex-row">
-        <span className="inline shrink translate-x-3 translate-y-3 bg-background px-2 text-foreground">
-          {t("Load Game")}
-        </span>
-        <div className="grow" />
+    <div className="space-y-4">
+      {gameSelector.length > 0 && (
+        <Field
+          label={t("Built-in question sets")}
+          htmlFor="gameSelector"
+          hint={t("Sets follow the language you picked below.")}
+        >
+          <select
+            id="gameSelector"
+            value={selectedGame}
+            className={inputClass}
+            onChange={(e) => {
+              setSelectedGame(e.target.value);
+              send({
+                action: "load_game",
+                file: e.target.value,
+                lang: normalizeLanguage(i18n.resolvedLanguage ?? i18n.language),
+              });
+            }}
+          >
+            <option disabled value="">
+              {t("Select question set")}
+            </option>
+            {groups.map((group) => (
+              <optgroup key={group.kind} label={groupTitle[group.kind]}>
+                {group.options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </Field>
+      )}
+      <div id="gamePickerFileUploadButton">
+        <label
+          htmlFor="gamePickerFileUpload"
+          className={buttonClass("secondary", "w-full cursor-pointer justify-start gap-3 py-2")}
+        >
+          <FileUp size={20} aria-hidden />
+          <span className="text-left">
+            <span className="block">{t("upload game")}</span>
+            <span className="block text-xs font-normal text-pro-mute">
+              .json, .csv · {t("Expected format")}: {t("Question")}, {t("Answer")}, {t("Points")}, {t("Answer")},{" "}
+              {t("Points")} ...
+            </span>
+          </span>
+        </label>
+        {/* CSV Upload */}
+        <input
+          className="hidden"
+          type="file"
+          accept=".json, .csv"
+          id="gamePickerFileUpload"
+          ref={fileInputRef}
+          onChange={handleGameUpload}
+        />
       </div>
     </div>
   );

@@ -1,0 +1,94 @@
+import ThemeSwitcher from "@/components/Admin/ThemeSwitcher";
+import BackToLoginButton from "@/components/BackToLoginButton";
+import Link from "next/link";
+
+<div className="relative fixed">
+<div className="flex justify-center w-full py-12 px-10 md:px-2 bg-background overflow-y-scroll overflow-x-hidden">
+
+<div className="w-full max-w-3xl">
+
+<div className="flex justify-between">
+  <BackToLoginButton />
+  <ThemeSwitcher setGame={() => {}} send={() => {}} game={{ settings: { theme: null } }} />
+</div>
+
+# Mängujuhi kiirjuhend
+
+Kõik, mida vajad oma esimese mängu korraldamiseks, umbes viie minutiga.
+Kõik reeglid ja nupud leiad [mängujuhendist](/docs/et/guide).
+
+> **Lühidalt:** Korralda mäng → lae küsimused → jaga mängu koodi → ava tabloo teleris →
+> Alusta 1. vooru → avalda vastuseid, lisa vigu, pane punktid kirja → Lõppvoor.
+
+## Enne alustamist
+
+Vaja läheb:
+
+- **Ühte seadet sulle** (sülearvuti, tahvel või telefon). See on sinu juhtpaneel.
+- **Ekraani mängijatele** (teler, projektor või teine sülearvuti), kus tabloo kuvatakse. Pole kohustuslik, aga muudab mängu palju toredamaks.
+- **Telefone mängijatele**, et nad saaksid summerit vajutada. Pole kohustuslik: võid kasutada ka ühte ühist summerit.
+
+## 1. Loo mäng
+
+Vajuta avalehel nupule **Korralda mäng**. Vasakus ülanurgas näed 4-tähelist **mängu koodi**. Igaüks võib oma mängu korraldada
+ja mitu mängu võib käia korraga. Mäng suletakse, kui tund aega pole tegevust.
+
+Esimesel korral juhatab sind ekraanil läbi lühike tutvustus. Selle saad igal ajal uuesti käivitada ülariba **?** menüüst.
+
+## 2. Lae küsimused
+
+Lõigus **Vali mäng** vali valmis küsimustik või lae üles enda `.json` või `.csv` fail. Valik sõltub sellest,
+millise keele valisid lõigus **Keel ja välimus**.
+
+Tahad enda küsimusi? Vajuta **Loo enda küsimustik**, täida voorud ja lõppvoor ning lae saadud fail siia tagasi.
+
+Selle all saad määrata tiimide nimed, pealkirja, logo ja tabloo teema.
+
+## 3. Pane tabloo suurele ekraanile
+
+Vajuta **Ava mängu aken**. Avaneb uus vahekaart tabloo ehk mängulauaga. Tõsta see teleri või projektori peale.
+Mängu juhid ikka juhtpaneelilt.
+
+Teises seadmes ava sama leht, vajuta suvalise nime ja mängu koodiga **mängi** ning vali tiimi asemel **Ava mängu aken**.
+
+## 4. Lase mängijad sisse
+
+Mängijad avavad lehe oma telefonis, sisestavad **mängu koodi** ja nime, valivad tiimi ja vajutavad **Mängi**.
+Nad ilmuvad **ooteruumi** oma tiimi alla. Kui kõik on kohal, vajuta **Alusta 1. vooru**.
+
+## 5. Mängi voor läbi
+
+1. Mängijad vajutavad **summerit**. Esimesena vajutanud tiim märgitakse juhtivaks.
+2. Klõpsa vastusel, et see avaldada, või vajuta klahve **1-8**. Uuesti klõpsates peidad selle.
+3. Vale vastus? Vajuta selle tiimi **Viga** nuppu. Kolme vea järel saab teine tiim vastuse üle võtta.
+4. Vajuta vooru võitnud tiimi nuppu **Anna …** (näiteks **Anna 66**). Punktid lisatakse ja voor lukustub.
+5. Vajuta **Järgmine voor** ja korda.
+
+Eksisid? **Võta tagasi** (või **Ctrl/Cmd + Z**) astub sinu punktitoimingutes samm-sammult tagasi.
+
+## 6. Lõppvoor
+
+Pärast viimast vooru vali ülaribal **Lõppvoor**. Kirjuta iga vastus, vali tabloo õige vastus,
+vajuta **Avalda vastus** ja **Anna punktid**. **Käivita taimer** käivitab tabloo peal tagasiloenduse.
+
+## Päris summeri kasutamine
+
+Sobib suurepäraselt USB-summer, mis saadab klahvivajutuse (näiteks **Enter**).
+
+1. Ava summeri kõrval olevas sülearvutis sama leht, vajuta suvalise nime ja mängu koodiga **Mängi** ning vali **Ühised summerid**.
+2. Sisesta **peremehe parool**, mille leiad juhtpaneeli **Seadetest**.
+3. Vajuta **Summeri klahvid** ja seo klahv, mida sinu summer saadab. Klahve võib siduda mitu.
+4. Kui keegi summerit vajutab, ilmub aken **Kes oli esimene?**. Vali tiim või vajuta **1** / **2**.
+
+## Hea teada
+
+- **Seaded** (hammasratas või ooteruumi all) sisaldavad tiime, logo, teemat, helisid ja peremehe parooli.
+- **Mängijad** näitab, kes on summerit vajutanud, ning võimaldab summerid nullida, mängijaid pimendada või eemaldada.
+- **Kulg** viib teise vooru või tagasi tiitelekraanile.
+- Ühendus katkes? Ava leht uuesti. Brauser jätab mängu meelde ja viib sind tagasi.
+- Tablood võib vaadata mitu inimest. Mängu muuta saad ainult sina, mängujuht.
+
+</div>
+
+</div>
+</div>

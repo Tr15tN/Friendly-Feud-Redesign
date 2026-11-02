@@ -1,0 +1,116 @@
+import CreateNewGameButton from "@/components/Admin/CreateNewGameButton";
+import ThemeSwitcher from "@/components/Admin/ThemeSwitcher";
+import BackToLoginButton from "@/components/BackToLoginButton";
+import Link from "next/link";
+
+<div className="relative fixed">
+<div className="flex justify-center w-full py-12 px-10 md:px-2 bg-background overflow-y-scroll overflow-x-hidden">
+
+<div className="w-full">
+
+<div className="flex justify-between">
+  <BackToLoginButton />
+  <ThemeSwitcher setGame={() => {}} send={() => {}} game={{ settings: { theme: null } }} />
+</div>
+
+# Sõbraliku Vaenu abi
+
+Sõbralik Vaen on tasuta ja avatud lähtekoodiga mäng, millega saad korraldada oma sõprade ja pere seas telesaate stiilis mänguõhtu.
+
+Uue mängujuhina alusta [mängujuhi kiirjuhendist](/docs/et/quickstart). Kõik reeglid ja nupud leiad [mängujuhendist](/docs/et/guide).
+
+Lähtekood asub [GitHubis](https://github.com/joshzcold/Friendly-Feud).
+
+## Enda mängu loomine
+
+Sõbralikul Vaenul on sisseehitatud mängu looja aadressil [/new](/new). Sinna pääsed ka mängujuhi lehe nupust **Loo enda küsimustik**.
+
+<CreateNewGameButton />
+
+Kui oled mängu valmis kirjutanud, saad faili, mille võid mängu tagasi laadida ja oma küsimustikuga mängida.
+
+### CSV-failide kasutamine
+
+Mängu saad teha ka tabelarvutusprogrammis ja salvestada `.csv` failina.
+
+Failis on iga voor eraldi real.
+
+Faili üles laadides saad menüüst valida, mitu rida faili algusest on "voorud" ja mitu "lõppvoor".
+
+```csv
+Küsimus, Vastus, Punktid, Vastus, Punktid, Vastus, Punktid...
+Küsimus, Vastus, Punktid, Vastus, Punktid, Vastus, Punktid...
+```
+
+<img alt="CSV-faili laadimise menüü" src="/img/docs/csv_loader.png" />
+
+Vastuse ja punktide paare võib igas voorus olla nii palju, kui vaja.
+
+## Eraldi seade mänguaknaks
+
+Vahel on lihtsam juhtida mängu ühest seadmest ja näidata tablood teises, näiteks teleris või projektoril.
+
+1. Alusta esimeses seadmes mängu korraldamist.
+
+<img alt="Vajuta avalehel nuppu Korralda mäng" src="/img/docs/login_click_host_button.png" />
+
+2. Liitu teises seadmes mänguga suvalise nime ja mängu koodiga.
+
+<img alt="Sisesta nimi ja mängu kood vaatajana" src="/img/docs/login_as_spectator.png" />
+
+Tiimi valimise asemel vajuta nuppu **Ava mängu aken**.
+
+<img alt="Vali pärast liitumist Ava mängu aken" src="/img/docs/pick_open_game_window.png" />
+
+<img alt="Mängu aken eraldi seadmes" src="/img/docs/game_window_seperate_device.png" />
+
+Tulemuseks on mäng sellisel kujul, mida saad oma mängijatele näidata.
+
+## Eraldi seade summerina
+
+Sõbralikul Vaenul on mängijate jaoks summerid nende telefonides.
+Kui eelistad kogu mängu jooksul ühte ühist summeripaari, saab seda ka.
+
+1. Alusta esimeses seadmes mängu korraldamist.
+
+2. Liitu teises seadmes mänguga suvalise nime ja mängu koodiga.
+
+Tiimi valimise asemel vajuta nuppu **Ühised summerid**.
+
+Seejärel küsitakse sinult **mängujuhi parooli**.
+
+<img alt="Liitumine summeri seadmena" src="/img/docs/login_as_buzzer.png" />
+
+<img alt="Vali ühiste summerite valik" src="/img/docs/pick_host_buzzers_option.png" />
+
+Sisesta parool, mida näed mängujuhi lehe **Seadetes**.
+
+<img alt="Kopeeri mängujuhi parool juhtpaneelilt" src="/img/docs/host_password.png" />
+
+Kui vajutad **Esita**, näed kahte suurt nuppu **Tiim 1** ja **Tiim 2**.
+
+> Kui oled tiimidele nimed pannud, kuvatakse nuppudel need nimed.
+
+See ekraan on sinu mängu summerid. Ekraan näitab, kes vajutas esimesena.
+
+Selleks sobib hästi lauale asetatud tahvelarvuti või mõni muu seade.
+
+<img alt="Summeriekraan kahe suure nupuga" src="/img/docs/buzzers_screen_seperate_device.png" />
+
+### Päris nuppude kasutamine ühiste summerite ekraanil
+
+USB-summer, mis saadab klahvivajutuse (näiteks **Enter**), töötab ühiste summerite ekraaniga.
+
+- Vajuta parooli lehel või summeriekraanil nuppu **Summeri klahvid**, et valida, millised klahvid loevad summeri vajutuseks. Siduda saab mis tahes klahvi ja klahve võib olla mitu. Valik salvestatakse sellesse seadmesse.
+- Kui seotud klahvi vajutatakse, ilmub mängujuhile aken **Kes oli esimene?**, kus ta valib tiimi (või vajutab **1** / **2**). Vajutuse võib ka tähelepanuta jätta.
+- Klahvid **j** ja **k** annavad alati otse märku vastavalt tiimile 1 ja tiimile 2. Kasuta neid, kui sul on kaks eraldi nuppu, üks tiimi kohta.
+
+Klõpsa summeri lehel pärast selle laadimist korra, et brauser saadaks klahvivajutused sellele lehele.
+
+Päris nuppe leiab internetist palju. Otsi sellist, mis oskab saata klaviatuuri klahvivajutusi, näiteks "programmable button" või USB-summer mänguõhtuteks.
+Hea algus on Adafruiti juhend "Ruiz Brothers": https://learn.adafruit.com/big-key-switch/overview
+
+</div>
+
+</div>
+</div>

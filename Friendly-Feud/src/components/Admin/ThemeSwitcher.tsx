@@ -1,3 +1,4 @@
+import { Field, inputClass } from "@/components/ui/form";
 import { Game, GameTheme, WSEvent } from "@/src/types/game";
 import { Palette } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -8,9 +9,11 @@ interface ThemeSwitcherProps {
   game: Game | GameTheme;
   setGame: Dispatch<SetStateAction<Game | null>> | Dispatch<SetStateAction<GameTheme>>;
   send: (data: WSEvent) => void;
+  /** "pro" is the dark host-console look with a label above the select. */
+  variant?: "legacy" | "pro";
 }
 
-export default function ThemeSwitcher({ game, setGame, send }: ThemeSwitcherProps) {
+export default function ThemeSwitcher({ game, setGame, send, variant = "legacy" }: ThemeSwitcherProps) {
   const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
 
@@ -69,6 +72,25 @@ export default function ThemeSwitcher({ game, setGame, send }: ThemeSwitcherProp
       setTheme(game.settings.theme);
     }
   };
+
+  if (variant === "pro") {
+    return (
+      <Field label={t("Board theme")} htmlFor="themeSwitcherInput">
+        <select
+          id="themeSwitcherInput"
+          className={`${inputClass} capitalize`}
+          value={theme || "default"}
+          onChange={(e) => handleThemeChange(e.target.value)}
+        >
+          {Object.entries(availableThemes).map(([key, value]) => (
+            <option value={key} key={`theme-${key}`}>
+              {value.title}
+            </option>
+          ))}
+        </select>
+      </Field>
+    );
+  }
 
   return (
     <div className="flex flex-row items-center space-x-5">

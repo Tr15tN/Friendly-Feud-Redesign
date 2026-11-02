@@ -5,6 +5,7 @@ import ScaleToFit from "@/components/ScaleToFit";
 import StrikeOverlay from "@/components/StrikeOverlay";
 import TeamName from "@/components/TeamName";
 import TitleLogo from "@/components/TitleLogo";
+import { buttonClass } from "@/components/ui/button-class";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { getTeamDisplayName } from "@/lib/utils";
 import { Game, WSEvent } from "@/types/game";
@@ -144,12 +145,21 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
       </div>
     );
   if (game.teams != null) {
+    const picking = !(id in game.registeredPlayers && game.registeredPlayers[id].team !== null);
     return (
-      <>
+      <div
+        className={
+          picking ? "fixed inset-0 z-40 flex flex-col overflow-y-auto bg-pro-bg px-4 py-4 text-pro-text" : "contents"
+        }
+      >
         <StrikeOverlay count={showMistake} />
         <button
           id="quitButton"
-          className="text-1xl z-50 w-24 self-end rounded-lg bg-secondary-900 p-2 font-bold uppercase shadow-md hover:bg-secondary-300"
+          className={
+            picking
+              ? buttonClass("ghost", "z-50 mx-auto w-full max-w-md justify-end uppercase")
+              : "text-1xl z-50 w-24 self-end rounded-lg bg-secondary-900 p-2 font-bold uppercase shadow-md hover:bg-secondary-300"
+          }
           onClick={() => {
             send({ action: "quit" });
           }}
@@ -280,8 +290,8 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
           </>
         ) : (
           <>
-            <div>
-              <div className="flex flex-col space-y-6 py-12">
+            <div className="mx-auto w-full max-w-md">
+              <div className="flex flex-col space-y-6 py-6">
                 {game.settings.logo_url ? (
                   <div className="relative mx-auto w-full max-w-md max-h-[40vh] aspect-[16/9]">
                     <Image
@@ -297,44 +307,42 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                 ) : (
                   <TitleLogo insert={game.title_text} />
                 )}
-                <div className="flex flex-row justify-center">
-                  <h1 className="text-3xl text-foreground">
-                    {t("team")}:{" "}
+                <div className="space-y-5 rounded-[14px] border border-pro-line bg-pro-panel p-5 text-pro-text">
+                  <h1 className="text-center text-2xl font-bold">
                     {team != null ? getTeamDisplayName(game.teams[team].name, team, t) : t("pick your team")}
                   </h1>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    id="joinTeam1"
-                    className={`rounded-md bg-primary-200 p-5 hover:shadow-md ${
-                      team === 0 ? "border-2 border-sky-600" : ""
-                    }`}
-                    onClick={() => {
-                      setTeam(0);
-                    }}
-                  >
-                    {getTeamDisplayName(game.teams[0].name, 0, t)}
-                  </button>
-
-                  <button
-                    id="joinTeam2"
-                    className={`rounded-md bg-primary-200 p-5 hover:shadow-md ${
-                      team === 1 ? "border-2 border-sky-600" : ""
-                    }`}
-                    onClick={() => {
-                      setTeam(1);
-                    }}
-                  >
-                    {getTeamDisplayName(game.teams[1].name, 1, t)}
-                  </button>
-                </div>
-                <div className="flex flex-row justify-center">
+                  <div className="grid grid-cols-2 gap-3">
+                    {[0, 1].map((index) => {
+                      const selected = team === index;
+                      const tone =
+                        index === 0
+                          ? {
+                              on: "border-pro-team0 bg-pro-team0 text-pro-team0-on",
+                              off: "border-pro-team0/50 text-pro-team0",
+                            }
+                          : {
+                              on: "border-pro-team1 bg-pro-team1 text-pro-team1-on",
+                              off: "border-pro-team1/50 text-pro-team1",
+                            };
+                      return (
+                        <button
+                          key={`join-team-${index}`}
+                          id={`joinTeam${index + 1}`}
+                          aria-pressed={selected}
+                          className={`min-h-24 break-words rounded-[12px] border-2 p-4 text-lg font-bold transition-colors ${
+                            selected ? tone.on : `${tone.off} bg-pro-raised hover:bg-pro-line`
+                          }`}
+                          onClick={() => setTeam(index)}
+                        >
+                          {getTeamDisplayName(game.teams[index].name, index, t)}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <button
                     id="registerBuzzerButton"
                     disabled={team === null}
-                    className={`rounded-md bg-success-200 px-16 py-8 font-bold uppercase hover:shadow-md ${
-                      team === null ? "cursor-not-allowed opacity-50 hover:shadow-none" : ""
-                    }`}
+                    className={buttonClass("primary", "min-h-14 w-full text-lg uppercase")}
                     onClick={() => {
                       if (team != null) {
                         send({ action: "registerbuzz", team: team });
@@ -351,7 +359,7 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                     <Link href="/game">
                       <button
                         id="openGameWindowButton"
-                        className="rounded-md bg-secondary-300 px-8 py-4 hover:shadow-md"
+                        className={buttonClass("secondary", "px-5")}
                         onClick={() => {
                           send({ action: "registerspectator" });
                         }}
@@ -364,7 +372,7 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                     <Link href={`/buzzers?room=${game.room}`}>
                       <button
                         id="hostBuzzersWindowButton"
-                        className="rounded-md bg-secondary-300 px-8 py-4 hover:shadow-md"
+                        className={buttonClass("secondary", "px-5")}
                         onClick={() => {
                           send({ action: "registerspectator" });
                         }}
@@ -378,7 +386,7 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
             </div>
           </>
         )}
-      </>
+      </div>
     );
   }
   return (

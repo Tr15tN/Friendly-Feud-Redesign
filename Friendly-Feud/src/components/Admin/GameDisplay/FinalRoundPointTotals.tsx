@@ -17,10 +17,12 @@ function FinalRoundPointTotalsTextFunction({
 }: FinalRoundPointTotalsTextFunctionProps) {
   const { t } = useTranslation();
   const backgroundColor =
-    (isFinalSecond && place === 1) || (!isFinalSecond && place === 0) ? "bg-primary-200" : "bg-secondary-300";
+    (isFinalSecond && place === 1) || (!isFinalSecond && place === 0)
+      ? "border-pro-accent bg-pro-accent/20"
+      : "border-pro-line bg-pro-raised";
   return (
     <div
-      className={`flex flex-row items-center space-x-2 rounded-3xl border-2 px-4 py-2 text-xl tabular-nums text-foreground ${backgroundColor}`}
+      className={`flex flex-row items-center gap-2 rounded-full border px-4 py-1.5 text-base tabular-nums text-pro-text ${backgroundColor}`}
     >
       <p id={`finalRoundPointTotal${place}TitleText`}>{t(title)}: </p>
       <p id={`finalRoundPointTotal${place}TotalText`}>{total}</p>
@@ -39,7 +41,7 @@ export default function FinalRoundPointTotals({ game }: FinalRoundPointTotalsPro
   const roundOneTotal = calculateTotalPoints(game.final_round);
   const roundTwoTotal = calculateTotalPoints(game.final_round_2);
   return (
-    <div className="flex flex-row items-center justify-start space-x-5 py-3">
+    <div className="flex flex-wrap items-center gap-2 py-3 sm:gap-3">
       <FinalRoundPointTotalsTextFunction
         title="Round one"
         total={roundOneTotal}
@@ -58,7 +60,7 @@ export default function FinalRoundPointTotals({ game }: FinalRoundPointTotalsPro
         isFinalSecond={game.is_final_second}
         place={2}
       />
-      <p id="finalRoundTargetAdminText" className="text-lg text-secondary-900">
+      <p id="finalRoundTargetAdminText" className="text-sm text-pro-mute">
         {t("Target")}: {finalRoundWinThreshold(game)}
         {roundOneTotal + roundTwoTotal >= finalRoundWinThreshold(game) ? ` · ${t("win")}` : ""}
       </p>

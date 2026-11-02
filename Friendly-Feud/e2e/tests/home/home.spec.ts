@@ -43,11 +43,11 @@ test("language switcher changes content language", async ({ page }) => {
   const hostButton = page.getByTestId("hostRoomButton");
   await expect(hostButton).toHaveText("host");
 
-  // Switch to Spanish and verify text changed
-  await page.locator("#languageInput").selectOption("es");
-  await expect(hostButton).toHaveText("anfitrión");
+  // Switch to Estonian and verify text changed
+  await page.locator("#languageInput").selectOption("et");
+  await expect(hostButton).toHaveText("Korralda mäng");
 
-  // Switch to French and verify text changed
-  await page.locator("#languageInput").selectOption("fr");
-  await expect(hostButton).toHaveText("Régie");
+  // Back to English
+  await page.locator("#languageInput").selectOption("en");
+  await expect(hostButton).toHaveText("host");
 });

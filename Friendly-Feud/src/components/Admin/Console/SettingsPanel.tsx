@@ -1,5 +1,4 @@
 import AdminSettings from "@/components/Admin/AdminSettings";
-import CreateNewGameButton from "@/components/Admin/CreateNewGameButton";
 import RoomSettings from "@/components/Admin/RoomSettings";
 import TitlesAndLogoSettings from "@/components/Admin/TitlesAndLogoSettings";
 import { Game, WSEvent } from "@/types/game";
@@ -19,8 +18,8 @@ interface SettingsPanelProps {
 }
 
 /**
- * All setup controls in one stack. Shown inline in the lobby (and when no game is loaded) and inside the
- * Settings drawer during play. The interiors are still legacy-styled; they are restyled in plan 2.
+ * All setup controls as a stack of cards. Shown inline in the lobby (and when no game is loaded) and inside
+ * the Settings drawer during play.
  */
 export default function SettingsPanel({
   game,
@@ -35,7 +34,7 @@ export default function SettingsPanel({
   setImageUploaded,
 }: SettingsPanelProps) {
   return (
-    <div className="space-y-8 text-foreground">
+    <div className="space-y-4 text-pro-text">
       <RoomSettings
         game={game}
         gameSelector={gameSelector}
@@ -43,9 +42,8 @@ export default function SettingsPanel({
         setGame={setGame}
         setCsvFileUpload={setCsvFileUpload}
         setCsvFileUploadText={setCsvFileUploadText}
+        needsGame={game.rounds == null}
       />
-      <CreateNewGameButton />
-      <hr />
       <TitlesAndLogoSettings
         game={game}
         send={send}
@@ -54,7 +52,6 @@ export default function SettingsPanel({
         setImageUploaded={setImageUploaded}
         imageUploaded={imageUploaded}
       />
-      <hr />
       <AdminSettings game={game} setGame={setGame} send={send} hostPassword={hostPassword} />
     </div>
   );

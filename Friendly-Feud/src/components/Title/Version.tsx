@@ -8,16 +8,14 @@ const Version = () => {
   if (!version) return null;
 
   return (
-    <div className="absolute bottom-2 right-2">
-      <Link
-        href={"https://github.com/joshzcold/Friendly-Feud/releases"}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm text-secondary-900 hover:underline"
-      >
-        {t("Version")} {version}
-      </Link>
-    </div>
+    <Link
+      href={"https://github.com/joshzcold/Friendly-Feud/releases"}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm text-pro-mute hover:text-pro-text hover:underline"
+    >
+      {t("Version")} {version}
+    </Link>
   );
 };
 

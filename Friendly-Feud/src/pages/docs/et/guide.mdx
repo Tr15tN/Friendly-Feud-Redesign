@@ -1,0 +1,241 @@
+import ThemeSwitcher from "@/components/Admin/ThemeSwitcher";
+import BackToLoginButton from "@/components/BackToLoginButton";
+
+<div className="relative fixed">
+<div className="flex justify-center w-full py-12 px-10 md:px-2 bg-background overflow-y-scroll overflow-x-hidden">
+
+<div className="w-full max-w-3xl">
+
+<div className="flex justify-between">
+  <BackToLoginButton />
+  <ThemeSwitcher setGame={() => {}} send={() => {}} game={{ settings: { theme: null } }} />
+</div>
+
+# Sõbralik Vaen — mängujuhend
+
+Täielik juhend Sõbraliku Vaenu korraldamiseks ja mängimiseks. See kirjeldab täpselt, kuidas see mäng töötab.
+Kui mäng jätab otsuse sinu hooleks, on see märgitud **majareeglina**.
+
+> **Lühidalt mängujuhile:** korralda mäng → ava mängu aken teleris → mängijad liituvad telefonis mängu koodiga →
+> Alusta 1. vooru → avalda vastuseid, märgi vead, anna pott → korda → lõppvoor → loe lõpptulemus ette.
+
+Alles alustad? Vaata enne [mängujuhi kiirjuhendit](/docs/et/quickstart).
+
+## 1. Mängujuhi kiirstart
+
+1. **Loo mäng** — vajuta **Korralda mäng**. Saad 4-tähelise **mängu koodi** ja mängujuhi parooli, mis liigub
+   sinu juhtnuppudega automaatselt kaasa (seda ei pea kunagi sisestama).
+2. **Lae mäng** — vali valmis küsimustik või lae üles enda `.json`/`.csv` fail. Samas saad määrata ka
+   tiimide nimed, pealkirja, logo ja teema.
+3. **Ava mängu aken teleris** — **Ava mängu aken** avab tabloo (`/game`) uues vahekaardis; pane see teleri või projektori peale.
+4. **Mängijad liituvad telefonis** — nad sisestavad **mängu koodi** ja nime, valivad tiimi ja vajutavad
+   **Mängi**, et summer valmis panna.
+5. **Vaatajad ja lisaekraanid** — tiimi asemel võib valida **Ava mängu aken** (näita tablood mujal) või
+   **Ühised summerid** (ühine kahe nupuga summer).
+6. **Alusta mängu** — vajuta **Alusta 1. vooru**.
+
+## 2. Mängujuhi paneel ühe pilguga
+
+Paneelil on kolm etappi, mida näitab etapiriba: **Ooteruum → Voorud N/N → Lõppvoor**.
+Igal etapil on alati üks selge peamine (sinine) nupp, ülejäänud on teisejärgulised, ja üherealine vihje ütleb, mida järgmiseks teha.
+
+## 3. Põhivoorud
+
+### 3.1 Esimene vajutus (summerid)
+
+Summerid nullitakse vooru alguses. Mängijad vajutavad summerit telefonis (või ühiste summerite ekraanil).
+Tablool on näha, **kes vajutas esimesena**, ja paneel märgib selle tiimi „vajutas esimesena / juhib“.
+
+Märge „juhib“ on **informatiivne** — mäng ei sunni järjekorda peale ega lukusta kedagi välja.
+**Majareegel:** mängi nagu klassikalises Vaenus — kiireimad mängijad võistlevad kõige populaarsema vastuse nimel;
+parema vastuse andja tiim saab kontrolli ning otsustab, kas mängida või loobuda.
+
+### 3.2 Vastuste avaldamine
+
+Klõpsa vastusel (või vajuta klahve **1–8**), et see tablool avaldada; uuesti klõpsates või vajutades peidad selle.
+Avaldatud vastused lisanduvad **vooru potti**; kaartidel on `punktid × kordaja`.
+Küsimuse tekst on teleris **vaikimisi peidetud** — lülita seda nuppudega **Näita küsimusi / Peida küsimused**.
+
+### 3.3 Vead, kolm viga ja vastuse üle võtmine
+
+Vale vastuse korral lisa tiimile **viga** nupuga **Viga**. Igal tiimil on kolm vea kohta (rohkem ei lisa).
+
+- **X ekraanile (viga ei lisa)** näitab tablool suurt ✕-i ilma vigu lisamata; tiimi **Viga** nupud lisavad päris vea.
+- Paranda nupuga **Eemalda viga** või **Nulli vead**.
+- **Kolme vea** korral annab kollane vihje teada, et teine tiim saab vastuse üle võtta. Rakendus ainult **vihjab** —
+  sina otsustad ja vajutad punktide andmise nuppu. **Majareegel:** üle võtmisel annab teine tiim ühe vastuse;
+  kui see on tablool, saab tiim kogu poti, vastasel juhul jääb pott juhtivale tiimile.
+
+### 3.4 Kuidas vooru pott arvutatakse
+
+> pott = (kõigi avaldatud vastuste punktide summa) × vooru kordaja
+
+**Kordaja** annab topelt- (×2) ja kolmekordsed (×3) voorud — see on määratud mängufailis iga vooru kohta
+või muudetav otse nuppudega ×1/×2/×3 või kordaja lahtriga. Tühi või vigane kordaja loetakse ×1-ks.
+Avaldatud vastuse peitmine eemaldab selle väärtuse uuesti.
+
+### 3.5 Poti andmine
+
+Vajuta **Anna N punkti: [tiim]**, et pott tiimile anda. See lisab punktid tema skoorile ja **lukustab vooru**:
+andmise nupud ja kordaja on keelatud ning tablool on kirjas „Pott: [tiim]“.
+
+### 3.6 Pärast andmist avaldatud vastused (ei lähe arvesse)
+
+Pärast andmist on pott lukus selle väärtuse peale, mis anti. Allesjäänud vastuste avaldamine märgib need
+**(punkte ei loe)** ja tuhmistab teleris; need ei muuda ühtegi skoori.
+
+### 3.7 Vigade parandamine: tagasivõtmine ja käsitsi parandus
+
+**Võta tagasi** (↶, või **Ctrl/Cmd+Z**) astub punktitoimingutes sammhaaval tagasi (kuni 50 sammu),
+puudutamata mängijaid ega seadeid. **Käsitsi parandus** lisab või lahutab tiimi punktidest kindla arvu (alla 0 ei lähe).
+
+### 3.8 Punktiarvestuse näide
+
+Vastused: Must kapuuts ja keep 43, Vikat 20, Skelett 13, Mask 11, Meik 8. Voor on seatud **×2**.
+
+1. Avalda Must kapuuts ja keep (43) → pott = 43 × 2 = **86**.
+2. Avalda Skelett (13) → pott = (43 + 13) × 2 = **112**.
+3. Alpha saab kolmanda vea; Bravo võtab õige vastusega üle.
+4. **Anna 112 tiimile Bravo** → Bravo **+112**, voor lukustub.
+5. Avalda Meik (8), et tablood täiendada → **(punkte ei loe)**; pott jääb **112**, skoor ei muutu.
+
+## 4. Lõppvoor
+
+Vajuta **Lõppvoor**. Kaks mängijat mängivad ükshaaval samade küsimustega; eesmärk on koguda
+kokku punkte vähemalt **võiduni vajaliku summani**.
+
+### 4.1 Kuidas mängitakse
+
+Iga küsimuse real: kirjuta mängija **vastus**, vali rippmenüüst **Anna punktid** sobiv tabloo vastus (ja punktid)
+(või jäta **Vastust pole 0**), vajuta **Avalda vastus** ja siis **Anna punktid**. Vastuse **Vastust pole** andmine
+mängib uuesti-proovi heli ja näitab **✗ 0** — see ei virgata viga.
+
+Teise mängija jaoks vajuta **Alusta lõppvooru 2**. Teine pool peidab esimese mängija vastused, kuni vajutad
+**Avalda esimese vooru vastused**, ja näitab kaaslase vastust, et saaksid kordusi hinnata.
+
+### 4.2 Taimerid
+
+Igal poolel on oma tagasiloendus (`final_round_timers`, vaikimisi 20 s ja 25 s).
+Kasuta **Käivita / Peata / Lähtesta taimer**. Tabloo ringikujuline taimer loendab alla ja annab nulli jõudes paneelile märku.
+
+### 4.3 Korduvad vastused
+
+Teises pooles vajuta küsimusel **Juba vastatud**, kui mängija kordab esimese mängija vastust; see mängib kordushelli.
+Korduste hindamine on mängujuhi otsustada.
+
+### 4.4 Kogusumma ja võidu eesmärk
+
+**Kokku** = mõlema poole punktid. **Eesmärk** on vaikimisi **200** ja seda saab mängu kohta muuta:
+**Pealkirjad, tiimid ja seaded → Lõppvooru eesmärk**. Eesmärgi saavutamisel või ületamisel näitab tabloo **VÕIT**
+koos konfettiga. **Majareegel:** klassikalises lõppvoorus on 5 küsimust ja eesmärk 200.
+
+## 5. Võit ja mängu lõpp
+
+Rakendus **ei kuuluta** põhimängu võitjat välja — see hoiab tiimide kogusummasid ja **tulemused loed ette sina**.
+**Majareegel:** võidab see, kellel on kokkulepitud arvu voorude järel rohkem punkte, või juhtiv tiim mängib lõppvooru.
+Ainus automaatne „võit“ on lõppvooru eesmärgi tähistamine. Lõpetamiseks näita uuesti **tiitelekraani** või vajuta **Välju**.
+
+## 6. Kiirklahvid
+
+Mängujuhi paneel (ei toimi kirjutamise ajal, tiitelekraanil ega lõppvoorus):
+
+- **1–8** — avalda / peida selle numbriga vastus praeguses voorus.
+- **Ctrl/Cmd + Z** — võta viimane punktitoiming tagasi.
+
+Ühiste summerite ekraan:
+
+- **j** — summer tiimile 1 (Alpha). **k** — summer tiimile 2 (Bravo). (Ühenda kaks päris klaviatuurinuppu summeriteks.)
+- Mis tahes **seotud summeri klahv** (vaikimisi **Enter**; muuda nupuga **Summeri klahvid**) — ühist summerit vajutati.
+  Mängujuht saab akna **Kes oli esimene?** ja valib tiimi (töötavad ka **1** / **2**).
+
+## 7. Mängujuhi paneeli ülevaade
+
+**Ülariba:** mängu kood · Ava mängu aken · Abimenüü (tutvustus, kiirjuhend, see juhend) · Välju (ainult mängujuht).
+
+**Kulg:** etapiriba · Tiitelekraan (näitab tiitlit; alustab otsast, kinnita keset mängu topeltklõpsuga) · Alusta 1. vooru ·
+vooru valik · Järgmine voor → (nullib vead, uus pott, nullib summerid) · Näita / Peida küsimused · Lõppvoor.
+
+**Ooteruum:** suur liitumiskood (ja „Liitu: [aadress]“, kui see on määratud), tiimide koosseisud, tiitelmuusika.
+
+**Skooririba:** iga tiimi nimi, skoor, kolm vea täppi ning märked „punktid antud / vajutas esimesena“;
+keskel on voor, pott (või „Pott: [tiim]“), ×1/×2/×3 ja kordaja lahter ning ↶ Võta tagasi.
+
+**Vastuste ruudustik:** iga vastuse jaoks üks nupp (klahvid 1–8); algväärtus → kordajaga väärtus,
+pärast andmist märge **(punkte ei loe)**, viimase toimingu tagasivõtmise kapsel.
+
+**Vead ja poti andmine:** Viga (tiim) · Eemalda viga · Nulli vead · X ekraanile (viga ei lisa) ·
+üle võtmise vihje kolme vea korral · Anna N punkti: [tiim] · Käsitsi parandus.
+
+**Lõppvooru juhtnupud:** Alusta lõppvooru 2 / Tagasi lõppvooru 1 juurde · Avalda / Peida esimese vooru vastused ·
+Käivita / Peata / Lähtesta taimer · küsimuse kohta: vastus, punktide rippmenüü, avalda, anna, olek ja (2. poolel)
+kaaslase vastus nupuga Juba vastatud · Esimene voor / Teine voor / Kokku ja Eesmärk.
+
+**Mängijad ja summerid:** summerite järjekord koos nupuga Nulli summerid; mängijate loend, kus saab iga mängija ekraani
+peita ja mängija eemaldada.
+
+## 8. Enda mängude loomine
+
+Kasuta sisseehitatud loojat aadressil **/new** (või **Loo enda küsimustik**), kirjuta `.json` käsitsi või impordi `.csv`.
+
+**/new looja:** lisa voorud (küsimus, kordaja 1/2/3, vastuse ja punktide paarid); lisa lõppvooru küsimused
+(vastus + punktid) ja kaks taimeri väärtust; **Salvesta** laadib alla `.json` faili, mille saad tagasi laadida nupuga **Lae mäng**.
+
+**JSON-i põhiosad:**
+
+```json
+{
+  "settings": { "theme": "default", "final_round_win_threshold": 200 },
+  "rounds": [
+    {
+      "question": "Nimeta midagi, mida vajad, et näha välja nagu Surm.",
+      "multiply": 1,
+      "answers": [
+        { "ans": "Must kapuuts ja keep", "pnt": 43 },
+        { "ans": "Vikat", "pnt": 20 }
+      ]
+    }
+  ],
+  "final_round": [
+    {
+      "question": "Nimeta kehaosa, mis algab N-tähega.",
+      "answers": [
+        ["Nina", 52],
+        ["Kael", 34]
+      ]
+    }
+  ],
+  "final_round_timers": [20, 25]
+}
+```
+
+Põhivoorude vastused on `{ "ans", "pnt" }`; lõppvooru vastused on `["tekst", punktid]` paarid.
+`multiply` on topelt-/kolmekordne kordaja; `final_round_win_threshold` pole kohustuslik (vaikimisi 200).
+
+**CSV:** üks voor rea kohta — `Küsimus, Vastus, Punktid, Vastus, Punktid, ...`. Importimisel valid,
+mitu rida on voorud ja mitu lõppvoor.
+
+## 9. Mängija lühijuhend
+
+Liitu mängu koodi ja nimega, vali tiim ja vajuta **Mängi**. Esimese vajutuse ajal puuduta **SUMMER**
+(summerid nullitakse iga vooru alguses). Näed oma tiimi, skoori ja vigu; mängujuht võib sinu vaate „peita“.
+Ei mängi? Vali tiimi asemel **Ava mängu aken** või **Ühised summerid**.
+
+## 10. Tõrkeotsing ja KKK
+
+**Uuesti ühendumine:** brauser jätab sinu seansi meelde; lehe uuesti avamine viib sind tavaliselt tagasi.
+„Mängu ei leitud“ tähendab, et mäng suleti või aegus — liitu uue koodiga.
+
+**Tabloo eraldi seadmes:** korralda mäng juhtseadmes, siis teleri seadmes **liitu** ja vajuta tiimi valimise asemel
+**Ava mängu aken**. Ühise päris summeri jaoks vali **Ühised summerid** ja sisesta mängujuhi lehel näidatud parool;
+see ekraan reageerib klahvidele **j** ja **k** ning kõigile klahvidele, mille sead alt **Summeri klahvid**.
+
+**Turvamärkus:** mängu saab juhtida ainult **mängujuht** (brauser, mis mängu lõi ja millel on mängujuhi parool) —
+vastuseid avaldada, punkte anda, seadeid muuta või mäng lõpetada. Mängijad, vaatajad ja teiste mängude inimesed ei saa seda teha,
+isegi kui nad mängu koodi teavad. Hoia mängujuhi vahekaart ja seanss enda käes.
+
+**Mängu aken ei uuene:** laadi mängu akna vahekaart uuesti (see liitub salvestatud seansiga tagasi)
+ja veendu, et tegutsed mängujuhi vahekaardil, mitte vaataja või mängija vahekaardil.
+
+</div>
+</div>
+</div>

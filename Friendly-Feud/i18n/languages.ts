@@ -1,9 +1,7 @@
+/** Languages offered in the UI. Labels are written in the language itself so people can find theirs. */
 export const languageOptions = [
-  { code: "en", label: "English", translationKey: "english" },
-  { code: "es", label: "Español", translationKey: "spanish" },
-  { code: "id", label: "Indonesian", translationKey: "indonesian" },
-  { code: "et", label: "Estonian", translationKey: "estonian" },
-  { code: "fr", label: "Français", translationKey: "french" },
+  { code: "en", label: "English" },
+  { code: "et", label: "Eesti" },
 ] as const;
 
 export type SupportedLanguage = (typeof languageOptions)[number]["code"];

@@ -1,7 +1,8 @@
 import { Button, buttonClass } from "@/components/ui/Button";
-import { defaultLanguage } from "@/i18n/languages";
+import Menu from "@/components/ui/Menu";
+import { normalizeLanguage } from "@/i18n/languages";
 import { Game, WSEvent } from "@/types/game";
-import { CircleHelp, LogOut, Monitor, Settings, Users } from "lucide-react";
+import { BookOpen, CircleHelp, LogOut, Monitor, Play, ScrollText, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,6 +21,7 @@ interface TopBarProps {
   settingsInline: boolean;
   onOpenPlayers: () => void;
   onOpenSettings: () => void;
+  onStartTour: () => void;
 }
 
 export default function TopBar({
@@ -32,8 +34,10 @@ export default function TopBar({
   settingsInline,
   onOpenPlayers,
   onOpenSettings,
+  onStartTour,
 }: TopBarProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const docsLanguage = normalizeLanguage(i18n.resolvedLanguage ?? i18n.language);
   const hasGame = game.rounds != null;
   const buzzCount = game.buzzed?.length ?? 0;
 
@@ -86,14 +90,49 @@ export default function TopBar({
             <Monitor size={16} aria-hidden />
             <span className="hidden md:inline">{t("Open Game Window")}</span>
           </Link>
-          <Link
-            href={`/docs/${defaultLanguage}/guide`}
-            target="_blank"
-            aria-label={t("help")}
-            className={buttonClass("ghost", "px-3")}
+          <Menu
+            buttonId="helpMenuButton"
+            ariaLabel={t("Help")}
+            label={<CircleHelp size={16} aria-hidden />}
+            variant="ghost"
+            buttonClassName="px-3"
+            panelClassName="w-60 space-y-1"
           >
-            <CircleHelp size={16} aria-hidden />
-          </Link>
+            {({ close }) => (
+              <>
+                <Button
+                  id="startTourButton"
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    close();
+                    onStartTour();
+                  }}
+                >
+                  <Play size={16} aria-hidden />
+                  {t("Take the tour")}
+                </Button>
+                <Link
+                  id="quickstartLink"
+                  href={`/docs/${docsLanguage}/quickstart`}
+                  target="_blank"
+                  className={buttonClass("ghost", "w-full justify-start")}
+                >
+                  <BookOpen size={16} aria-hidden />
+                  {t("Host quickstart")}
+                </Link>
+                <Link
+                  id="guideLink"
+                  href={`/docs/${docsLanguage}/guide`}
+                  target="_blank"
+                  className={buttonClass("ghost", "w-full justify-start")}
+                >
+                  <ScrollText size={16} aria-hidden />
+                  {t("Full game guide")}
+                </Link>
+              </>
+            )}
+          </Menu>
           <Button id="quitButton" variant="danger" aria-label={t("Quit")} onClick={() => quitGame(true)}>
             <LogOut size={16} aria-hidden />
             <span className="hidden md:inline">{t("Quit")}</span>

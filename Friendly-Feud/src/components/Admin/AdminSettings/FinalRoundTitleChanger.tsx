@@ -1,3 +1,4 @@
+import { Field, inputClass } from "@/components/ui/form";
 import { debounce } from "@/lib/utils";
 import { Game, WSEvent } from "@/types/game";
 import { Dispatch, SetStateAction } from "react";
@@ -37,14 +38,13 @@ export default function FinalRoundTitleChanger({ game, setGame, send }: FinalRou
   };
 
   return (
-    <div className="flex flex-row items-center space-x-5">
-      <p className="text-xl text-foreground">{t("Final Round Title")}:</p>
+    <Field label={t("Final Round Title")} htmlFor="finalRoundTitleChangerInput">
       <input
         id="finalRoundTitleChangerInput"
-        className="w-32 rounded border-4 bg-secondary-500 p-1 text-xl text-foreground placeholder:text-secondary-900"
+        className={inputClass}
         onChange={debounce(handleChange)}
         defaultValue={finalRoundTitle}
-      ></input>
-    </div>
+      />
+    </Field>
   );
 }

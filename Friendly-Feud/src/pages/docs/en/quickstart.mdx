@@ -1,0 +1,95 @@
+import ThemeSwitcher from "@/components/Admin/ThemeSwitcher";
+import BackToLoginButton from "@/components/BackToLoginButton";
+import Link from "next/link";
+
+<div className="relative fixed">
+<div className="flex justify-center w-full py-12 px-10 md:px-2 bg-background overflow-y-scroll overflow-x-hidden">
+
+<div className="w-full max-w-3xl">
+
+<div className="flex justify-between">
+  <BackToLoginButton />
+  <ThemeSwitcher setGame={() => {}} send={() => {}} game={{ settings: { theme: null } }} />
+</div>
+
+# Host quickstart
+
+Everything you need to run your first game, in about five minutes.
+For the full rules and every control, read the [Game Guide](/docs/en/guide).
+
+> **Short version:** Host a game → load questions → share the room code → open the board on a TV →
+> Start Round 1 → reveal answers, add strikes, bank the points → Fast Money.
+
+## Before you start
+
+You need:
+
+- **One device for you** (laptop, tablet or phone). This is the control panel.
+- **A screen for the players** (TV, projector or a second laptop) to show the board. Optional, but it makes the game.
+- **Phones for the players** so they can buzz. Optional: you can also use one shared buzzer.
+
+## 1. Create the room
+
+On the home page press **Host**. You get a 4-letter **room code** at the top left. Anyone can host their own game,
+and several games can run at the same time. A game is closed after an hour without activity.
+
+The first time, a short tour walks you through the screen. You can replay it any time from the **?** menu in the top bar.
+
+## 2. Load the questions
+
+In **Choose a game** pick a built-in question set, or upload your own `.json` or `.csv` file. The list follows the
+language you picked in **Language & look**.
+
+Want your own questions? Press **Create New Game**, fill in rounds and Fast Money, and load the file it gives you.
+
+Below that you can set team names, a title, a logo and the board theme.
+
+## 3. Put the board on the big screen
+
+Press **Open Game Window**. A new tab opens with the board. Move it to the TV or projector.
+You keep playing from the control panel.
+
+On a separate device, open the site, press **Play** with any name and the room code, then choose **Open Game Window**
+instead of a team.
+
+## 4. Let players join
+
+Players open the site on their phone, type the **room code** and a name, pick a team and press **Play**.
+They appear in the **Lobby**, in their team. When everyone is in, press **Start Round 1**.
+
+## 5. Run a round
+
+1. Players **buzz**. The first team is marked as in control.
+2. Click an answer to reveal it, or press the keys **1-8**. Click again to hide it.
+3. Wrong answer? Press **Strike** for that team. At three strikes the other team gets a chance to steal.
+4. Press **Bank** for the team that wins the round (the button shows the points, for example **Bank 66**). The points are added and the round locks.
+5. Press **Next Round** and repeat.
+
+Made a mistake? **Undo** (or **Ctrl/Cmd + Z**) steps back through your scoring actions.
+
+## 6. Fast Money
+
+After the last round use **Fast Money** in the top bar. Type each answer, pick the matching board answer,
+press **Reveal Answer** and **Award points**. **Start Timer** runs the countdown on the board.
+
+## Using a real buzzer
+
+A USB buzzer that sends a key press (for example **Enter**) works great.
+
+1. On a laptop next to the buzzer, open the site, press **Play** with any name and the room code, then choose **Host Buzzers**.
+2. Enter the **host password** from **Settings** on your control panel.
+3. Press **Buzzer keys** to bind the key your buzzer sends. You can bind several keys.
+4. When someone presses the buzzer you get a **Who was first?** window. Pick the team, or press **1** / **2**.
+
+## Handy to know
+
+- **Settings** (gear icon, or below the lobby) hold teams, logo, theme, sounds and the host password.
+- **Players** shows who has buzzed and lets you clear buzzers, blindfold or remove players.
+- **Flow** jumps to another round or back to the title screen.
+- Lost connection? Reopen the site. Your browser remembers the room and puts you back.
+- Several people can watch the board. Only you, the host, can change the game.
+
+</div>
+
+</div>
+</div>

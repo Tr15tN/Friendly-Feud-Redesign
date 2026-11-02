@@ -67,6 +67,12 @@ deploy/ship.sh <your-user>@<server-ip>
 The script builds the image locally, copies it over, and starts the stack. Then open
 https://m0usetrap.ee and https://m0usetrap.ee/admin.
 
+To show a "Contact" link in the home page footer, set `CONTACT_URL` (a `mailto:you@example.com` or a web address):
+
+```bash
+CONTACT_URL=mailto:you@example.com deploy/ship.sh <your-user>@<server-ip>
+```
+
 Re-run the same command to update. `NEXT_PUBLIC_*` values are baked in at build time,
 so changing them means re-running `ship.sh`.
 

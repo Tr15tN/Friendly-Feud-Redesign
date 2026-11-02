@@ -2,7 +2,7 @@ import { DEFAULT_FINAL_ROUND_WIN_THRESHOLD, finalRoundWinThreshold } from "@/lib
 import { Game, WSEvent } from "@/types/game";
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
-import ToolTipIcon from "../../ui/tooltip";
+import { Field, inputClass } from "../../ui/form";
 
 interface FinalRoundWinThresholdProps {
   game: Game;
@@ -15,16 +15,16 @@ export default function FinalRoundWinThreshold({ game, setGame, send }: FinalRou
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-row items-center space-x-2">
-      <ToolTipIcon message={t("Fast money total needed to show the win celebration")} />
-      <label htmlFor="finalRoundWinThresholdInput" className="text-xl text-foreground">
-        {t("Fast money target")}:
-      </label>
+    <Field
+      label={t("Fast money target")}
+      htmlFor="finalRoundWinThresholdInput"
+      hint={t("Fast money total needed to show the win celebration")}
+    >
       <input
         id="finalRoundWinThresholdInput"
         type="number"
         min="1"
-        className="w-24 rounded border-4 bg-secondary-500 p-1 text-xl tabular-nums text-foreground"
+        className={`${inputClass} tabular-nums`}
         value={finalRoundWinThreshold(game)}
         onChange={(e) => {
           const parsed = parseInt(e.target.value, 10);
@@ -40,6 +40,6 @@ export default function FinalRoundWinThreshold({ game, setGame, send }: FinalRou
           });
         }}
       />
-    </div>
+    </Field>
   );
 }

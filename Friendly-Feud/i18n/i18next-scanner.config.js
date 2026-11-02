@@ -18,7 +18,7 @@ module.exports = {
     },
     trans: false,
     plural: false,
-    lngs: ["en", "es", "et", "id", "fr"],
+    lngs: ["en", "et"],
     ns: ["translation"],
     defaultNs: "translation",
     defaultValue: "__STRING_NOT_TRANSLATED__",

@@ -10,7 +10,7 @@ interface BuzzerSoundSettingsProps {
 
 export default function BuzzerSoundSettings({ game, setGame, send }: BuzzerSoundSettingsProps) {
   return (
-    <div className="flex flex-col space-y-4">
+    <div className="space-y-4">
       <SettingsCheckbox
         game={game}
         setGame={setGame}

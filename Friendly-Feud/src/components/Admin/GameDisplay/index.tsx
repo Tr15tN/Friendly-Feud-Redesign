@@ -80,8 +80,11 @@ export default function GameDisplay({
   if (game.rounds == null) {
     return (
       <div className="mx-auto max-w-3xl space-y-6 px-5 py-8">
-        <p className="text-center text-xl text-pro-mute">[{t("Please load a game")}]</p>
-        <section className="rounded-[14px] border border-pro-line bg-pro-panel p-4">{settingsPanel}</section>
+        <header className="space-y-1 text-center">
+          <h1 className="text-2xl font-bold text-pro-text">{t("Set up your game")}</h1>
+          <p className="text-sm text-pro-mute">{t("Load a game first. Everything else can be changed later.")}</p>
+        </header>
+        {settingsPanel}
       </div>
     );
   }
@@ -121,8 +124,8 @@ export default function GameDisplay({
         </div>
         <p className="text-sm text-pro-mute">{t("Players join with the code below, then press Start Round 1.")}</p>
         <Lobby game={game} room={room} />
-        <section className="rounded-[14px] border border-pro-line bg-pro-panel p-4">
-          <h2 className="mb-4 text-base font-semibold">{t("Titles, teams & settings")}</h2>
+        <section className="space-y-3">
+          <h2 className="text-base font-semibold">{t("Titles, teams & settings")}</h2>
           {settingsPanel}
         </section>
       </div>

@@ -1,4 +1,5 @@
 import BuzzersPlayersPanel from "@/components/Admin/Console/BuzzersPlayersPanel";
+import HostTour from "@/components/Admin/Console/HostTour";
 import SettingsPanel from "@/components/Admin/Console/SettingsPanel";
 import TopBar from "@/components/Admin/Console/TopBar";
 import { useFlowActions } from "@/components/Admin/Console/useFlowActions";
@@ -9,6 +10,7 @@ import { useScoring } from "@/components/Admin/GameDisplay/useScoring";
 import Drawer from "@/components/ui/Drawer";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { normalizeLanguage } from "@/i18n/languages";
+import { markTourDone, shouldAutoStartTour } from "@/lib/host/tour";
 import { Game, WSAction, WSEvent } from "@/types/game";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,11 +40,21 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
   const [csvFileUpload, setCsvFileUpload] = useState<File | null>(null);
   const [csvFileUploadText, setCsvFileUploadText] = useState("");
   const [drawer, setDrawer] = useState<"players" | "settings" | null>(null);
+  const [tourOpen, setTourOpen] = useState(false);
   const closeDrawer = useCallback(() => setDrawer(null), []);
   const refreshCounterRef = useRef(0);
 
   // Setup controls are shown inline in the lobby (and when no game is loaded); during play they live in a drawer.
   const settingsInline = game.rounds == null || game.title;
+
+  // First-time hosts get the short walkthrough; the Help menu replays it.
+  useEffect(() => {
+    if (shouldAutoStartTour(window.localStorage, navigator.webdriver)) setTourOpen(true);
+  }, []);
+  const closeTour = useCallback(() => {
+    markTourDone(window.localStorage);
+    setTourOpen(false);
+  }, []);
   useEffect(() => {
     if (settingsInline) setDrawer((current) => (current === "settings" ? null : current));
   }, [settingsInline]);
@@ -145,6 +157,7 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
         settingsInline={settingsInline}
         onOpenPlayers={() => setDrawer("players")}
         onOpenSettings={() => setDrawer("settings")}
+        onStartTour={() => setTourOpen(true)}
       />
       <GameDisplay
         game={game}
@@ -170,6 +183,11 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
         </Drawer>
       )}
       <WhoWasFirst game={game} send={send} />
+      <HostTour
+        open={tourOpen}
+        onClose={closeTour}
+        docsLanguage={normalizeLanguage(i18n.resolvedLanguage ?? i18n.language)}
+      />
       {/* Modal over whole admin page */}
       {csvFileUpload && (
         <CSVLoader

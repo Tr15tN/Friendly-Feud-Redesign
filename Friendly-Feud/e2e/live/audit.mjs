@@ -25,7 +25,7 @@ async function step(label, fn, page) {
     console.log(`PASS ${label}`);
   } catch (error) {
     results.push({ label, ok: false, error: String(error.message).split("\n")[0] });
-    console.log(`FAIL ${label}: ${String(error.message).split("\n")[0]}`);
+    console.log(`FAIL ${label}: ${String(error.message).split("\n").slice(0,12).join(" | ")}`);
     if (page) await shot(page, `FAIL-${label.replace(/\W+/g, "-").slice(0, 40)}`);
   }
 }
@@ -189,6 +189,9 @@ async function runViewport(name, ctxOpts) {
     await shot(pad, `${name}-pad-ready`);
     await pad.click("body");
     await pad.keyboard.press("Enter");
+    await pad.waitForTimeout(1000);
+    await shot(pad, `${name}-pad-after-enter`);
+    await shot(host, `${name}-host-after-pad-enter`);
     await id(host, "whoWasFirstDialog").waitFor();
     await shot(host, `${name}-host-who-was-first`);
     await shot(pad, `${name}-pad-pending`);

@@ -1,5 +1,6 @@
 import FinalRoundButtonControls from "@/components/Admin/GameDisplay/FinalRoundButtonControls";
 import FinalRoundPointTotals from "@/components/Admin/GameDisplay/FinalRoundPointTotals";
+import { buttonClass } from "@/components/ui/button-class";
 import { Game, WSEvent } from "@/types/game";
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,19 +27,18 @@ export default function FastMoneyConsole({
   const { t } = useTranslation();
 
   return (
-    <div className="mx-auto max-w-[1400px] text-foreground">
-      <div className="p-5">
+    <div className="mx-auto max-w-[1400px] text-pro-text">
+      <div className="px-3 py-4 sm:px-5">
         {/* FINAL ROUND TEXT */}
-        <h2 id="finalRoundNumberText" className="py-3 text-center text-4xl text-foreground">
+        <h2 id="finalRoundNumberText" className="py-2 text-center text-2xl font-bold text-pro-text sm:text-3xl">
           {t("Final Round")} {t("number", { count: game.is_final_second ? 2 : 1 })}
         </h2>
-        <hr />
-        <div className="flex flex-row items-center justify-evenly space-x-5 py-5">
+        <div className="flex flex-wrap items-center justify-center gap-3 py-4">
           {/* START FINAL ROUND 2 */}
           {!game.is_final_second ? (
             <button
               id="startFinalRound2Button"
-              className={`rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500 ${timerStarted ? "opacity-50" : ""}`}
+              className={buttonClass("secondary")}
               disabled={timerStarted}
               onClick={() => {
                 console.debug(game);
@@ -57,11 +57,11 @@ export default function FastMoneyConsole({
               {t("start")} {t("Final Round")} {t("number", { count: 2 })}
             </button>
           ) : (
-            <div className="flex flex-row items-center justify-evenly space-x-5 py-5 text-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               {/* GO BACK TO FINAL ROUND 1 */}
               <button
                 id="backToRound1FinalButton"
-                className={`rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg hover:bg-secondary-500 ${timerStarted ? "opacity-50" : ""}`}
+                className={buttonClass("secondary")}
                 disabled={timerStarted}
                 onClick={() => {
                   game.is_final_round = true;
@@ -84,7 +84,7 @@ export default function FastMoneyConsole({
                   {game.hide_first_round ? (
                     <button
                       id="revealFirstRoundFinalButton"
-                      className="rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500"
+                      className={buttonClass("secondary")}
                       onClick={() => {
                         game.hide_first_round = false;
                         // @ts-expect-error: need a better way to update these values
@@ -98,7 +98,7 @@ export default function FastMoneyConsole({
                     // HIDE FIRST ROUND ANSWERS
                     <button
                       id="hideFirstRoundAnswersButton"
-                      className="rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500"
+                      className={buttonClass("secondary")}
                       onClick={() => {
                         game.hide_first_round = true;
                         // @ts-expect-error: need a better way to update these values
@@ -113,12 +113,12 @@ export default function FastMoneyConsole({
               ) : null}
             </div>
           )}
-          <div className="flex px-2">
+          <div className="flex flex-wrap gap-2">
             {!timerStarted ? (
               /* START TIMER */
               <button
                 id="startTimerButton"
-                className={`rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500 ${timerCompleted ? "opacity-50" : ""}`}
+                className={buttonClass("secondary")}
                 disabled={timerCompleted}
                 onClick={() => {
                   if (game.is_final_second) {
@@ -142,7 +142,7 @@ export default function FastMoneyConsole({
               /* STOP TIMER */
               <button
                 id="stopTimerButton"
-                className="rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500"
+                className={buttonClass("secondary")}
                 onClick={() => {
                   send({ action: "stop_timer" });
                   setTimerStarted(false);
@@ -152,7 +152,7 @@ export default function FastMoneyConsole({
               </button>
             )}
             <button
-              className={`ml-2 rounded-lg border-2 border-secondary-700 bg-secondary-300 px-4 py-3 text-lg text-foreground hover:bg-secondary-500 ${!timerStarted ? "" : "opacity-50"}`}
+              className={buttonClass("secondary")}
               disabled={timerStarted}
               id="resetTimerButton"
               onClick={() => {

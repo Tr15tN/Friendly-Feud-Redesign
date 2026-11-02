@@ -88,7 +88,7 @@ export default function HostBuzzersPage({
   return (
     <>
       {buzzed ? (
-        <div className="absolute z-50 flex min-h-screen min-w-full items-center justify-center">
+        <div className="pointer-events-none absolute z-50 flex min-h-screen min-w-full items-center justify-center">
           <div id="buzzersInfo" className="rounded-xl bg-warning-900 p-5 text-6xl capitalize text-white">
             {pending ? (
               <>

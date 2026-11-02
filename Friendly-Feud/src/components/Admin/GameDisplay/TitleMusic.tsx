@@ -1,6 +1,8 @@
 import { Buffer } from "buffer";
+import { buttonClass } from "@/components/ui/button-class";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { Game, WSAction, WSEvent } from "@/types/game";
+import { Pause, Play, Upload } from "lucide-react";
 import { Dispatch, SetStateAction, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -29,43 +31,40 @@ function isMp3File(file: File, rawData: ArrayBuffer) {
 export default function TitleMusic({ send, room, game, setGame, isPlaying, setIsPlaying }: TitleMusicProps) {
   const { t } = useTranslation();
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
-  const playButtonClass = isPlaying
-    ? "rounded border-2 border-success-900 bg-success-500 px-4 py-2 font-bold text-white"
-    : "rounded border-2 bg-secondary-300 px-4 py-2 text-foreground";
-  const pauseButtonClass = isPlaying
-    ? "rounded border-2 bg-secondary-300 px-4 py-2 text-foreground"
-    : "rounded border-2 border-failure-900 bg-failure-300 px-4 py-2 font-bold text-foreground";
 
   return (
-    <div className="flex flex-row items-center space-x-5 p-5">
-      <h3 className="text-2xl text-foreground">{t("Title Music")}</h3>
+    <div className="flex flex-wrap items-center gap-2">
+      <h3 className="mr-2 text-sm font-semibold text-pro-mute">{t("Title Music")}</h3>
       <button
         id="playTitleMusicButton"
         aria-pressed={isPlaying}
-        className={playButtonClass}
+        className={buttonClass(isPlaying ? "primary" : "secondary")}
         onClick={() => {
           setIsPlaying(true);
           send({ action: WSAction.PLAY_TITLE_MUSIC });
         }}
       >
+        <Play size={16} aria-hidden />
         {t("Play")}
       </button>
       <button
         id="pauseTitleMusicButton"
         aria-pressed={!isPlaying}
-        className={pauseButtonClass}
+        className={buttonClass("secondary")}
         onClick={() => {
           setIsPlaying(false);
           send({ action: WSAction.PAUSE_TITLE_MUSIC });
         }}
       >
+        <Pause size={16} aria-hidden />
         {t("Pause")}
       </button>
       <button
         id="uploadTitleMusicButton"
-        className="rounded border-2 bg-secondary-300 px-4 py-2 text-foreground"
+        className={buttonClass("ghost")}
         onClick={() => uploadInputRef.current?.click()}
       >
+        <Upload size={16} aria-hidden />
         {t("Upload Music")}
       </button>
       <input

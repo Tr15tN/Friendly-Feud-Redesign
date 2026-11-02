@@ -1,4 +1,4 @@
-import ToolTipIcon from "@/components/ui/tooltip";
+import { ToggleRow } from "@/components/ui/form";
 import { Game, Settings, WSAction, WSEvent } from "@/src/types/game";
 import { Dispatch, SetStateAction, useId } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,8 +25,7 @@ export default function SettingsCheckbox({
   const { t } = useTranslation();
   const id = useId();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
+  const handleChange = (checked: boolean) => {
     const updatedGame = {
       ...game,
       settings: { ...game.settings, [settingKey]: checked },
@@ -36,21 +35,13 @@ export default function SettingsCheckbox({
   };
 
   return (
-    <div className={`flex flex-row items-center space-x-5 ${disabled ? "opacity-50" : ""}`}>
-      <div className="flex flex-row items-center space-x-2">
-        <ToolTipIcon message={t(tooltip)} />
-        <label htmlFor={id} className="text-xl normal-case text-foreground">
-          {t(label)}
-        </label>
-      </div>
-      <input
-        id={id}
-        className="size-4 rounded placeholder:text-secondary-900"
-        checked={game.settings[settingKey] as boolean}
-        disabled={disabled}
-        onChange={handleChange}
-        type="checkbox"
-      />
-    </div>
+    <ToggleRow
+      id={id}
+      label={t(label)}
+      hint={t(tooltip)}
+      checked={game.settings[settingKey] as boolean}
+      disabled={disabled}
+      onChange={(checked) => handleChange(checked)}
+    />
   );
 }

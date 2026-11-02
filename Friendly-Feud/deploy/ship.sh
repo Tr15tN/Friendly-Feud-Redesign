@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Build the image on this machine and send it to the server (the e2-micro is too small to build Next.js).
 # Usage: deploy/ship.sh user@server-ip [domain]
+# Set CONTACT_URL (e.g. mailto:you@example.com or a web page) to show a "Contact" link on the home page.
 # Extra ssh/scp options (e.g. a key) go in SSH_OPTS, such as SSH_OPTS="-i ~/.ssh/google_compute_engine".
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -12,6 +13,7 @@ SSH_OPTS="${SSH_OPTS:-}"
 
 docker build -f Dockerfile.allinone \
   --build-arg NEXT_PUBLIC_TITLE_URL="$DOMAIN" \
+  --build-arg NEXT_PUBLIC_CONTACT_URL="${CONTACT_URL:-}" \
   --build-arg NEXT_PUBLIC_APP_VERSION="$(git rev-parse --short HEAD 2>/dev/null || echo dev)" \
   -t "$IMAGE" .
 

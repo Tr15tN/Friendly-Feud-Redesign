@@ -295,17 +295,15 @@ export default function Home() {
       );
     } else {
       return (
-        <div className="relative flex min-h-screen w-full justify-center">
-          <div className="flex w-full flex-col sm:px-4 md:px-8 lg:w-1/2 lg:px-6">
-            <LoginPage
-              setRoomCode={setRoomCode}
-              roomCode={roomCode}
-              setPlayerName={setPlayerName}
-              playerName={playerName}
-              joinRoom={joinRoom}
-              hostRoom={hostRoom}
-            />
-          </div>
+        <div className="flex min-h-screen w-full flex-col bg-pro-bg">
+          <LoginPage
+            setRoomCode={setRoomCode}
+            roomCode={roomCode}
+            setPlayerName={setPlayerName}
+            playerName={playerName}
+            joinRoom={joinRoom}
+            hostRoom={hostRoom}
+          />
           <Footer />
         </div>
       );

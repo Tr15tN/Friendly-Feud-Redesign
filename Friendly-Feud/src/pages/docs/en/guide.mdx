@@ -1,5 +1,5 @@
-import BackToLoginButton from "@/components/BackToLoginButton";
 import ThemeSwitcher from "@/components/Admin/ThemeSwitcher";
+import BackToLoginButton from "@/components/BackToLoginButton";
 
 <div className="relative fixed">
 <div className="flex justify-center w-full py-12 px-10 md:px-2 bg-background overflow-y-scroll overflow-x-hidden">
@@ -154,10 +154,12 @@ Shared Host Buzzers screen:
 
 - **j** — buzz for Team 1 (Alpha). **k** — buzz for Team 2 (Bravo). (Wire two physical
   keyboard buttons as buzzers.)
+- Any **bound buzzer key** (default **Enter**; change it with **Buzzer keys**) — a shared
+  buzzer was pressed. The host gets **Who was first?** and picks the team (**1** / **2** also work).
 
 ## 7. Host console reference
 
-**Top bar:** Room code · Open Game Window · Help (this guide) · Quit (host only).
+**Top bar:** Room code · Open Game Window · Help menu (tour, quickstart, this guide) · Quit (host only).
 
 **Flow controls:** Phase bar · Title Card (shows title; starts fresh, double‑click to confirm
 mid‑game) · Start Round 1 · Round selector · Next Round → (clears strikes, fresh pot, clears
@@ -207,7 +209,13 @@ load back via **Load Game**.
     }
   ],
   "final_round": [
-    { "question": "Name a part of the body beginning with N.", "answers": [["Nose", 52], ["Neck", 34]] }
+    {
+      "question": "Name a part of the body beginning with N.",
+      "answers": [
+        ["Nose", 52],
+        ["Neck", 34]
+      ]
+    }
   ],
   "final_round_timers": [20, 25]
 }
@@ -234,7 +242,7 @@ view. Not playing? Choose **Open Game Window** or **Host Buzzers** instead of a 
 **Host the board on a separate device:** host on your controller device, then on the TV device
 **Join** and press **Open Game Window** instead of picking a team. For a shared physical
 buzzer, pick **Host Buzzers**, enter the host password shown on the admin page; that screen
-responds to **j** and **k**.
+responds to **j** and **k**, and to any key you bind under **Buzzer keys**.
 
 **Security note:** only the **host** (the browser that created the room, carrying the host
 password) can control a room — reveal, score, change settings, or quit. Players, spectators,
