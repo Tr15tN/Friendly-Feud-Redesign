@@ -60,3 +60,16 @@ test.describe("Buzzers screen on seperate browser.", () => {
     await expect(buzzersPage.buzzersInfo).toContainText("Team Alpha", { timeout: 10000 });
   });
 });
+
+test("the host can open the buzzers screen straight from the console", async ({ browser }) => {
+  const s = new Setup(browser);
+  const host = await s.host();
+  const adminPage = new AdminPage(host.page);
+  const room = (await adminPage.roomCodeText.innerText()).trim();
+  const [popup] = await Promise.all([
+    host.page.context().waitForEvent("page"),
+    host.page.getByTestId("hostBuzzersButton").click(),
+  ]);
+  await expect(popup).toHaveURL(new RegExp(`/buzzers\\?room=${room}$`));
+  await expect(new HostBuzzerPage(popup).buzzersPasswordInput).toBeVisible();
+});

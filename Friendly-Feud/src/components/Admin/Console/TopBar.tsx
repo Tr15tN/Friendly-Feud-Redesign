@@ -3,7 +3,7 @@ import { Button, buttonClass } from "@/components/ui/Button";
 import Menu from "@/components/ui/Menu";
 import { normalizeLanguage } from "@/i18n/languages";
 import { Game, WSEvent } from "@/types/game";
-import { BookOpen, CircleHelp, FlaskConical, LogOut, Monitor, Play, ScrollText, Settings, Users } from "lucide-react";
+import { BookOpen, CircleHelp, FlaskConical, Keyboard, LogOut, Monitor, Play, ScrollText, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";
@@ -97,6 +97,19 @@ export default function TopBar({
             <Link id="openGameWindowButton" href="/game" target="_blank" className={buttonClass("secondary")}>
               <Monitor size={16} aria-hidden />
               <span className="hidden md:inline">{t("Open Game Window")}</span>
+            </Link>
+          )}
+          {!demo && (
+            <Link
+              id="hostBuzzersButton"
+              href={`/buzzers?room=${room}`}
+              target="_blank"
+              aria-label={t("Host Buzzers")}
+              title={t("Host Buzzers")}
+              className={buttonClass("secondary")}
+            >
+              <Keyboard size={16} aria-hidden />
+              <span className="hidden lg:inline">{t("Host Buzzers")}</span>
             </Link>
           )}
           <Menu
