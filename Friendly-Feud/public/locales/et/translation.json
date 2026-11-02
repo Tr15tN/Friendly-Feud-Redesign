@@ -415,5 +415,9 @@
   "Sunset": "Päikeseloojang",
   "Forest": "Mets",
   "Neon": "Neoon",
-  "Candy": "Kommivärv"
+  "Candy": "Kommivärv",
+  "Physical buzzer only": "Ainult päris nupp",
+  "Hide the on-screen team buttons and only count presses of the keys above.": "Peida ekraanil olevad tiiminupud ja arvesta ainult ülaltoodud klahvide vajutusi.",
+  "Press your buzzer": "Vajuta nuppu",
+  "Only the physical buzzer counts on this screen.": "Sellel ekraanil loeb ainult päris nupp."
 }

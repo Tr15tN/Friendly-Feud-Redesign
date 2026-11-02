@@ -14,6 +14,8 @@ interface HostBuzzerPageProps {
   /** Keys that count as the physical buzzer. */
   bindings: KeyBinding[];
   soundOn: boolean;
+  /** Only the physical buzzer keys count: no on-screen team buttons, no j/k shortcuts. */
+  keysOnly: boolean;
   /** The key settings dialog is open, so key presses must not buzz. */
   paused: boolean;
   onOpenSettings: () => void;
@@ -25,6 +27,7 @@ export default function HostBuzzersPage({
   buzzed,
   bindings,
   soundOn,
+  keysOnly,
   paused,
   onOpenSettings,
 }: HostBuzzerPageProps) {
@@ -65,7 +68,7 @@ export default function HostBuzzersPage({
         }
         return;
       }
-      if (buzzed) {
+      if (buzzed || keysOnly) {
         return;
       }
       if (evt.key == "j") {
@@ -78,7 +81,7 @@ export default function HostBuzzersPage({
       }
       return;
     },
-    [buzzed, send, bindings, soundOn, paused]
+    [buzzed, send, bindings, soundOn, keysOnly, paused]
   );
 
   useEffect(() => {
@@ -119,7 +122,14 @@ export default function HostBuzzersPage({
           </p>
         )}
       </div>
-      <div className="flex min-h-screen flex-row justify-between space-x-12 p-5">
+      {keysOnly && (
+        <div id="keysOnlyPanel" className="flex min-h-screen flex-col items-center justify-center gap-3 p-5 text-center">
+          <Keyboard size={64} aria-hidden className="text-foreground opacity-60" />
+          <p className="text-3xl font-bold text-foreground">{t("Press your buzzer")}</p>
+          <p className="text-foreground opacity-70">{t("Only the physical buzzer counts on this screen.")}</p>
+        </div>
+      )}
+      <div className={`${keysOnly ? "hidden" : "flex"} min-h-screen flex-row justify-between space-x-12 p-5`}>
         {Array(2)
           .fill(1)
           .map((_, i) => (

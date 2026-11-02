@@ -415,5 +415,9 @@
   "Sunset": "Sunset",
   "Forest": "Forest",
   "Neon": "Neon",
-  "Candy": "Candy"
+  "Candy": "Candy",
+  "Physical buzzer only": "Physical buzzer only",
+  "Hide the on-screen team buttons and only count presses of the keys above.": "Hide the on-screen team buttons and only count presses of the keys above.",
+  "Press your buzzer": "Press your buzzer",
+  "Only the physical buzzer counts on this screen.": "Only the physical buzzer counts on this screen."
 }

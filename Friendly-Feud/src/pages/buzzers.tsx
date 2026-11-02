@@ -22,7 +22,7 @@ export default function BuzzersPage() {
   const roomCode = urlParams.get("room");
   const [buzzed, setBuzzed] = useState<boolean>(false);
   const hasRoom = !!roomCode;
-  const { bindings, setBindings, soundOn, setSoundOn } = useBuzzerKeys();
+  const { bindings, setBindings, soundOn, setSoundOn, keysOnly, setKeysOnly } = useBuzzerKeys();
   const [showKeySettings, setShowKeySettings] = useState(false);
   const [connected, setConnected] = useState(false);
 
@@ -123,6 +123,8 @@ export default function BuzzersPage() {
           onBindingsChange={setBindings}
           soundOn={soundOn}
           onSoundChange={setSoundOn}
+          keysOnly={keysOnly}
+          onKeysOnlyChange={setKeysOnly}
           onClose={() => setShowKeySettings(false)}
         />
       )}
@@ -176,6 +178,7 @@ export default function BuzzersPage() {
           buzzed={buzzed}
           bindings={bindings}
           soundOn={soundOn}
+          keysOnly={keysOnly}
           paused={showKeySettings}
           onOpenSettings={() => setShowKeySettings(true)}
         />

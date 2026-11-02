@@ -10,6 +10,8 @@ interface BuzzerKeySettingsProps {
   onBindingsChange: (bindings: KeyBinding[]) => void;
   soundOn: boolean;
   onSoundChange: (on: boolean) => void;
+  keysOnly: boolean;
+  onKeysOnlyChange: (on: boolean) => void;
   onClose: () => void;
 }
 
@@ -19,6 +21,8 @@ export default function BuzzerKeySettings({
   onBindingsChange,
   soundOn,
   onSoundChange,
+  keysOnly,
+  onKeysOnlyChange,
   onClose,
 }: BuzzerKeySettingsProps) {
   const { t } = useTranslation();
@@ -133,6 +137,22 @@ export default function BuzzerKeySettings({
             className="h-4 w-4"
           />
           {t("Play a sound on this device when the buzzer is pressed")}
+        </label>
+
+        <label className="flex items-start gap-3 text-sm">
+          <input
+            id="buzzerKeysOnlyToggle"
+            type="checkbox"
+            checked={keysOnly}
+            onChange={(e) => onKeysOnlyChange(e.target.checked)}
+            className="mt-0.5 h-4 w-4"
+          />
+          <span>
+            {t("Physical buzzer only")}
+            <span className="block text-pro-mute">
+              {t("Hide the on-screen team buttons and only count presses of the keys above.")}
+            </span>
+          </span>
         </label>
 
         <Button variant="secondary" className="w-full" onClick={onClose}>

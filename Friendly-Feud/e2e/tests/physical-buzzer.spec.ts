@@ -114,3 +114,43 @@ test.describe("Physical buzzer on the buzzers page", () => {
     await page.evaluate(() => window.localStorage.removeItem("famf.buzzerKeys"));
   });
 });
+
+test("'Physical buzzer only' hides the on-screen buttons, ignores j/k and keeps the buzzer key working", async ({
+  browser,
+}) => {
+  const s = new Setup(browser);
+  const host = await s.host();
+  const buzzers = await s.addPlayer(PlayerType.HOST_BUZZER);
+  const buzzersPage = new HostBuzzerPage(buzzers.page);
+  const adminPage = new AdminPage(host.page);
+  const hostPassword = await adminPage.hostPassword.innerText();
+  await adminPage.gameSelector.selectOption({ index: 1 });
+  await adminPage.startRoundOneButton.click();
+  await buzzersPage.buzzersPasswordInput.fill(hostPassword);
+  await buzzersPage.buzzersSubmitButton.click();
+  const page = buzzersPage.page;
+  await expect(page.getByTestId("buzzersButtonTeam0")).toBeVisible({ timeout: 10000 });
+
+  await page.getByTestId("buzzerKeysButton").click();
+  await page.getByTestId("buzzerKeysOnlyToggle").check();
+  await page.getByRole("button", { name: "Done" }).click();
+  await expect(page.getByTestId("buzzersButtonTeam0")).toBeHidden();
+  await expect(page.getByTestId("keysOnlyPanel")).toBeVisible();
+
+  // The team shortcuts no longer buzz...
+  await page.click("body");
+  await page.keyboard.press("j");
+  await page.waitForTimeout(600);
+  await expect(page.getByTestId("buzzersInfo")).toHaveCount(0);
+
+  // ...but the buzzer key still does, and the choice is remembered after a reload.
+  await page.keyboard.press("Enter");
+  await expect(adminPage.page.getByTestId("whoWasFirstDialog")).toBeVisible({ timeout: 10000 });
+  await adminPage.page.getByTestId("whoWasFirstIgnore").click();
+
+  await page.reload();
+  await page.getByTestId("buzzersPasswordInput").fill(hostPassword);
+  await page.getByTestId("buzzersSubmitButton").click();
+  await expect(page.getByTestId("keysOnlyPanel")).toBeVisible({ timeout: 10000 });
+  await page.evaluate(() => window.localStorage.removeItem("famf.buzzerKeysOnly"));
+});
