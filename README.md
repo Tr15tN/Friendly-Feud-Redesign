@@ -1,4 +1,10 @@
-# Friendly-Feud scoring-ui pack
+# Friendly Feud Redesign
+
+A redesigned host console, USB buzzer support, hosting setup and English/Estonian UI, built on
+[joshzcold/Friendly-Feud](https://github.com/joshzcold/Friendly-Feud). Live at https://m0usetrap.ee.
+The main work lives on the `redesign` branch; `master` tracks the original project.
+
+## scoring-ui pack
 
 Built for Tristan on the local `scoring-ui` branch (18 commits on top of upstream master).
 Nothing was pushed upstream.

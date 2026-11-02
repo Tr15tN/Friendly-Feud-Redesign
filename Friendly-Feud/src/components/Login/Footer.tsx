@@ -12,7 +12,7 @@ export default function Footer() {
   return (
     <footer className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 border-t border-pro-line px-4 py-4">
       <Link
-        href="https://github.com/joshzcold/Friendly-Feud"
+        href="https://github.com/Tr15tN/Friendly-Feud-Redesign"
         target="_blank"
         rel="noopener noreferrer"
         className={linkClass}

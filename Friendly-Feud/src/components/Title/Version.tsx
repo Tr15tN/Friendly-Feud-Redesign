@@ -9,7 +9,7 @@ const Version = () => {
 
   return (
     <Link
-      href={"https://github.com/joshzcold/Friendly-Feud/releases"}
+      href={"https://github.com/Tr15tN/Friendly-Feud-Redesign/commits/redesign"}
       target="_blank"
       rel="noopener noreferrer"
       className="text-sm text-pro-mute hover:text-pro-text hover:underline"
