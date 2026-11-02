@@ -37,12 +37,16 @@ export default function BuzzerTable({ game }: BuzzerTableProps) {
                 }
               }
               playerName = player?.name;
-            } else if ("team" in buzz) {
+            } else if (buzz.team != null) {
               // Buzz from buzzers page instead of player
               const team = game.teams[buzz.team];
               if (team?.name) {
                 teamName = team.name;
               }
+              playerName = "";
+            } else {
+              // Physical buzzer press the host has not assigned to a team yet
+              teamName = t("Waiting for the host…");
               playerName = "";
             }
 

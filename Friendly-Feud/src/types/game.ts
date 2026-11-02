@@ -39,6 +39,7 @@ export const WSAction = {
   REGISTERED: "registered",
   REGISTER_BUZZER_SCREEN: "register_buzzer_screen",
   BUZZER_SCREEN_BUZZ: "buzzer_screen_buzz",
+  RESOLVE_BUZZ: "resolve_buzz",
   LOAD_GAME: "load_game",
   LOGO_UPLOAD: "logo_upload",
   DEL_LOGO_UPLOAD: "del_logo_upload",
@@ -87,13 +88,16 @@ export interface Buzzed {
   id: string;
   // optional value for determining which team buzzed first.
   // used in generic buzzer interface vs. player list.
-  team: number;
+  // null: a physical-buzzer press that the host has not assigned to a team yet.
+  team: number | null;
 }
 
 export interface BuzzedState {
   id?: string;
   name?: string;
   team_name?: string;
+  /** A physical-buzzer press the host has not assigned to a team yet. */
+  pending?: boolean;
 }
 
 export interface Settings {

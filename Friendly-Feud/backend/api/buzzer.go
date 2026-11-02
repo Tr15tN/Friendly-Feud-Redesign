@@ -5,6 +5,33 @@ import (
 	"time"
 )
 
+// recordPadBuzz stores the first press of the single physical buzzer. The buzz has no team
+// yet; the host says who was first with resolvePadBuzz. Returns false when a buzz already exists.
+func (g *game) recordPadBuzz(nowMs int64) bool {
+	if len(g.Buzzed) > 0 {
+		return false
+	}
+	g.Buzzed = append(g.Buzzed, buzzed{Time: nowMs})
+	return true
+}
+
+// hasPendingPadBuzz reports whether the first buzz is a physical-buzzer press waiting for a team.
+func (g *game) hasPendingPadBuzz() bool {
+	return len(g.Buzzed) > 0 && g.Buzzed[0].ID == "" && g.Buzzed[0].Team == nil
+}
+
+// resolvePadBuzz assigns the pending physical-buzzer press to team 0 or 1.
+func (g *game) resolvePadBuzz(team int) bool {
+	if team != 0 && team != 1 {
+		return false
+	}
+	if !g.hasPendingPadBuzz() {
+		return false
+	}
+	g.Buzzed[0].Team = &team
+	return true
+}
+
 func ClearBuzzers(client *Client, event *Event) GameError {
 	s := store
 	room, storeError := s.getRoom(client, event.Room)
@@ -105,6 +132,14 @@ func BuzzerScreenBuzz(client *Client, event *Event) GameError {
 		return GameError{code: UNAUTHENTICATED, message: "Unauthorized"}
 	}
 
+	// No team: the single physical buzzer. Keep only the first press until the host resolves it.
+	if event.Team == nil {
+		if room.Game.recordPadBuzz(time.Now().UTC().UnixMilli()) {
+			return broadcastBuzz(s, event.Room, room)
+		}
+		return GameError{}
+	}
+
 	// Accept only the first buzz per team (host buzzers). If a player from that team
 	// or a host buzz for that team already exists in this round, ignore
 	alreadyBuzzedForTeam := false
@@ -127,6 +162,11 @@ func BuzzerScreenBuzz(client *Client, event *Event) GameError {
 			Team: event.Team,
 		})
 	}
+	return broadcastBuzz(s, event.Room, room)
+}
+
+// broadcastBuzz tells every client a buzz happened, sends the new game state and saves the room.
+func broadcastBuzz(s gameStore, roomCode string, room room) GameError {
 	message, err := NewSendBuzzed()
 	if err != nil {
 		return GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}
@@ -137,7 +177,26 @@ func BuzzerScreenBuzz(client *Client, event *Event) GameError {
 		return GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}
 	}
 	room.Hub.broadcast <- message
-	s.writeRoom(event.Room, room)
+	s.writeRoom(roomCode, room)
+	return GameError{}
+}
+
+// ResolveBuzz is the host answering "who was first?" for a physical-buzzer press.
+func ResolveBuzz(client *Client, event *Event) GameError {
+	s := store
+	room, storeError := s.getRoom(client, event.Room)
+	if storeError.code != "" {
+		return storeError
+	}
+	if event.Team == nil || !room.Game.resolvePadBuzz(*event.Team) {
+		return GameError{code: PARSE_ERROR, message: "no pending buzz or invalid team"}
+	}
+	message, err := NewSendData(room.Game)
+	if err != nil {
+		return GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}
+	}
+	room.Hub.broadcast <- message
+	s.writeRoom(room.Game.Room, room)
 	return GameError{}
 }
 

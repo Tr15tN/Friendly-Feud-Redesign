@@ -7,6 +7,7 @@ import StrikeOverlay from "@/components/StrikeOverlay";
 import TeamName from "@/components/TeamName";
 import TitlePage from "@/components/Title/TitlePage";
 import { ERROR_CODES } from "@/i18n/errorCodes";
+import { hasPendingBuzz } from "@/lib/host/console";
 import { getWebSocketUrl } from "@/lib/utils";
 import { BuzzedState, Game, WSAction, WSEvent } from "@/types/game";
 // @ts-expect-error: not sure if cookie-cutter is typed
@@ -155,13 +156,15 @@ export default function GamePage() {
               name: user.name,
               team_name: newGameData.teams[user.team ?? 0].name,
             });
-          } else if ("team" in buzzerInfo) {
-            console.log("here");
+          } else if (buzzerInfo.team != null && newGameData.teams[buzzerInfo.team]) {
             setBuzzed({
               id: "",
               name: "",
               team_name: newGameData.teams[buzzerInfo.team].name,
             });
+          } else if (hasPendingBuzz(newGameData)) {
+            // Physical buzzer pressed; the host has not said which team yet.
+            setBuzzed({ pending: true });
           } else {
             console.warn("Buzzed user or team not found:", buzzerInfo, newGameData);
             setBuzzed({});

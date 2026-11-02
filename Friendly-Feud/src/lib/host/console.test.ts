@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { Game } from "../../types/game";
-import { currentPhase, firstBuzz, gotoFinal, gotoRound, gotoTitle, roundDots, teamColumnState } from "./console";
+import {
+  currentPhase,
+  firstBuzz,
+  gotoFinal,
+  gotoRound,
+  gotoTitle,
+  hasPendingBuzz,
+  roundDots,
+  teamColumnState,
+} from "./console";
 
 function makeGame(): Game {
   return {
@@ -212,5 +221,18 @@ describe("flow transitions", () => {
     expect(next.is_final_round).toBe(true);
     expect(next.is_final_second).toBe(false);
     expect(g.is_final_round).toBe(false);
+  });
+});
+
+describe("hasPendingBuzz", () => {
+  it("is true only for a physical-buzzer press that still needs a team", () => {
+    const game = makeGame();
+    expect(hasPendingBuzz(game)).toBe(false);
+    game.buzzed = [{ time: 1, id: "", team: null }];
+    expect(hasPendingBuzz(game)).toBe(true);
+    game.buzzed = [{ time: 1, id: "", team: 1 }];
+    expect(hasPendingBuzz(game)).toBe(false);
+    game.buzzed = [{ time: 1, id: "p1", team: null }];
+    expect(hasPendingBuzz(game)).toBe(false);
   });
 });

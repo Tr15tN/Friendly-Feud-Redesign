@@ -52,6 +52,7 @@ var hostRecieveActions = map[string]ActionFunc{
 	"buzzer_screen_buzz":     BuzzerScreenBuzz,
 	"load_game":              LoadGame,
 	"clearbuzzers":           ClearBuzzers,
+	"resolve_buzz":           ResolveBuzz,
 }
 
 func parseEvent(message []byte) (*Event, error) {

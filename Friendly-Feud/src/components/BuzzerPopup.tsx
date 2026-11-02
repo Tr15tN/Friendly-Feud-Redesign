@@ -13,6 +13,7 @@ const VISIBLE_MS = 3000;
 const RESTORE_GRACE_MS = 1000;
 
 function buzzKey(buzzed: BuzzedState | undefined): string | null {
+  if (buzzed?.pending) return "pending";
   if (!buzzed?.id && !buzzed?.team_name) return null;
   return `${buzzed.id ?? ""}|${buzzed.team_name ?? ""}`;
 }
@@ -37,12 +38,16 @@ export default function BuzzerPopup({ buzzed, suppressed = false }: BuzzerPopupP
       return;
     }
     if (key === previous || Date.now() - mountedAtRef.current < RESTORE_GRACE_MS) return;
+    // The host naming the team after a physical buzz is the same buzz: no second sound.
+    const resolvingPending = previous === "pending";
 
     // Sound Attribution:
     // "Quiz Show Buzzer 2" by JapanYoshiTheGamer
     // Source: https://freesound.org/s/423219/
     // License: Attribution 4.0 (https://creativecommons.org/licenses/by/4.0/)
-    new Audio("buzzer.wav").play().catch((error) => console.warn("Error playing buzzer sound:", error));
+    if (!resolvingPending) {
+      new Audio("buzzer.wav").play().catch((error) => console.warn("Error playing buzzer sound:", error));
+    }
 
     setShownKey(key);
     const timer = setTimeout(() => setShownKey((current) => (current === key ? null : current)), VISIBLE_MS);
@@ -71,6 +76,7 @@ export default function BuzzerPopup({ buzzed, suppressed = false }: BuzzerPopupP
         <span className="text-[3vh] uppercase tracking-widest text-warning-200">{t("First Buzzer")}</span>
         {visible && (
           <span className="text-[4.5vh] font-bold uppercase">
+            {buzzed.pending && <span>{t("BUZZ!")}</span>}
             {buzzed.name && <span>{buzzed.name}</span>}
             {buzzed.name && buzzed.team_name && <span className="text-warning-200"> · </span>}
             {buzzed.team_name && <span>{buzzed.team_name}</span>}

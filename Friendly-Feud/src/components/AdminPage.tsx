@@ -2,6 +2,7 @@ import BuzzersPlayersPanel from "@/components/Admin/Console/BuzzersPlayersPanel"
 import SettingsPanel from "@/components/Admin/Console/SettingsPanel";
 import TopBar from "@/components/Admin/Console/TopBar";
 import { useFlowActions } from "@/components/Admin/Console/useFlowActions";
+import WhoWasFirst from "@/components/Admin/Console/WhoWasFirst";
 import CSVLoader from "@/components/Admin/CSVLoader";
 import GameDisplay from "@/components/Admin/GameDisplay";
 import { useScoring } from "@/components/Admin/GameDisplay/useScoring";
@@ -168,6 +169,7 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
           {settingsPanel}
         </Drawer>
       )}
+      <WhoWasFirst game={game} send={send} />
       {/* Modal over whole admin page */}
       {csvFileUpload && (
         <CSVLoader

@@ -1,5 +1,7 @@
+import BuzzerKeySettings from "@/components/BuzzerKeySettings";
 import HostBuzzersPage from "@/components/HostBuzzersPage";
 import { ERROR_CODES } from "@/i18n/errorCodes";
+import { useBuzzerKeys } from "@/lib/buzzer/useBuzzerKeys";
 import { getWebSocketUrl } from "@/lib/utils";
 import { Game, WSAction, WSEvent } from "@/types/game";
 // @ts-expect-error: not sure if cookie-cutter is typed
@@ -20,6 +22,8 @@ export default function BuzzersPage() {
   const roomCode = urlParams.get("room");
   const [buzzed, setBuzzed] = useState<boolean>(false);
   const hasRoom = !!roomCode;
+  const { bindings, setBindings, soundOn, setSoundOn } = useBuzzerKeys();
+  const [showKeySettings, setShowKeySettings] = useState(false);
 
   function send(data: WSEvent) {
     console.debug("Sending", data);
@@ -110,6 +114,15 @@ export default function BuzzersPage() {
 
   return (
     <>
+      {showKeySettings && (
+        <BuzzerKeySettings
+          bindings={bindings}
+          onBindingsChange={setBindings}
+          soundOn={soundOn}
+          onSoundChange={setSoundOn}
+          onClose={() => setShowKeySettings(false)}
+        />
+      )}
       {!buzzerRegistered ? (
         <div>
           <div className="absolute flex min-w-full justify-end px-10 pt-10">
@@ -135,6 +148,13 @@ export default function BuzzersPage() {
               value={hostPassword}
             />
             <button
+              id="buzzerKeysSetupButton"
+              onClick={() => setShowKeySettings(true)}
+              className="text-sm text-foreground underline"
+            >
+              {t("Buzzer keys")}: {bindings.map((b) => b.label).join(", ")}
+            </button>
+            <button
               id="buzzersSubmitButton"
               onClick={() => {
                 send({ action: WSAction.REGISTER_BUZZER_SCREEN });
@@ -146,7 +166,15 @@ export default function BuzzersPage() {
           </div>
         </div>
       ) : game?.teams != null ? (
-        <HostBuzzersPage game={game} send={send} buzzed={buzzed} />
+        <HostBuzzersPage
+          game={game}
+          send={send}
+          buzzed={buzzed}
+          bindings={bindings}
+          soundOn={soundOn}
+          paused={showKeySettings}
+          onOpenSettings={() => setShowKeySettings(true)}
+        />
       ) : (
         <div className="flex min-h-screen items-center justify-center">
           <p className="text-foreground">{t("loading")}</p>

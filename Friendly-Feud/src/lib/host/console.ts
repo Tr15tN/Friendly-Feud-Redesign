@@ -70,6 +70,12 @@ export function firstBuzz(game: Game): { team: number | null; name: string | nul
   return { team: firstBuzzTeam(game), name: player?.name || null };
 }
 
+/** The first buzz came from the physical buzzer and the host has not said which team it was. */
+export function hasPendingBuzz(game: Game): boolean {
+  const first = game.buzzed?.[0];
+  return !!first && !first.id && first.team == null;
+}
+
 /** Show a regular round: clears the title/final flags and both teams' strikes. */
 export function gotoRound(game: Game, roundIndex: number): Game {
   const next = structuredClone(game);
