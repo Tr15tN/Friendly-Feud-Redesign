@@ -8,6 +8,8 @@ import { HostBuzzerPage } from "./models/HostBuzzerPage.js";
 test.describe("Physical buzzer on the buzzers page", () => {
   let buzzersPage: HostBuzzerPage;
   let adminPage: AdminPage;
+  let hostPassword = "";
+  let roomCode = "";
 
   test.beforeAll(async ({ browser }) => {
     const s = new Setup(browser);
@@ -19,7 +21,8 @@ test.describe("Physical buzzer on the buzzers page", () => {
     await adminPage.teamOneNameInput.fill("Alpha");
     await adminPage.teamTwoNameInput.fill("Beta");
     await adminPage.gameSelector.selectOption({ index: 1 });
-    const hostPassword = await adminPage.hostPassword.innerText();
+    hostPassword = await adminPage.hostPassword.innerText();
+    roomCode = s.roomCode as string;
     await adminPage.startRoundOneButton.click();
 
     await buzzersPage.buzzersPasswordInput.fill(hostPassword);
@@ -74,6 +77,23 @@ test.describe("Physical buzzer on the buzzers page", () => {
     await adminPage.page.getByTestId("whoWasFirstIgnore").click();
     await expect(dialog).not.toBeVisible({ timeout: 10000 });
     await expect(buzzersPage.buzzersInfo).not.toBeVisible({ timeout: 10000 });
+  });
+
+  test("works when opened straight from a /buzzers link", async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto(`/buzzers?room=${roomCode}`);
+    const submit = page.getByTestId("buzzersSubmitButton");
+    await expect(submit).toBeEnabled({ timeout: 10000 });
+    await page.getByTestId("buzzersPasswordInput").fill(hostPassword);
+    await submit.click();
+    await expect(page.getByTestId("buzzerKeysButton")).toBeVisible({ timeout: 10000 });
+
+    await page.click("body");
+    await page.keyboard.press("Enter");
+    await expect(adminPage.page.getByTestId("whoWasFirstDialog")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("buzzersInfo")).toContainText("BUZZ!", { timeout: 10000 });
+    await context.close();
   });
 
   test("any key can be bound as the buzzer", async () => {

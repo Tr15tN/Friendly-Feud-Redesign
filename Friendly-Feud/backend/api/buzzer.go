@@ -108,6 +108,9 @@ func RegisterBuzzerScreen(client *Client, event *Event) GameError {
 	if event.HostPassword != room.HostPassword {
 		return GameError{code: UNAUTHENTICATED, message: "Unauthorized"}
 	}
+	// Join the room's hub so this screen receives buzz and game updates even when it was
+	// opened straight from a /buzzers?room=CODE link instead of through the join flow.
+	room.Hub.register <- client
 	message, err := NewSendRegisteredBuzzerScreen()
 	if err != nil {
 		return GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}

@@ -18,3 +18,4 @@ backend/.cache/
 .env.local
 .env.*.local
 tsconfig.tsbuildinfo
+e2e/live/screens/

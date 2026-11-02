@@ -24,6 +24,7 @@ export default function BuzzersPage() {
   const hasRoom = !!roomCode;
   const { bindings, setBindings, soundOn, setSoundOn } = useBuzzerKeys();
   const [showKeySettings, setShowKeySettings] = useState(false);
+  const [connected, setConnected] = useState(false);
 
   function send(data: WSEvent) {
     console.debug("Sending", data);
@@ -39,6 +40,7 @@ export default function BuzzersPage() {
     ws.current = new WebSocket(getWebSocketUrl());
     ws.current.onopen = function () {
       console.log("game connected to server");
+      setConnected(true);
       const session = cookieCutter.get("session");
       console.debug(session);
       if (session != null && ws.current) {
@@ -101,6 +103,7 @@ export default function BuzzersPage() {
     };
 
     ws.current.onclose = (event) => {
+      setConnected(false);
       console.log("WebSocket connection closed:", event.code, event.reason);
     };
   }, []);
@@ -156,6 +159,7 @@ export default function BuzzersPage() {
             </button>
             <button
               id="buzzersSubmitButton"
+              disabled={!connected}
               onClick={() => {
                 send({ action: WSAction.REGISTER_BUZZER_SCREEN });
               }}
