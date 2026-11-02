@@ -32,6 +32,8 @@ i18n
       caches: ["localStorage"],
     },
     interpolation: {
+      // React already escapes text; escaping here turned "TV/Movies" into "TV&#x2F;Movies".
+      escapeValue: false,
       format,
     },
   });

@@ -21,4 +21,6 @@ ssh $SSH_OPTS "$TARGET" 'mkdir -p ~/feud/data'
 scp $SSH_OPTS deploy/docker-compose.prod.yml deploy/Caddyfile "$TARGET":~/feud/
 docker save "$IMAGE" | gzip | ssh $SSH_OPTS "$TARGET" 'gunzip | docker load'
 ssh $SSH_OPTS "$TARGET" 'cd ~/feud && test -f .env || { echo "Missing ~/feud/.env (copy deploy/.env.example)"; exit 1; }; docker compose -f docker-compose.prod.yml --env-file .env up -d'
+# The Caddyfile is a bind mount, so ask Caddy to re-read it.
+ssh $SSH_OPTS "$TARGET" 'cd ~/feud && docker compose -f docker-compose.prod.yml --env-file .env exec -T caddy caddy reload --config /etc/caddy/Caddyfile' || true
 echo "Deployed. Check https://$DOMAIN/api/health"
