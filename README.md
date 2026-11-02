@@ -29,7 +29,9 @@ docker build -f Dockerfile.allinone -t my-feud .
 
 ## Deploy (short version)
 
-Use `ghcr.io` only if you want stock upstream. For this UI, build your own image:
+Use `ghcr.io` only if you want stock upstream. For this UI, build your own image. `NEXT_PUBLIC_*` values are baked in at build time: `docker build -f Dockerfile.allinone --build-arg NEXT_PUBLIC_TITLE_URL=YOUR.DOMAIN -t my-feud .`. For a full Google Cloud + Caddy setup see `Friendly-Feud/deploy/README.md`.
+
+Optional abuse limits: `MAX_ROOMS` (live room cap) and `ROOM_CREATE_LIMIT_PER_HOUR` (per IP); both default to unlimited.
 
 ```yaml
 services:
@@ -42,7 +44,6 @@ services:
       GAME_STORE: sqlite
       GAME_STORE_SQLITE_PATH: /data/famf.db
       ALLOWED_ORIGINS: https://YOUR.DOMAIN
-      NEXT_PUBLIC_TITLE_URL: YOUR.DOMAIN
       ADMIN_CONSOLE_PASSWORD: <strong unique password>
       ADMIN_SESSION_SECRET: <long random string>
       ANNOUNCEMENT_BANNER_FILE: /data/announcement-banner.json
