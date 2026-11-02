@@ -6,6 +6,7 @@ import (
 	"log"
 	"slices"
 	"strings"
+	"time"
 )
 
 func quitPlayer(room *room, client *Client, event *Event) error {
@@ -149,9 +150,17 @@ func HostRoom(client *Client, event *Event) GameError {
 		return GameError{code: ROOM_CREATION_PAUSED, message: "New room creation is paused"}
 	}
 
-	newRoomCode := roomCode()
 	s := store
 	currentRooms := s.currentRooms()
+	clientIP := ""
+	if client != nil {
+		clientIP = client.ip
+	}
+	if limitErr := checkRoomCreation(clientIP, len(currentRooms), time.Now()); limitErr.code != "" {
+		return limitErr
+	}
+
+	newRoomCode := roomCode()
 	for slices.Contains(currentRooms, newRoomCode) {
 		newRoomCode = roomCode()
 	}

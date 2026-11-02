@@ -1,0 +1,7 @@
+# Caddy obtains and renews the HTTPS certificate for $DOMAIN automatically.
+# It also sets X-Forwarded-For to the real client address (used for the per-IP room limit)
+# and replaces any value the client tried to send.
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy feud:80
+}

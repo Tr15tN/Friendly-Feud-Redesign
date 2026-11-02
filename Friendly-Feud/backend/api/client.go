@@ -76,6 +76,9 @@ type Client struct {
 
 	// Stop the goroutine
 	stop chan bool
+
+	// Remote address (first X-Forwarded-For entry, else the TCP peer); used for rate limiting.
+	ip string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -161,6 +164,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 		conn: conn,
 		send: make(chan []byte, 256),
 		stop: make(chan bool),
+		ip:   requestIP(r),
 	}
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.

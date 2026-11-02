@@ -158,7 +158,9 @@
     "player_not_found": "Mängijat ei leitud.",
     "forbidden": "Te ei tohi seda toimingut teha.",
     "title_music_playback_error": "Heli lubamiseks klõpsa korra mänguaknal, seejärel vajuta uuesti mängi.",
-    "room_creation_paused": "Uute mängude loomine on peatatud."
+    "room_creation_paused": "Uute mängude loomine on peatatud.",
+    "room_limit_reached": "Server on praegu täis. Proovi hiljem uuesti.",
+    "room_creation_rate_limited": "Oled hiljuti liiga palju mänge loonud. Proovi hiljem uuesti."
   },
   "Adjusted {{team}} by {{amount}}": "Muudetud: {{team}} {{amount}}",
   "Award {{points}} to {{team}}": "Anna {{points}} punkti: {{team}}",

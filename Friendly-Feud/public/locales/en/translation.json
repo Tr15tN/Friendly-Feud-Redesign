@@ -160,6 +160,8 @@
     "forbidden": "You are not permitted to perform this operation.",
     "unauthenticated": "Invalid authentication.",
     "room_creation_paused": "New room creation is paused.",
+    "room_limit_reached": "The server is full right now. Please try again later.",
+    "room_creation_rate_limited": "You have created too many games recently. Please try again later.",
     "title_music_playback_error": "The game window needs a click before audio can start. Click the game window once, then press play again."
   },
   "Adjusted {{team}} by {{amount}}": "Adjusted {{team}} by {{amount}}",

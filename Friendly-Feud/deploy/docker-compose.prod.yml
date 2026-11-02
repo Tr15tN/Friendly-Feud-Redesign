@@ -1,0 +1,39 @@
+# Production stack: the all-in-one app (nginx + Go + Next) behind Caddy, which handles HTTPS.
+# Run from this directory on the server:  docker compose -f docker-compose.prod.yml --env-file .env up -d
+services:
+  feud:
+    image: ${FEUD_IMAGE:-famf-feud:latest}
+    restart: unless-stopped
+    environment:
+      FAMF_STORE: sqlite
+      GAME_STORE: sqlite
+      GAME_STORE_SQLITE_PATH: /data/famf.db
+      ANNOUNCEMENT_BANNER_FILE: /data/announcement-banner.json
+      ALLOWED_ORIGINS: https://${DOMAIN}
+      ADMIN_CONSOLE_PASSWORD: ${ADMIN_CONSOLE_PASSWORD:?set in .env}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:?set in .env}
+      MAX_ROOMS: ${MAX_ROOMS:-50}
+      ROOM_CREATE_LIMIT_PER_HOUR: ${ROOM_CREATE_LIMIT_PER_HOUR:-10}
+    volumes:
+      - ./data:/data
+    expose:
+      - "80"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - feud
+    environment:
+      DOMAIN: ${DOMAIN:?set in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
