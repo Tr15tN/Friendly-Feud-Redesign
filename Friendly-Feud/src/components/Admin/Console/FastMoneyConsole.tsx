@@ -2,7 +2,7 @@ import FinalRoundButtonControls from "@/components/Admin/GameDisplay/FinalRoundB
 import FinalRoundPointTotals from "@/components/Admin/GameDisplay/FinalRoundPointTotals";
 import { buttonClass } from "@/components/ui/button-class";
 import { Game, WSEvent } from "@/types/game";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 interface FastMoneyConsoleProps {
@@ -25,6 +25,18 @@ export default function FastMoneyConsole({
   setTimerCompleted,
 }: FastMoneyConsoleProps) {
   const { t } = useTranslation();
+
+  // The game window reports "timer complete" only when it carries the host's session, so a TV on its own device never
+  // does. Count the time here too, so the Start button comes back without the host doing anything.
+  const seconds = game.final_round_timers?.[game.is_final_second ? 1 : 0] ?? 0;
+  useEffect(() => {
+    if (!timerStarted) return;
+    const timeout = setTimeout(() => {
+      setTimerStarted(false);
+      setTimerCompleted(true);
+    }, seconds * 1000 + 800);
+    return () => clearTimeout(timeout);
+  }, [timerStarted, seconds, setTimerStarted, setTimerCompleted]);
 
   return (
     <div className="mx-auto max-w-[1400px] text-pro-text">

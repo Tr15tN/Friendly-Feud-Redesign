@@ -62,6 +62,9 @@ test("can hide questions", async () => {
 });
 
 test("can keep default title music and upload custom title music", async () => {
+  // The title music controls live on the title screen, and earlier tests in this file started round 1.
+  await adminPage.openFlowMenu();
+  await adminPage.titleCardButton.click();
   await expect(adminPage.uploadTitleMusicButton).toHaveText("Upload Music");
 
   const defaultTitleMusicRequest = spectator.page.waitForRequest("**/title.mp3");

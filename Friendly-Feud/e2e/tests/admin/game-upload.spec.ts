@@ -31,11 +31,11 @@ test("can upload json game", async () => {
 test("can upload csv game", async () => {
   await uploadGameFile(PATHS.GAME_CSV);
 
-  expect(adminPage.csv.errorText).not.toBeVisible();
+  await expect(adminPage.csv.errorText).not.toBeVisible();
 
   await test.step("configure csv settings", async () => {
     await adminPage.csv.settings.noHeader.click();
-    expect(adminPage.csv.errorText).toBeVisible();
+    await expect(adminPage.csv.errorText).toBeVisible();
     await adminPage.csv.settings.noHeader.click();
 
     await adminPage.csv.settings.roundCount.fill("5");
