@@ -113,6 +113,8 @@ export interface Settings {
   physical_buzzer: boolean;
   // The host closed the room: no new players can join.
   lock_joining: boolean;
+  // How much of the TV the picture may use, in percent (0 or missing = 100).
+  display_scale: number;
   // Fast money total needed to show the "win" celebration. Defaults to 200 when unset.
   final_round_win_threshold?: number;
 }

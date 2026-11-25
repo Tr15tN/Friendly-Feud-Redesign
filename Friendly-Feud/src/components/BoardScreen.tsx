@@ -3,7 +3,8 @@ import QuestionBoard from "@/components/QuestionBoard";
 import Round from "@/components/Round";
 import ScaleToFit from "@/components/ScaleToFit";
 import TeamName from "@/components/TeamName";
-import TitlePage from "@/components/Title/TitlePage";
+import TitlePage, { TITLE_BACKGROUND } from "@/components/Title/TitlePage";
+import TvCanvas from "@/components/TvCanvas";
 import { Game } from "@/types/game";
 
 interface BoardScreenProps {
@@ -14,12 +15,20 @@ interface BoardScreenProps {
 
 /** What the TV shows for the current game state: title card, round board or Fast Money. */
 export default function BoardScreen({ game, timer }: BoardScreenProps) {
+  return (
+    <TvCanvas displayScale={game.settings?.display_scale} backgroundClassName={game.title ? TITLE_BACKGROUND : ""}>
+      <BoardContent game={game} timer={timer} />
+    </TvCanvas>
+  );
+}
+
+function BoardContent({ game, timer }: BoardScreenProps) {
   if (game.title) {
     return <TitlePage game={game} />;
   }
   if (game.is_final_round) {
     return (
-      <div className="h-screen w-screen p-[2vw]">
+      <div className="h-full w-full p-[2cqw]">
         <ScaleToFit contain className="flex h-full w-full items-center justify-center">
           <FinalPage game={game} timer={timer} />
         </ScaleToFit>
@@ -32,7 +41,7 @@ export default function BoardScreen({ game, timer }: BoardScreenProps) {
     return <div>Error: Invalid round data</div>;
   }
   return (
-    <div className="h-screen w-screen p-[2vw]">
+    <div className="h-full w-full p-[2cqw]">
       <ScaleToFit contain className="flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Round game={game} />

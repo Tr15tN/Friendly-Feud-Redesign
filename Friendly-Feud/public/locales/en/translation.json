@@ -455,5 +455,9 @@
   "Nobody new can join from a phone. Players already in can reconnect.": "Nobody new can join from a phone. Players already in can reconnect.",
   "Joining is closed": "Joining is closed",
   "Joining is closed. Untick Lock joining in Settings to let new players in.": "Joining is closed. Untick Lock joining in Settings to let new players in.",
-  "Made by": "Made by"
+  "Made by": "Made by",
+  "TV picture": "TV picture",
+  "TV size": "TV size",
+  "If your TV cuts off the edges of the picture, lower this until everything is visible.": "If your TV cuts off the edges of the picture, lower this until everything is visible.",
+  "Reset": "Reset"
 }

@@ -25,7 +25,7 @@ export default function Signature({ variant }: SignatureProps) {
       title={`${t("Made by")} Tristan M`}
       className={
         tv
-          ? "pointer-events-none absolute bottom-[1.5vh] right-[1.5vw] flex flex-col items-end text-white/70"
+          ? "pointer-events-none absolute bottom-[1.5cqh] right-[1.5cqw] flex flex-col items-end text-white/70"
           : "flex flex-col items-center text-pro-mute"
       }
     >
@@ -37,13 +37,13 @@ export default function Signature({ variant }: SignatureProps) {
           WebkitMask: mask,
           mask,
           aspectRatio: "496 / 112",
-          height: tv ? "clamp(24px, 3.2vh, 40px)" : "26px",
+          height: tv ? "clamp(24px, 3.2cqh, 40px)" : "26px",
         }}
       />
       <span
         id="signatureStamp"
         className="mt-0.5 tabular-nums tracking-wide"
-        style={{ fontSize: tv ? "clamp(11px, 1.5vh, 16px)" : "11px" }}
+        style={{ fontSize: tv ? "clamp(11px, 1.5cqh, 16px)" : "11px" }}
       >
         {signatureStamp()}
       </span>

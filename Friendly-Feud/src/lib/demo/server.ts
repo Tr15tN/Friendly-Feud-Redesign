@@ -100,6 +100,7 @@ export class DemoServer {
         hide_join_info: false,
         physical_buzzer: false,
         lock_joining: false,
+        display_scale: 100,
       },
       teams: [
         { name: options.teamNames[0], points: 0, mistakes: 0 },

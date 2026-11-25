@@ -5,6 +5,7 @@ import { Check, Copy } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BuzzerSoundSettings from "./BuzzerSoundSettings";
+import DisplayScale from "./DisplayScale";
 import FinalRoundTitleChanger from "./FinalRoundTitleChanger";
 import FinalRoundWinThreshold from "./FinalRoundWinThreshold";
 import SettingsCheckbox from "./SettingsCheckbox";
@@ -49,6 +50,9 @@ export default function AdminSettings({ game, setGame, send, hostPassword }: Adm
           tooltip="Nobody new can join from a phone. Players already in can reconnect."
           settingKey="lock_joining"
         />
+      </Section>
+      <Section title={t("TV picture")}>
+        <DisplayScale game={game} setGame={setGame} send={send} />
       </Section>
       <Section title={t("Fast Money")}>
         <div className="grid gap-4 sm:grid-cols-2">

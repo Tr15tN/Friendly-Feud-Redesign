@@ -40,6 +40,8 @@ type settings struct {
 	PhysicalBuzzer bool `json:"physical_buzzer"`
 	// No new players can join (reconnecting players and paired devices still can).
 	LockJoining bool `json:"lock_joining"`
+	// How much of the TV the picture may use, in percent (0 = never set = 100). Lower it if the TV crops the edges.
+	DisplayScale int `json:"display_scale"`
 	// Fast money total required for the win celebration. 0 means use the default (200).
 	FinalRoundWinThreshold int `json:"final_round_win_threshold,omitempty"`
 }

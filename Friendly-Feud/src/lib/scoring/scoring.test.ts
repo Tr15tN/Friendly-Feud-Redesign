@@ -37,6 +37,7 @@ function makeGame(): Game {
       hide_join_info: false,
       physical_buzzer: false,
       lock_joining: false,
+      display_scale: 100,
     },
     teams: [
       { name: "Alpha", points: 0, mistakes: 0 },

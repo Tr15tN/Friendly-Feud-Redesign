@@ -455,5 +455,9 @@
   "Nobody new can join from a phone. Players already in can reconnect.": "Keegi uus ei saa telefonist liituda. Juba liitunud mängijad saavad tagasi tulla.",
   "Joining is closed": "Liitumine on suletud",
   "Joining is closed. Untick Lock joining in Settings to let new players in.": "Liitumine on suletud. Uute mängijate lubamiseks eemalda Seadetes linnuke valikult Lukusta liitumine.",
-  "Made by": "Autor"
+  "Made by": "Autor",
+  "TV picture": "Teleri pilt",
+  "TV size": "Teleri suurus",
+  "If your TV cuts off the edges of the picture, lower this until everything is visible.": "Kui teler lõikab pildi servad ära, vähenda seda, kuni kõik on nähtav.",
+  "Reset": "Lähtesta"
 }
