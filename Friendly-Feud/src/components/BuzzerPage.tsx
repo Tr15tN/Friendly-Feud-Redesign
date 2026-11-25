@@ -187,7 +187,10 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                 {/* Buzzer Section TODO replace with function*/}
                 <div className="w-full text-center">
                   {game.settings.physical_buzzer ? (
-                    <p id="physicalBuzzerNote" className="rounded-xl border-2 border-secondary-900 p-4 text-lg text-foreground">
+                    <p
+                      id="physicalBuzzerNote"
+                      className="rounded-xl border-2 border-secondary-900 p-4 text-lg text-foreground"
+                    >
                       {t("The host is using a physical buzzer. Watch the board!")}
                     </p>
                   ) : buzzed || game.buzzed.map((a) => a.id).includes(id) ? (
@@ -233,7 +236,9 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                 </div>
                 <div className="w-full grow space-y-2 rounded border-4 text-center">
                   <div className="flex flex-col">
-                    {game.buzzed.map((x, i) => {
+                    {game.buzzed.map((x, i, all) => {
+                      // Time behind the first buzz. (game.tick is the last host action, so it can be after the buzz.)
+                      const firstBuzzTime = Math.min(...all.map((b) => b.time));
                       const player = game.registeredPlayers[x.id];
                       // A physical buzzer press has no player: it names a team, or waits for the host to.
                       const teamIndex = player ? player.team : x.team;
@@ -261,7 +266,7 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
                           <div className="grow">
                             <p id={`buzzedList${i}Time`} className="w-20 truncate text-left text-foreground">
                               {t("number", {
-                                count: Number((((x.time - game.tick) / 1000) % 60).toFixed(2)),
+                                count: Number(((x.time - firstBuzzTime) / 1000).toFixed(2)),
                               })}{" "}
                               {t("second")}
                             </p>

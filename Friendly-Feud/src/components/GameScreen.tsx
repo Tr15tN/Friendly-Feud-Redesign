@@ -324,7 +324,7 @@ export default function GameScreen({ auth }: GameScreenProps) {
         console.debug("Clear buzzers");
         setBuzzed({});
       } else {
-        console.error("didn't expect", json);
+        console.debug("didn't expect", json);
       }
     };
 

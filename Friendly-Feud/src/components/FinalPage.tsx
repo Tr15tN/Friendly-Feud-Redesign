@@ -147,7 +147,14 @@ export default function FinalPage({ game, timer }: FinalPageProps) {
 
       {/* Timer and total sit below the board so nothing overlaps the answers. */}
       <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-6">
-        <div />
+        {/* WIN TEXT: shares the row with the timer (96px, shorter than the timer), so the layout never jumps. */}
+        <div className="text-left">
+          {showWin ? (
+            <p id="finalRoundWinText" className="text-8xl font-bold uppercase leading-none text-foreground">
+              {t("win")}
+            </p>
+          ) : null}
+        </div>
         <div
           className="flex size-28 items-center justify-center rounded-full border-4 border-fastm-text bg-fastm-holder text-fastm-text"
           aria-label={t("timer")}
@@ -177,15 +184,6 @@ export default function FinalPage({ game, timer }: FinalPageProps) {
             {t("Target")}: {t("number", { count: target })}
           </span>
         </div>
-      </div>
-
-      {/* WIN TEXT */}
-      <div className="h-24 text-center">
-        {showWin ? (
-          <p id="finalRoundWinText" className="text-8xl font-bold uppercase leading-none text-foreground">
-            {t("win")}
-          </p>
-        ) : null}
       </div>
     </div>
   );

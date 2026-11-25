@@ -157,7 +157,7 @@ export default function BuzzerScreen({
           break;
 
         default:
-          console.error("didn't expect", json);
+          console.debug("didn't expect", json);
           break;
       }
     };
