@@ -31,10 +31,13 @@ export default function FastMoneyConsole({
   const seconds = game.final_round_timers?.[game.is_final_second ? 1 : 0] ?? 0;
   useEffect(() => {
     if (!timerStarted) return;
-    const timeout = setTimeout(() => {
-      setTimerStarted(false);
-      setTimerCompleted(true);
-    }, seconds * 1000 + 800);
+    const timeout = setTimeout(
+      () => {
+        setTimerStarted(false);
+        setTimerCompleted(true);
+      },
+      seconds * 1000 + 800
+    );
     return () => clearTimeout(timeout);
   }, [timerStarted, seconds, setTimerStarted, setTimerCompleted]);
 

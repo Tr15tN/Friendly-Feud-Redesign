@@ -122,6 +122,9 @@ func JoinRoom(client *Client, event *Event) GameError {
 	if storeError.code != "" {
 		return storeError
 	}
+	if room.Game.Settings.LockJoining {
+		return GameError{code: ROOM_LOCKED, message: "The host has closed this room to new players"}
+	}
 	playerID := registerPlayer(&room, event.Name, client)
 	room.Hub.register <- client
 	message, err := NewSendJoinRoom(room.Game.Room, room.Game, playerID)

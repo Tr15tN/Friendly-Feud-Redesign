@@ -162,7 +162,8 @@
     "room_limit_reached": "Server on praegu täis. Proovi hiljem uuesti.",
     "room_creation_rate_limited": "Oled hiljuti liiga palju mänge loonud. Proovi hiljem uuesti.",
     "unable_to_connect": "Serveriga ühenduse loomine ebaõnnestus...",
-    "unauthenticated": "Autentimine ebaõnnestus."
+    "unauthenticated": "Autentimine ebaõnnestus.",
+    "room_locked": "Mängujuht on selle mängu uutele mängijatele sulgenud."
   },
   "Buzzer pressed": "Nuppu vajutati",
   "Who was first?": "Kes oli esimene?",
@@ -449,5 +450,10 @@
   "Press the button for {{team}}…": "Vajuta tiimi {{team}} nuppu…",
   "Bind a button for {{team}}": "Seo nupp tiimile {{team}}",
   "Add a shared key": "Lisa ühine klahv",
-  "Featured games": "Esiletõstetud mängud"
+  "Featured games": "Esiletõstetud mängud",
+  "Lock joining": "Lukusta liitumine",
+  "Nobody new can join from a phone. Players already in can reconnect.": "Keegi uus ei saa telefonist liituda. Juba liitunud mängijad saavad tagasi tulla.",
+  "Joining is closed": "Liitumine on suletud",
+  "Joining is closed. Untick Lock joining in Settings to let new players in.": "Liitumine on suletud. Uute mängijate lubamiseks eemalda Seadetes linnuke valikult Lukusta liitumine.",
+  "Made by": "Autor"
 }

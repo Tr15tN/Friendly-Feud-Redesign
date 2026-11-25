@@ -27,6 +27,7 @@ const (
 	FORBIDDEN                  ErrorCode = "errors.forbidden"
 	UNAUTHENTICATED            ErrorCode = "errors.unauthenticated"
 	ROOM_CREATION_PAUSED       ErrorCode = "errors.room_creation_paused"
+	ROOM_LOCKED                ErrorCode = "errors.room_locked"
 	ROOM_LIMIT_REACHED         ErrorCode = "errors.room_limit_reached"
 	ROOM_CREATION_RATE_LIMITED ErrorCode = "errors.room_creation_rate_limited"
 )

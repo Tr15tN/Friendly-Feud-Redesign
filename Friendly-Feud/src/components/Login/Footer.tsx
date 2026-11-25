@@ -1,3 +1,4 @@
+import Signature from "@/components/Signature";
 import Version from "@/components/Title/Version";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -31,6 +32,7 @@ export default function Footer() {
         </Link>
       )}
       <Version />
+      <Signature variant="footer" />
     </footer>
   );
 }

@@ -14,6 +14,7 @@ SSH_OPTS="${SSH_OPTS:-}"
 docker build -f Dockerfile.allinone \
   --build-arg NEXT_PUBLIC_TITLE_URL="$DOMAIN" \
   --build-arg NEXT_PUBLIC_CONTACT_URL="${CONTACT_URL:-}" \
+  --build-arg NEXT_PUBLIC_BUILD_TIME="$(TZ=Europe/Tallinn date '+%d.%m %H:%M')" \
   --build-arg NEXT_PUBLIC_APP_VERSION="$(git rev-parse --short HEAD 2>/dev/null || echo dev)" \
   -t "$IMAGE" .
 

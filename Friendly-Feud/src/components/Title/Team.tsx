@@ -6,7 +6,10 @@ interface TeamProps {
 export default function Team({ team, players }: TeamProps) {
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl bg-secondary-500 text-center shadow-lg">
-      <p className="rounded-t-xl bg-secondary-700 py-2 text-4xl font-bold text-foreground shadow-sm" id="team-name">
+      <p
+        className="rounded-t-xl bg-secondary-700 py-2 text-[clamp(1.5rem,4.5vh,2.25rem)] font-bold text-foreground shadow-sm"
+        id="team-name"
+      >
         {team}
       </p>
       <div className="relative min-h-0 flex-1">

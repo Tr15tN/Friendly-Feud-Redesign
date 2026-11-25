@@ -17,5 +17,6 @@ export const ERROR_CODES = {
   PLAYER_NOT_FOUND: "errors.player_not_found",
   UNAUTHENTICATED: "errors.unauthenticated",
   ROOM_CREATION_PAUSED: "errors.room_creation_paused",
+  ROOM_LOCKED: "errors.room_locked",
   TITLE_MUSIC_PLAYBACK_ERROR: "errors.title_music_playback_error",
 };

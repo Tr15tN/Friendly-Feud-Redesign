@@ -35,3 +35,22 @@ func TestHostRoomRejectsCreationWhenPaused(t *testing.T) {
 		t.Fatalf("expected paused room creation error, got %q", gameError.code)
 	}
 }
+
+func TestJoinRoomRefusesNewPlayersWhenTheHostLockedJoining(t *testing.T) {
+	withMemoryStore(t)
+	r := newTestRoom(t, "LOCK", "host-pw")
+	r.Game.Settings.LockJoining = true
+	store.writeRoom("LOCK", r)
+
+	gameError := JoinRoom(&Client{}, &Event{Room: "LOCK", Name: "Troll"})
+	if gameError.code != ROOM_LOCKED {
+		t.Fatalf("expected ROOM_LOCKED, got %q", gameError.code)
+	}
+	stored, storeError := store.getRoom(&Client{}, "LOCK")
+	if storeError.code != "" {
+		t.Fatalf("getRoom: %v", storeError)
+	}
+	if len(stored.Game.RegisteredPlayers) != 0 {
+		t.Fatalf("a refused player must not be registered: %+v", stored.Game.RegisteredPlayers)
+	}
+}

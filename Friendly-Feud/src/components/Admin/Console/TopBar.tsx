@@ -3,7 +3,18 @@ import { Button, buttonClass } from "@/components/ui/Button";
 import Menu from "@/components/ui/Menu";
 import { normalizeLanguage } from "@/i18n/languages";
 import { Game, WSEvent } from "@/types/game";
-import { BookOpen, CircleHelp, FlaskConical, Keyboard, LogOut, Monitor, Play, ScrollText, Settings, Users } from "lucide-react";
+import {
+  BookOpen,
+  CircleHelp,
+  FlaskConical,
+  Keyboard,
+  LogOut,
+  Monitor,
+  Play,
+  ScrollText,
+  Settings,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 import { useTranslation } from "react-i18next";

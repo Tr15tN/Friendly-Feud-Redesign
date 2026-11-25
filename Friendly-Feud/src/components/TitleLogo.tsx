@@ -39,9 +39,10 @@ export function splitTitle(text: string): [string, string] {
 
 interface TitleLogoProps {
   insert: string;
+  className?: string;
 }
 
-export default function TitleLogo({ insert }: TitleLogoProps) {
+export default function TitleLogo({ insert, className = "-mt-16 w-full" }: TitleLogoProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -296,7 +297,7 @@ export default function TitleLogo({ insert }: TitleLogoProps) {
 </svg>
   `;
   return (
-    <div id="titleLogoImg" className="-mt-16 w-full">
+    <div id="titleLogoImg" className={className}>
       <div dangerouslySetInnerHTML={{ __html: logo }} />
     </div>
   );

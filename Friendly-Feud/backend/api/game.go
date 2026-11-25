@@ -38,6 +38,8 @@ type settings struct {
 	HideJoinInfo         bool   `json:"hide_join_info"`
 	// The host buzzes with a physical buzzer, so players get no on-screen buzz button.
 	PhysicalBuzzer bool `json:"physical_buzzer"`
+	// No new players can join (reconnecting players and paired devices still can).
+	LockJoining bool `json:"lock_joining"`
 	// Fast money total required for the win celebration. 0 means use the default (200).
 	FinalRoundWinThreshold int `json:"final_round_win_threshold,omitempty"`
 }

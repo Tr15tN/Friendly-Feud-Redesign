@@ -30,11 +30,19 @@ export default function Lobby({ game, room }: LobbyProps) {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
       {/* Join info */}
       <div
-      id="lobbyJoinInfo"
-      className="flex min-w-0 flex-col items-center justify-center gap-3 rounded-[14px] border border-pro-accent bg-pro-panel p-6 text-center text-pro-text">
+        id="lobbyJoinInfo"
+        className="flex min-w-0 flex-col items-center justify-center gap-3 rounded-[14px] border border-pro-accent bg-pro-panel p-6 text-center text-pro-text"
+      >
         <p className="text-xs font-semibold uppercase tracking-widest text-pro-mute">{t("Join code")}</p>
         <p className="break-all text-5xl font-extrabold uppercase tracking-widest sm:text-6xl">{room}</p>
-        {joinUrl ? (
+        {game.settings.lock_joining ? (
+          <p
+            id="lobbyJoiningClosed"
+            className="rounded-[10px] border border-pro-gold px-3 py-2 text-sm font-semibold text-pro-gold"
+          >
+            {t("Joining is closed. Untick Lock joining in Settings to let new players in.")}
+          </p>
+        ) : joinUrl ? (
           <p className="break-all text-base">
             {t("Join at")} <span className="font-bold">{joinUrl}</span>
           </p>

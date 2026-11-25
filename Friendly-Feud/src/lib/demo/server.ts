@@ -99,6 +99,7 @@ export class DemoServer {
         first_buzzer_sound_only: false,
         hide_join_info: false,
         physical_buzzer: false,
+        lock_joining: false,
       },
       teams: [
         { name: options.teamNames[0], points: 0, mistakes: 0 },

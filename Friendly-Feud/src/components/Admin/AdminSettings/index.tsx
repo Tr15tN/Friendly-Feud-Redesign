@@ -41,6 +41,14 @@ export default function AdminSettings({ game, setGame, send, hostPassword }: Adm
           tooltip="You buzz with a real buzzer: players get no on-screen buzz button on their phones"
           settingKey="physical_buzzer"
         />
+        <SettingsCheckbox
+          game={game}
+          setGame={setGame}
+          send={send}
+          label="Lock joining"
+          tooltip="Nobody new can join from a phone. Players already in can reconnect."
+          settingKey="lock_joining"
+        />
       </Section>
       <Section title={t("Fast Money")}>
         <div className="grid gap-4 sm:grid-cols-2">

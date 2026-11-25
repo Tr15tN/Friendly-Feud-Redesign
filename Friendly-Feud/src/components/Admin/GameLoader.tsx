@@ -74,7 +74,12 @@ const GameLoader = ({ gameSelector, send, setCsvFileUpload, setCsvFileUploadText
     fileInputRef.current!.value = "";
   }
   const groups = groupGames(gameSelector);
-  const groupTitle = { featured: t("Featured games"), classic: t("Classic games"), themed: t("Themed games"), other: t("More games") };
+  const groupTitle = {
+    featured: t("Featured games"),
+    classic: t("Classic games"),
+    themed: t("Themed games"),
+    other: t("More games"),
+  };
   return (
     <div className="space-y-4">
       {gameSelector.length > 0 && (

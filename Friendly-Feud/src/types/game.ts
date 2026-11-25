@@ -111,6 +111,8 @@ export interface Settings {
   hide_join_info: boolean;
   // The host uses a physical buzzer: players get no on-screen buzz button.
   physical_buzzer: boolean;
+  // The host closed the room: no new players can join.
+  lock_joining: boolean;
   // Fast money total needed to show the "win" celebration. Defaults to 200 when unset.
   final_round_win_threshold?: number;
 }
