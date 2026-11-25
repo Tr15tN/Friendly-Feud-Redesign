@@ -1,6 +1,6 @@
 /** Helpers for the built-in question-set picker. */
 
-export type GameGroupKind = "classic" | "themed" | "other";
+export type GameGroupKind = "featured" | "classic" | "themed" | "other";
 
 export interface GameOption {
   /** Path the server loads, e.g. games/en/normal/game_1.json */
@@ -14,13 +14,15 @@ export interface GameGroup {
 }
 
 const KIND_BY_FOLDER: Record<string, GameGroupKind> = {
+  // Question sets made for a specific event: listed first.
+  rooside: "featured",
   normal: "classic",
   tavalised: "classic",
   themed: "themed",
   teemalised: "themed",
 };
 
-const KIND_ORDER: GameGroupKind[] = ["classic", "themed", "other"];
+const KIND_ORDER: GameGroupKind[] = ["featured", "classic", "themed", "other"];
 
 function capitalize(word: string): string {
   return word.charAt(0).toLocaleUpperCase() + word.slice(1);

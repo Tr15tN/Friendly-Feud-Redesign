@@ -5,6 +5,11 @@ export interface KeyBinding {
   code: string;
   /** What to show the user. */
   label: string;
+  /**
+   * The team this button belongs to (0 or 1). A press buzzes for that team directly. Without a team the key is a
+   * shared buzzer, and the host is asked who was first.
+   */
+  team?: 0 | 1;
 }
 
 export interface KeyValueStorage {
@@ -21,7 +26,8 @@ function isBinding(value: unknown): value is KeyBinding {
     value !== null &&
     typeof (value as KeyBinding).code === "string" &&
     typeof (value as KeyBinding).label === "string" &&
-    (value as KeyBinding).code !== ""
+    (value as KeyBinding).code !== "" &&
+    [undefined, 0, 1].includes((value as KeyBinding).team)
   );
 }
 
@@ -29,7 +35,7 @@ export function loadBindings(storage: KeyValueStorage): KeyBinding[] {
   try {
     const parsed: unknown = JSON.parse(storage.getItem(STORAGE_KEY) ?? "");
     if (Array.isArray(parsed) && parsed.length > 0 && parsed.every(isBinding)) {
-      return parsed.map(({ code, label }) => ({ code, label }));
+      return parsed.map(({ code, label, team }) => (team === undefined ? { code, label } : { code, label, team }));
     }
   } catch {
     // fall through to the default
@@ -41,9 +47,19 @@ export function saveBindings(storage: KeyValueStorage, bindings: KeyBinding[]): 
   storage.setItem(STORAGE_KEY, JSON.stringify(bindings));
 }
 
+/** Add a key. A key that is already bound keeps its place but takes the new team (or loses it when none is given). */
 export function addBinding(bindings: KeyBinding[], binding: KeyBinding): KeyBinding[] {
-  if (bindings.some((b) => b.code === binding.code)) return bindings;
+  if (bindings.some((b) => b.code === binding.code)) return setBindingTeam(bindings, binding.code, binding.team);
   return [...bindings, binding];
+}
+
+/** Give a bound key to a team, or make it a shared buzzer again with `undefined`. */
+export function setBindingTeam(bindings: KeyBinding[], code: string, team: 0 | 1 | undefined): KeyBinding[] {
+  return bindings.map((b) => {
+    if (b.code !== code) return b;
+    const { code: c, label } = b;
+    return team === undefined ? { code: c, label } : { code: c, label, team };
+  });
 }
 
 /** Remove a key, but always keep at least one so the buzzer cannot be left unbound. */
@@ -58,12 +74,17 @@ interface BuzzKeyEvent {
   target: EventTarget | null;
 }
 
+/** The binding this key press triggers, or undefined when it should not count as a buzz. */
+export function findBuzzBinding(event: BuzzKeyEvent, bindings: KeyBinding[]): KeyBinding | undefined {
+  if (event.repeat) return undefined;
+  const tag = (event.target as { tagName?: string } | null)?.tagName?.toUpperCase();
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return undefined;
+  return bindings.find((b) => b.code === event.code);
+}
+
 /** True when this key press should count as a buzz. */
 export function isBuzzKey(event: BuzzKeyEvent, bindings: KeyBinding[]): boolean {
-  if (event.repeat) return false;
-  const tag = (event.target as { tagName?: string } | null)?.tagName?.toUpperCase();
-  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return false;
-  return bindings.some((b) => b.code === event.code);
+  return findBuzzBinding(event, bindings) !== undefined;
 }
 
 /** A readable name for a key press, used when binding. */

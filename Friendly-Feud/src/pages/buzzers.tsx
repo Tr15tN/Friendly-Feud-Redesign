@@ -2,6 +2,7 @@ import BuzzerKeySettings from "@/components/BuzzerKeySettings";
 import HostBuzzersPage from "@/components/HostBuzzersPage";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { useBuzzerKeys } from "@/lib/buzzer/useBuzzerKeys";
+import { useLights } from "@/lib/buzzer/useLights";
 import { getWebSocketUrl } from "@/lib/utils";
 import { Game, WSAction, WSEvent } from "@/types/game";
 // @ts-expect-error: not sure if cookie-cutter is typed
@@ -25,6 +26,7 @@ export default function BuzzersPage() {
   const { bindings, setBindings, soundOn, setSoundOn, keysOnly, setKeysOnly } = useBuzzerKeys();
   const [showKeySettings, setShowKeySettings] = useState(false);
   const [connected, setConnected] = useState(false);
+  const lights = useLights(game);
 
   function send(data: WSEvent) {
     console.debug("Sending", data);
@@ -126,6 +128,19 @@ export default function BuzzersPage() {
           keysOnly={keysOnly}
           onKeysOnlyChange={setKeysOnly}
           onClose={() => setShowKeySettings(false)}
+          teamNames={[
+            game?.teams?.[0]?.name || t("Team {{number}}", { number: 1 }),
+            game?.teams?.[1]?.name || t("Team {{number}}", { number: 2 }),
+          ]}
+          lights={{
+            config: lights.config,
+            onChange: lights.setConfig,
+            connected: lights.connected,
+            serialSupported: lights.supported,
+            onConnect: lights.connect,
+            onTest: lights.test,
+            error: lights.error,
+          }}
         />
       )}
       {!buzzerRegistered ? (

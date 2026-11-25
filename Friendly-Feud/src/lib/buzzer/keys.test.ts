@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   addBinding,
   DEFAULT_BINDINGS,
+  findBuzzBinding,
   isBuzzKey,
   keyLabel,
   loadBindings,
   removeBinding,
   saveBindings,
+  setBindingTeam,
   type KeyValueStorage,
 } from "./keys";
 
@@ -89,5 +91,51 @@ describe("keyLabel", () => {
     expect(keyLabel({ code: "Enter", key: "Enter" })).toBe("Enter");
     expect(keyLabel({ code: "NumpadEnter", key: "Enter" })).toBe("Numpad Enter");
     expect(keyLabel({ code: "F5", key: "F5" })).toBe("F5");
+  });
+});
+
+describe("team buttons", () => {
+  const press = (code: string) => ({ code, repeat: false, target: null });
+
+  it("keeps the team of a bound key when saving and loading", () => {
+    const storage = memoryStorage();
+    const bindings = [
+      { code: "KeyA", label: "A", team: 0 as const },
+      { code: "KeyL", label: "L", team: 1 as const },
+      { code: "Enter", label: "Enter" },
+    ];
+    saveBindings(storage, bindings);
+    expect(loadBindings(storage)).toEqual(bindings);
+  });
+
+  it("rejects stored data with an invalid team", () => {
+    const storage = memoryStorage({ "famf.buzzerKeys": '[{"code":"KeyA","label":"A","team":5}]' });
+    expect(loadBindings(storage)).toEqual(DEFAULT_BINDINGS);
+  });
+
+  it("finds the team of the pressed key", () => {
+    const bindings = [
+      { code: "KeyA", label: "A", team: 0 as const },
+      { code: "Enter", label: "Enter" },
+    ];
+    expect(findBuzzBinding(press("KeyA"), bindings)?.team).toBe(0);
+    expect(findBuzzBinding(press("Enter"), bindings)?.team).toBeUndefined();
+    expect(findBuzzBinding(press("KeyZ"), bindings)).toBeUndefined();
+    expect(findBuzzBinding({ ...press("KeyA"), repeat: true }, bindings)).toBeUndefined();
+  });
+
+  it("moves an already bound key to another team instead of duplicating it", () => {
+    const bindings = [{ code: "KeyA", label: "A", team: 0 as const }];
+    expect(addBinding(bindings, { code: "KeyA", label: "A", team: 1 })).toEqual([
+      { code: "KeyA", label: "A", team: 1 },
+    ]);
+    expect(addBinding(bindings, { code: "KeyA", label: "A" })).toEqual([{ code: "KeyA", label: "A" }]);
+  });
+
+  it("can hand a key to a team and take it back", () => {
+    const bindings = [{ code: "Enter", label: "Enter" }];
+    const team = setBindingTeam(bindings, "Enter", 1);
+    expect(team).toEqual([{ code: "Enter", label: "Enter", team: 1 }]);
+    expect(setBindingTeam(team, "Enter", undefined)).toEqual(bindings);
   });
 });

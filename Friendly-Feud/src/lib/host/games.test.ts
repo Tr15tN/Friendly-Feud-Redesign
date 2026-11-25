@@ -42,3 +42,15 @@ describe("groupGames", () => {
     expect(groupGames([])).toEqual([]);
   });
 });
+
+describe("event question sets", () => {
+  it("lists a set made for an event before the classic ones", () => {
+    const groups = groupGames([
+      "games/et/tavalised/mäng_1_2021.json",
+      "games/et/rooside/rooside_sõda_keila_kool.json",
+      "games/et/teemalised/suvi_2021.json",
+    ]);
+    expect(groups.map((g) => g.kind)).toEqual(["featured", "classic", "themed"]);
+    expect(groups[0].options[0].label).toBe("Rooside Sõda Keila Kool");
+  });
+});

@@ -1,4 +1,4 @@
-import { isBuzzKey, type KeyBinding } from "@/lib/buzzer/keys";
+import { findBuzzBinding, type KeyBinding } from "@/lib/buzzer/keys";
 import { playBuzzSound } from "@/lib/buzzer/useBuzzerKeys";
 import { hasPendingBuzz } from "@/lib/host/console";
 import { getTeamDisplayName } from "@/lib/utils";
@@ -59,12 +59,18 @@ export default function HostBuzzersPage({
       if (paused) {
         return;
       }
-      if (isBuzzKey(evt, bindings)) {
+      const binding = findBuzzBinding(evt, bindings);
+      if (binding) {
         // Stop a focused button from also reacting to Enter or Space.
         evt.preventDefault();
         if (!buzzed) {
           if (soundOn) playBuzzSound();
-          send({ action: WSAction.BUZZER_SCREEN_BUZZ });
+          // A team's own button buzzes for that team; a shared button asks the host who was first.
+          send(
+            binding.team === undefined
+              ? { action: WSAction.BUZZER_SCREEN_BUZZ }
+              : { action: WSAction.BUZZER_SCREEN_BUZZ, team: binding.team }
+          );
         }
         return;
       }
@@ -114,7 +120,8 @@ export default function HostBuzzersPage({
           className="flex items-center gap-2 rounded-full bg-black/60 px-4 py-2 text-sm font-semibold text-white hover:bg-black/80"
         >
           <Keyboard size={16} aria-hidden />
-          {t("Buzzer keys")}: {bindings.map((b) => b.label).join(", ")}
+          {t("Buzzer keys")}:{" "}
+          {bindings.map((b) => (b.team === undefined ? b.label : `${b.label} → ${b.team + 1}`)).join(", ")}
         </button>
         {!focused && (
           <p id="buzzerFocusWarning" className="rounded-full bg-warning-900 px-4 py-2 text-sm font-semibold text-white">
@@ -123,7 +130,10 @@ export default function HostBuzzersPage({
         )}
       </div>
       {keysOnly && (
-        <div id="keysOnlyPanel" className="flex min-h-screen flex-col items-center justify-center gap-3 p-5 text-center">
+        <div
+          id="keysOnlyPanel"
+          className="flex min-h-screen flex-col items-center justify-center gap-3 p-5 text-center"
+        >
           <Keyboard size={64} aria-hidden className="text-foreground opacity-60" />
           <p className="text-3xl font-bold text-foreground">{t("Press your buzzer")}</p>
           <p className="text-foreground opacity-70">{t("Only the physical buzzer counts on this screen.")}</p>

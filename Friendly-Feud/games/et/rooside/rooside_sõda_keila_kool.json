@@ -1,0 +1,396 @@
+{
+  "settings": {},
+  "rounds": [
+    {
+      "question": "Nimeta lemmik õpetaja Keila Koolis.",
+      "answers": [
+        {
+          "ans": "Hurmi Väljamäe",
+          "pnt": 25
+        },
+        {
+          "ans": "Einard Mändla",
+          "pnt": 23
+        },
+        {
+          "ans": "Tiina Murdla",
+          "pnt": 19
+        },
+        {
+          "ans": "Anti Rohtoja",
+          "pnt": 12
+        },
+        {
+          "ans": "Ants Vospert",
+          "pnt": 11
+        },
+        {
+          "ans": "Liivia Telgmaa",
+          "pnt": 10
+        }
+      ],
+      "multiply": 1
+    },
+    {
+      "question": "Nimeta kõige rangem koolireegel.",
+      "answers": [
+        {
+          "ans": "Koolivorm",
+          "pnt": 28
+        },
+        {
+          "ans": "Vahetusjalatsid ja jalatsikontroll",
+          "pnt": 25
+        },
+        {
+          "ans": "Vahetunnis koridoris ringiratast jalutamine",
+          "pnt": 20
+        },
+        {
+          "ans": "Ei tohi hilineda",
+          "pnt": 11
+        },
+        {
+          "ans": "Koolimajast väljumine keelatud",
+          "pnt": 9
+        },
+        {
+          "ans": "Pioneeri kaelaräti kandmine",
+          "pnt": 7
+        }
+      ],
+      "multiply": 1
+    },
+    {
+      "question": "Nimeta kuulus Keila Kooli vilistlane.",
+      "answers": [
+        {
+          "ans": "Peeter Volkonski",
+          "pnt": 51
+        },
+        {
+          "ans": "Jan Uuspõld",
+          "pnt": 15
+        },
+        {
+          "ans": "Pearu Paulus",
+          "pnt": 14
+        },
+        {
+          "ans": "Gerhard Trolla",
+          "pnt": 8
+        },
+        {
+          "ans": "Siiri Sisask",
+          "pnt": 7
+        },
+        {
+          "ans": "Kärt Tomingas",
+          "pnt": 5
+        }
+      ],
+      "multiply": 1
+    },
+    {
+      "question": "Nimeta lemmik viis spikerdamiseks.",
+      "answers": [
+        {
+          "ans": "Väike paberspikker (pinal/varrukas)",
+          "pnt": 46
+        },
+        {
+          "ans": "Ei spikerdanud",
+          "pnt": 17
+        },
+        {
+          "ans": "Materjalist mahakirjutamine",
+          "pnt": 12
+        },
+        {
+          "ans": "Pastaka/joonlaua peal",
+          "pnt": 10
+        },
+        {
+          "ans": "Sõbralt mahakirjutamine",
+          "pnt": 8
+        },
+        {
+          "ans": "Spikker käel",
+          "pnt": 7
+        }
+      ],
+      "multiply": 1
+    },
+    {
+      "question": "Nimeta midagi, mis seostub matemaatikatunniga.",
+      "answers": [
+        {
+          "ans": "Anti Rohtoja",
+          "pnt": 29
+        },
+        {
+          "ans": "Hirm ja ärevus",
+          "pnt": 28
+        },
+        {
+          "ans": "Arvud ja arvutamine",
+          "pnt": 13
+        },
+        {
+          "ans": "Endel Kinks",
+          "pnt": 12
+        },
+        {
+          "ans": "Valemid",
+          "pnt": 10
+        },
+        {
+          "ans": "Võrrandid",
+          "pnt": 8
+        }
+      ],
+      "multiply": 1
+    },
+    {
+      "question": "Nimeta meeldejäävaim sündmus koolis.",
+      "answers": [
+        {
+          "ans": "Rokipidu",
+          "pnt": 45
+        },
+        {
+          "ans": "Moeshow",
+          "pnt": 18
+        },
+        {
+          "ans": "Lõpetamine/lõpuaktus",
+          "pnt": 13
+        },
+        {
+          "ans": "Nääripidu",
+          "pnt": 9
+        },
+        {
+          "ans": "Rebaste ristimine",
+          "pnt": 8
+        },
+        {
+          "ans": "Komsomolilaager",
+          "pnt": 7
+        }
+      ],
+      "multiply": 1
+    },
+    {
+      "question": "Nimeta hea vabandus, millega põhjendasid kodutöö tegemata jätmist.",
+      "answers": [
+        {
+          "ans": "Vabandused",
+          "pnt": 29
+        },
+        {
+          "ans": "Ei jätnud tegemata",
+          "pnt": 27
+        },
+        {
+          "ans": "Unustasin",
+          "pnt": 16
+        },
+        {
+          "ans": "Polnud aega",
+          "pnt": 12
+        },
+        {
+          "ans": "Vihik/õpik jäi koju/kooli",
+          "pnt": 10
+        },
+        {
+          "ans": "Olin haige",
+          "pnt": 6
+        }
+      ],
+      "multiply": 1
+    },
+    {
+      "question": "Nimeta Keila Kooli legendaarseim õpetaja.",
+      "answers": [
+        {
+          "ans": "Einard Mändla / Keemik",
+          "pnt": 62
+        },
+        {
+          "ans": "Hugo Venda",
+          "pnt": 10
+        },
+        {
+          "ans": "Endel Kukner",
+          "pnt": 9
+        },
+        {
+          "ans": "Koit Kirber",
+          "pnt": 8
+        },
+        {
+          "ans": "Anti Rohtoja",
+          "pnt": 6
+        },
+        {
+          "ans": "Ülle Vänto",
+          "pnt": 5
+        }
+      ],
+      "multiply": 1
+    }
+  ],
+  "final_round": [
+    {
+      "question": "Nimeta midagi, mida kartsid kooliajal kõige rohkem.",
+      "answers": [
+        [
+          "Õpetajat",
+          25
+        ],
+        [
+          "Ei kartnud midagi",
+          21
+        ],
+        [
+          "Kontrolltööd/eksamit",
+          21
+        ],
+        [
+          "Halba hinnet",
+          14
+        ],
+        [
+          "Kiusamist",
+          10
+        ],
+        [
+          "Esinemist",
+          9
+        ]
+      ]
+    },
+    {
+      "question": "Nimeta lemmik magustoit koolis.",
+      "answers": [
+        [
+          "Karamellikissell/ kaamelitatt",
+          37
+        ],
+        [
+          "Saiakesed",
+          31
+        ],
+        [
+          "Mannavaht/mannakreem",
+          13
+        ],
+        [
+          "Kohupiim kisselliga",
+          9
+        ],
+        [
+          "Leivasupp",
+          7
+        ],
+        [
+          "Saiavorm",
+          3
+        ]
+      ]
+    },
+    {
+      "question": "Nimeta meeldejäävaim huviring kooliajast.",
+      "answers": [
+        [
+          "Tantsuring",
+          23
+        ],
+        [
+          "Kergejõustik",
+          21
+        ],
+        [
+          "Koori- ja lauluring",
+          18
+        ],
+        [
+          "Näitering",
+          15
+        ],
+        [
+          "Võrkpall",
+          12
+        ],
+        [
+          "Kunstiring",
+          11
+        ]
+      ]
+    },
+    {
+      "question": "Nimeta üks Keila Kooli direktor.",
+      "answers": [
+        [
+          "Endel Kukner",
+          31
+        ],
+        [
+          "Liivi Prink / Liivi Siim",
+          22
+        ],
+        [
+          "Andris Selg",
+          20
+        ],
+        [
+          "Mait Tõitoja",
+          13
+        ],
+        [
+          "Kaider Vardja",
+          7
+        ],
+        [
+          "Ants Vospert",
+          7
+        ]
+      ]
+    },
+    {
+      "question": "Nimeta lemmik õppeaine.",
+      "answers": [
+        [
+          "Matemaatika",
+          30
+        ],
+        [
+          "Kehaline kasvatus",
+          23
+        ],
+        [
+          "Kirjandus",
+          15
+        ],
+        [
+          "Ajalugu",
+          13
+        ],
+        [
+          "Inglise keel",
+          10
+        ],
+        [
+          "Muusika",
+          9
+        ]
+      ]
+    }
+  ],
+  "final_round_timers": [
+    20,
+    25
+  ]
+}

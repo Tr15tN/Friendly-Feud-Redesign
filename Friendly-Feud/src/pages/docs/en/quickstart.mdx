@@ -79,7 +79,16 @@ A USB buzzer that sends a key press (for example **Enter**) works great.
 1. On the host console, press **Host Buzzers** in the top bar. It opens in a new tab: drag that tab to the laptop next to the buzzer (or open the site there, press **Play** with any name and the room code, then choose **Host Buzzers**).
 2. Enter the **host password** from **Settings** on your control panel.
 3. Press **Buzzer keys** to bind the key your buzzer sends. You can bind several keys.
-4. When someone presses the buzzer you get a **Who was first?** window. Pick the team, or press **1** / **2**.
+4. With one shared buzzer, a press opens a **Who was first?** window. Pick the team, or press **1** / **2**.
+5. With **two buttons**, press **Bind a button for** each team and then press that team's button. From then on that button buzzes for its team directly, with no question asked. Each key in the list has a team menu if you change your mind.
+6. Tick **Physical buzzer only** to hide the on-screen team buttons on this laptop, and **Physical buzzer** under **Settings** on the host console to hide the buzz button on the players' phones.
+
+### Lights
+
+Under **Lights** in the same window you can switch lights on for the team that buzzed, and off when you clear the buzzers.
+Use **USB or serial board** for an Arduino or a USB relay (Chrome or Edge, press **Connect a device**), or **Web address**
+for WLED, Shelly or Home Assistant. Every event has a **Test** button, so you can try the wiring before the game.
+For web addresses, Chrome blocks `http://` addresses from an `https://` page unless you allow **Insecure content** for the site.
 
 ## Handy to know
 

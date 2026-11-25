@@ -63,9 +63,17 @@ test.describe("Host onboarding", () => {
 
     await page.getByTestId("languageInput").selectOption("et");
     await expect(page.getByRole("heading", { name: "Seadista oma mäng" })).toBeVisible();
-    // Only the six Estonian sets are offered, plus the placeholder.
-    await expect(selector.locator("option")).toHaveCount(7, { timeout: 10000 });
-    await expect(selector.locator("optgroup").first()).toHaveAttribute("label", "Klassikalised mängud");
+    // The event set is listed first, then the six older Estonian sets, plus the placeholder.
+    await expect(selector.locator("option")).toHaveCount(8, { timeout: 10000 });
+    await expect(selector.locator("optgroup").first()).toHaveAttribute("label", "Esiletõstetud mängud");
+    await expect(selector.locator("optgroup").nth(1)).toHaveAttribute("label", "Klassikalised mängud");
+
+    // The Rooside Sõda set: 6 answers on the first board, and the first answer is worth 25.
+    await selector.selectOption({ label: "Rooside Sõda Keila Kool" });
+    await page.getByTestId("startRoundOneButton").click();
+    await expect(page.getByTestId("answer5PointsText")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("answer6PointsText")).toHaveCount(0);
+    await expect(page.getByTestId("answer0PointsText")).toHaveText("25");
   });
 
   test("the quickstart exists in English and Estonian", async ({ page }) => {
