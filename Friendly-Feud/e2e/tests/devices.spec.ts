@@ -40,11 +40,17 @@ async function pairByTyping(page: Page, code: string) {
   await expect(page).toHaveURL(/\/device$/, { timeout: 10000 });
 }
 
+async function pickGame(host: Page) {
+  const admin = new AdminPage(host);
+  await expect(admin.gameSelector.locator("option")).not.toHaveCount(1, { timeout: 15000 });
+  await admin.gameSelector.selectOption({ index: 1 });
+}
+
 async function startRound(host: Page) {
   const admin = new AdminPage(host);
   await admin.teamOneNameInput.fill("Alpha");
   await admin.teamTwoNameInput.fill("Beta");
-  await admin.gameSelector.selectOption({ index: 1 });
+  await pickGame(host);
   await admin.startRoundOneButton.click();
   return admin;
 }
@@ -155,7 +161,7 @@ test("a device can be paired while joining is locked, and one with no pairing is
 }) => {
   const s = new Setup(browser);
   const host = (await s.host()).page;
-  await new AdminPage(host).gameSelector.selectOption({ index: 1 });
+  await pickGame(host);
   await host.getByLabel("Lock joining").check();
   await expect(host.getByTestId("lobbyJoiningClosed")).toBeVisible();
 
