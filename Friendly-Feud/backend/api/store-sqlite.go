@@ -26,8 +26,10 @@ type Room struct {
 	RoomCode     string `gorm:"primaryKey"`
 	HostPassword string
 	RoomJson     datatypes.JSON
-	RoomIcon     []byte
-	TitleMusic   []byte
+	// Paired devices (see devices.go); written only by saveDevices.
+	DevicesJson datatypes.JSON
+	RoomIcon    []byte
+	TitleMusic  []byte
 }
 
 func NewSQLiteStore() (*SQLiteStore, GameError) {
@@ -90,6 +92,36 @@ func (s *SQLiteStore) getRoom(client *Client, roomCode string) (room, GameError)
 	json.Unmarshal(foundRoomDB.RoomJson, &retrievedRoom.Game)
 
 	return retrievedRoom, GameError{}
+}
+
+func (s *SQLiteStore) loadDevices(roomCode string) []device {
+	var found Room
+	if err := s.db.Select("devices_json").Where("room_code = ?", roomCode).First(&found).Error; err != nil {
+		return []device{}
+	}
+	list := []device{}
+	if len(found.DevicesJson) > 0 {
+		if err := json.Unmarshal(found.DevicesJson, &list); err != nil {
+			log.Println("could not read devices of room", roomCode, err)
+			return []device{}
+		}
+	}
+	return list
+}
+
+func (s *SQLiteStore) saveDevices(roomCode string, list []device) GameError {
+	data, err := json.Marshal(list)
+	if err != nil {
+		return GameError{code: SERVER_ERROR, message: fmt.Sprint(err)}
+	}
+	result := s.db.Model(&Room{}).Where("room_code = ?", roomCode).Update("devices_json", data)
+	if result.Error != nil {
+		return GameError{code: SERVER_ERROR, message: fmt.Sprint(result.Error)}
+	}
+	if result.RowsAffected == 0 {
+		return GameError{code: ROOM_NOT_FOUND}
+	}
+	return GameError{}
 }
 
 func (s *SQLiteStore) writeRoom(roomCode string, room room) GameError {

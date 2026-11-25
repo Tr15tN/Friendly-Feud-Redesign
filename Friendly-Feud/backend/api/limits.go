@@ -66,6 +66,30 @@ func (l *creationLimiter) allow(key string, limit int, window time.Duration, now
 	return true
 }
 
+// blocked reports whether key already has limit or more events inside the window, without recording anything.
+func (l *creationLimiter) blocked(key string, limit int, window time.Duration, now time.Time) bool {
+	if limit <= 0 {
+		return false
+	}
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	cutoff := now.Add(-window)
+	count := 0
+	for _, t := range l.events[key] {
+		if t.After(cutoff) {
+			count++
+		}
+	}
+	return count >= limit
+}
+
+// record adds one event for key.
+func (l *creationLimiter) record(key string, now time.Time) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.events[key] = append(l.events[key], now)
+}
+
 // checkRoomCreation applies the room cap and the per-IP rate limit.
 // liveRooms is the current number of rooms; ip identifies the requester.
 func checkRoomCreation(ip string, liveRooms int, now time.Time) GameError {

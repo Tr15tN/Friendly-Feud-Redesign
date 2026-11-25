@@ -28,6 +28,12 @@ const (
 	UNAUTHENTICATED            ErrorCode = "errors.unauthenticated"
 	ROOM_CREATION_PAUSED       ErrorCode = "errors.room_creation_paused"
 	ROOM_LOCKED                ErrorCode = "errors.room_locked"
+	PAIRING_INVALID            ErrorCode = "errors.pairing_invalid"
+	PAIRING_EXPIRED            ErrorCode = "errors.pairing_expired"
+	PAIRING_RATE_LIMITED       ErrorCode = "errors.pairing_rate_limited"
+	DEVICE_REVOKED             ErrorCode = "errors.device_revoked"
+	DEVICE_NOT_FOUND           ErrorCode = "errors.device_not_found"
+	DEVICE_LIMIT               ErrorCode = "errors.device_limit"
 	ROOM_LIMIT_REACHED         ErrorCode = "errors.room_limit_reached"
 	ROOM_CREATION_RATE_LIMITED ErrorCode = "errors.room_creation_rate_limited"
 )

@@ -109,7 +109,7 @@ func RegisterBuzzerScreen(client *Client, event *Event) GameError {
 		return storeError
 	}
 
-	if event.HostPassword != room.HostPassword {
+	if !buzzersAuthorized(client, &room, event) {
 		return GameError{code: UNAUTHENTICATED, message: "Unauthorized"}
 	}
 	// Join the room's hub so this screen receives buzz and game updates even when it was
@@ -135,7 +135,7 @@ func BuzzerScreenBuzz(client *Client, event *Event) GameError {
 	if storeError.code != "" {
 		return storeError
 	}
-	if event.HostPassword != room.HostPassword {
+	if !buzzersAuthorized(client, &room, event) {
 		return GameError{code: UNAUTHENTICATED, message: "Unauthorized"}
 	}
 
@@ -279,4 +279,10 @@ func RegisterSpectator(client *Client, event *Event) GameError {
 	room.Hub.register <- client
 	room.Hub.broadcast <- message
 	return GameError{}
+}
+
+// buzzersAuthorized reports whether this request may use the host's buzzer screen: the host (by password) or a
+// paired device that was given the "buzzers" role.
+func buzzersAuthorized(client *Client, room *room, event *Event) bool {
+	return hostPasswordMatches(room, event.HostPassword) || deviceHasRole(client, event.Room, roleBuzzers)
 }

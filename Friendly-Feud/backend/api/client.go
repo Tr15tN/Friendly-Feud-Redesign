@@ -79,6 +79,10 @@ type Client struct {
 
 	// Remote address (first X-Forwarded-For entry, else the TCP peer); used for rate limiting.
 	ip string
+
+	// Set once this connection has signed in as a paired device (see devices.go).
+	deviceRoom string
+	deviceID   string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -88,6 +92,7 @@ type Client struct {
 // reads from this goroutine.
 func (c *Client) readPump() {
 	defer func() {
+		deviceClientClosed(c)
 		c.conn.Close()
 	}()
 	c.conn.SetReadLimit(maxMessageSize)

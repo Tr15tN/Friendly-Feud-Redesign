@@ -1,10 +1,10 @@
-import { findBuzzBinding, type KeyBinding } from "@/lib/buzzer/keys";
-import { playBuzzSound } from "@/lib/buzzer/useBuzzerKeys";
+import { type KeyBinding } from "@/lib/buzzer/keys";
+import { useHostBuzzKeys } from "@/lib/buzzer/useHostBuzzKeys";
 import { hasPendingBuzz } from "@/lib/host/console";
 import { getTeamDisplayName } from "@/lib/utils";
 import { Game, WSAction, WSEvent } from "@/types/game";
 import { Keyboard } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface HostBuzzerPageProps {
@@ -54,46 +54,8 @@ export default function HostBuzzersPage({
     };
   }, []);
 
-  const triggerBuzzKeyPress = useCallback(
-    (evt: KeyboardEvent) => {
-      if (paused) {
-        return;
-      }
-      const binding = findBuzzBinding(evt, bindings);
-      if (binding) {
-        // Stop a focused button from also reacting to Enter or Space.
-        evt.preventDefault();
-        if (!buzzed) {
-          if (soundOn) playBuzzSound();
-          // A team's own button buzzes for that team; a shared button asks the host who was first.
-          send(
-            binding.team === undefined
-              ? { action: WSAction.BUZZER_SCREEN_BUZZ }
-              : { action: WSAction.BUZZER_SCREEN_BUZZ, team: binding.team }
-          );
-        }
-        return;
-      }
-      if (buzzed || keysOnly) {
-        return;
-      }
-      if (evt.key == "j") {
-        send({ action: WSAction.BUZZER_SCREEN_BUZZ, team: 0 });
-        return;
-      }
-      if (evt.key == "k") {
-        send({ action: WSAction.BUZZER_SCREEN_BUZZ, team: 1 });
-        return;
-      }
-      return;
-    },
-    [buzzed, send, bindings, soundOn, keysOnly, paused]
-  );
+  useHostBuzzKeys({ send, buzzed, bindings, soundOn, keysOnly, paused });
 
-  useEffect(() => {
-    window.addEventListener("keydown", triggerBuzzKeyPress, false);
-    return () => window.removeEventListener("keydown", triggerBuzzKeyPress, false);
-  }, [triggerBuzzKeyPress]);
   return (
     <>
       {buzzed ? (

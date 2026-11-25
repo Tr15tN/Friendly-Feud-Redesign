@@ -30,6 +30,10 @@ type gameStore interface {
 	loadTitleMusic(string) ([]byte, GameError)
 	// Delete title music audio from room
 	deleteTitleMusic(string) GameError
+	// Paired devices (TV, buzzers, lights) of a room, kept apart from the game data so that the many handlers that
+	// save the game can never overwrite them.
+	loadDevices(string) []device
+	saveDevices(string, []device) GameError
 	// Health check
 	isHealthy() error
 }

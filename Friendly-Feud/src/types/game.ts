@@ -49,6 +49,17 @@ export const WSAction = {
   BUZZ: "buzz",
   REGISTER_BUZZ: "registerbuzz",
   REGISTER_SPECTATOR: "registerspectator",
+  CREATE_PAIRING: "create_pairing",
+  REFRESH_PAIRING: "refresh_pairing",
+  LIST_DEVICES: "list_devices",
+  RENAME_DEVICE: "rename_device",
+  REVOKE_DEVICE: "revoke_device",
+  DEVICES: "devices",
+  PAIR_DEVICE: "pair_device",
+  DEVICE_PAIRED: "device_paired",
+  DEVICE_CONNECT: "device_connect",
+  DEVICE_CONNECTED: "device_connected",
+  DEVICE_REVOKED: "device_revoked",
 } as const;
 
 type WSActionKey = keyof typeof WSAction;

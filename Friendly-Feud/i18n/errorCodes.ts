@@ -18,5 +18,11 @@ export const ERROR_CODES = {
   UNAUTHENTICATED: "errors.unauthenticated",
   ROOM_CREATION_PAUSED: "errors.room_creation_paused",
   ROOM_LOCKED: "errors.room_locked",
+  PAIRING_INVALID: "errors.pairing_invalid",
+  PAIRING_EXPIRED: "errors.pairing_expired",
+  PAIRING_RATE_LIMITED: "errors.pairing_rate_limited",
+  DEVICE_REVOKED: "errors.device_revoked",
+  DEVICE_NOT_FOUND: "errors.device_not_found",
+  DEVICE_LIMIT: "errors.device_limit",
   TITLE_MUSIC_PLAYBACK_ERROR: "errors.title_music_playback_error",
 };

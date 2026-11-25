@@ -52,6 +52,8 @@ You keep playing from the control panel.
 On a separate device, open the site, press **Play** with any name and the room code, then choose **Open Game Window**
 instead of a team.
 
+For a TV in another room, or if you would rather not sign in like that, see **Several devices** below.
+
 ## 4. Let players join
 
 Players open the site on their phone, type the **room code** and a name, pick a team and press **Play**.
@@ -89,6 +91,19 @@ Under **Lights** in the same window you can switch lights on for the team that b
 Use **USB or serial board** for an Arduino or a USB relay (Chrome or Edge, press **Connect a device**), or **Web address**
 for WLED, Shelly or Home Assistant. Every event has a **Test** button, so you can try the wiring before the game.
 For web addresses, Chrome blocks `http://` addresses from an `https://` page unless you allow **Insecure content** for the site.
+
+## Several devices
+
+The TV, the buzzer buttons and the lights can each run on their own computer, with no host password to type.
+
+1. On the host console press **Devices** in the top bar, give the device a name (for example *Stage TV*) and tick what it is for: **TV board**, **Physical buttons**, **Lights**. One device can do several things.
+2. Press **Create code**. You get a code like `ABCD-K7P2` that works for 10 minutes, once.
+3. On that device open the site's `/connect` page (shown in the panel), type the code and press **Connect**. Or press **Copy link** and open the link there: it fills in the code for you.
+4. The device shows **Online** in the list. It remembers its pairing, so after a reload or a power cut it signs itself back in.
+
+A paired device can only do its own job: a TV only shows the board, buttons only buzz, lights only follow the game. To take a device away, press **Revoke**: it is sent back to the pairing page straight away. Locking joining does not stop devices.
+
+The small gear in the bottom left corner of a device (it appears when you hover it on a TV) opens **Full screen**, the buzzer and lights settings, and **Disconnect this device**.
 
 ## Handy to know
 

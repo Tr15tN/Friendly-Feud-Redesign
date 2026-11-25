@@ -1,4 +1,5 @@
 import BuzzersPlayersPanel from "@/components/Admin/Console/BuzzersPlayersPanel";
+import DevicesPanel from "@/components/Admin/Console/DevicesPanel";
 import HostTour from "@/components/Admin/Console/HostTour";
 import SettingsPanel from "@/components/Admin/Console/SettingsPanel";
 import TopBar from "@/components/Admin/Console/TopBar";
@@ -11,6 +12,7 @@ import { useDemo } from "@/components/Demo/DemoContext";
 import Drawer from "@/components/ui/Drawer";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { normalizeLanguage } from "@/i18n/languages";
+import { DeviceInfo, onlineCount } from "@/lib/devices/devices";
 import { useTeamColors } from "@/lib/hooks/useTeamColors";
 import { markTourDone, shouldAutoStartTour } from "@/lib/host/tour";
 import { Game, WSAction, WSEvent } from "@/types/game";
@@ -43,7 +45,8 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
   const [titleMusicPlaying, setTitleMusicPlaying] = useState(false);
   const [csvFileUpload, setCsvFileUpload] = useState<File | null>(null);
   const [csvFileUploadText, setCsvFileUploadText] = useState("");
-  const [drawer, setDrawer] = useState<"players" | "settings" | null>(null);
+  const [drawer, setDrawer] = useState<"players" | "settings" | "devices" | null>(null);
+  const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [tourOpen, setTourOpen] = useState(false);
   const closeDrawer = useCallback(() => setDrawer(null), []);
   const refreshCounterRef = useRef(0);
@@ -86,6 +89,8 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
     } else if (json.action === "error" && json.code) {
       console.error(json.code);
       toast.error(t(json.code, { message: json.message }));
+    } else if (json.action === WSAction.DEVICES) {
+      setDevices(Array.isArray(json.data) ? json.data : []);
     } else if (json.action === WSAction.PLAY_TITLE_MUSIC) {
       setTitleMusicPlaying(true);
     } else if (json.action === WSAction.PAUSE_TITLE_MUSIC) {
@@ -119,6 +124,8 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
 
     ws.current.addEventListener("message", handleMessage);
     send({ action: "change_lang", data: normalizeLanguage(i18n.resolvedLanguage ?? i18n.language) });
+    // Also makes the server keep this console up to date about devices coming and going.
+    if (!demo) send({ action: WSAction.LIST_DEVICES });
     return () => {
       clearInterval(retryInterval);
       ws.current.removeEventListener("message", handleMessage);
@@ -160,6 +167,9 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
         quitGame={quitGame}
         settingsInline={settingsInline}
         onOpenPlayers={() => setDrawer("players")}
+        onOpenDevices={() => setDrawer("devices")}
+        devicesOnline={onlineCount(devices)}
+        devicesPaired={devices.filter((d) => d.paired).length}
         onOpenSettings={() => setDrawer("settings")}
         onStartTour={() => setTourOpen(true)}
       />
@@ -180,6 +190,9 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
       />
       <Drawer id="playersDrawer" open={drawer === "players"} title={t("Players & buzzers")} onClose={closeDrawer}>
         <BuzzersPlayersPanel game={game} setGame={setGame} ws={ws} room={room} send={send} />
+      </Drawer>
+      <Drawer id="devicesDrawer" open={drawer === "devices"} title={t("Devices")} onClose={closeDrawer}>
+        <DevicesPanel room={room} devices={devices} send={send} />
       </Drawer>
       {!settingsInline && (
         <Drawer id="settingsDrawer" open={drawer === "settings"} title={t("Settings")} onClose={closeDrawer}>

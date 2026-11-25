@@ -34,6 +34,8 @@ var recieveActions = map[string]ActionFunc{
 	"get_back_in":       GetBackIn,
 	"host_room":         HostRoom,
 	"join_room":         JoinRoom,
+	"pair_device":       PairDevice,
+	"device_connect":    DeviceConnect,
 	"pong":              Pong,
 	"quit":              Quit,
 	"registerbuzz":      RegisterBuzzer,
@@ -53,6 +55,17 @@ var hostRecieveActions = map[string]ActionFunc{
 	"load_game":              LoadGame,
 	"clearbuzzers":           ClearBuzzers,
 	"resolve_buzz":           ResolveBuzz,
+	"create_pairing":         CreatePairing,
+	"refresh_pairing":        RefreshPairing,
+	"list_devices":           ListDevices,
+	"rename_device":          RenameDevice,
+	"revoke_device":          RevokeDevice,
+}
+
+// Host actions that a paired device with the given role may also do, without the host password.
+var deviceActionRoles = map[string]string{
+	"register_buzzer_screen": roleBuzzers,
+	"buzzer_screen_buzz":     roleBuzzers,
 }
 
 func parseEvent(message []byte) (*Event, error) {
@@ -79,6 +92,9 @@ func EventPipe(client *Client, message []byte) GameError {
 		}
 		action, ok = hostRecieveActions[event.Action]
 		if ok {
+			if role, deviceOK := deviceActionRoles[event.Action]; deviceOK && deviceHasRole(client, event.Room, role) {
+				return action(client, event)
+			}
 			return HostPasswordHandler(client, event, action)
 		}
 		// Catch-all for generic host display messages (reveal, mistake, timers,

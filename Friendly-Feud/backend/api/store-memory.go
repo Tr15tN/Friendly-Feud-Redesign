@@ -9,14 +9,32 @@ import (
 )
 
 type MemoryStore struct {
-	mu    sync.RWMutex
-	rooms map[string]room
+	mu      sync.RWMutex
+	rooms   map[string]room
+	devices map[string][]device
 }
 
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
-		rooms: make(map[string]room),
+		rooms:   make(map[string]room),
+		devices: make(map[string][]device),
 	}
+}
+
+func (m *MemoryStore) loadDevices(roomCode string) []device {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return append([]device{}, m.devices[roomCode]...)
+}
+
+func (m *MemoryStore) saveDevices(roomCode string, list []device) GameError {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, ok := m.rooms[roomCode]; !ok {
+		return GameError{code: ROOM_NOT_FOUND}
+	}
+	m.devices[roomCode] = append([]device{}, list...)
+	return GameError{}
 }
 
 func (m *MemoryStore) currentRooms() []string {
@@ -51,6 +69,7 @@ func (m *MemoryStore) deleteRoom(roomCode string) GameError {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.rooms, roomCode)
+	delete(m.devices, roomCode)
 	return GameError{}
 }
 

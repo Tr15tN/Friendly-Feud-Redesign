@@ -10,6 +10,7 @@ import {
   Keyboard,
   LogOut,
   Monitor,
+  MonitorSmartphone,
   Play,
   ScrollText,
   Settings,
@@ -32,6 +33,10 @@ interface TopBarProps {
   /** Settings are shown inline (lobby / no game), so the settings drawer button is hidden. */
   settingsInline: boolean;
   onOpenPlayers: () => void;
+  onOpenDevices: () => void;
+  /** Paired devices that are online right now, and how many are paired in total. */
+  devicesOnline: number;
+  devicesPaired: number;
   onOpenSettings: () => void;
   onStartTour: () => void;
 }
@@ -45,6 +50,9 @@ export default function TopBar({
   quitGame,
   settingsInline,
   onOpenPlayers,
+  onOpenDevices,
+  devicesOnline,
+  devicesPaired,
   onOpenSettings,
   onStartTour,
 }: TopBarProps) {
@@ -93,6 +101,28 @@ export default function TopBar({
               </span>
             )}
           </Button>
+          {!demo && (
+            <Button
+              id="devicesDrawerButton"
+              aria-label={t("Devices")}
+              title={t("TV, buzzer buttons and lights on other devices")}
+              className="relative"
+              onClick={onOpenDevices}
+            >
+              <MonitorSmartphone size={16} aria-hidden />
+              <span className="hidden md:inline">{t("Devices")}</span>
+              {devicesPaired > 0 && (
+                <span
+                  id="devicesOnlineBadge"
+                  className={`absolute -right-1 -top-1 grid size-5 place-items-center rounded-full text-[11px] font-bold text-black ${
+                    devicesOnline === devicesPaired ? "bg-pro-ok" : "bg-pro-gold"
+                  }`}
+                >
+                  {devicesOnline}
+                </span>
+              )}
+            </Button>
+          )}
           {!settingsInline && (
             <Button id="settingsDrawerButton" aria-label={t("Settings")} onClick={onOpenSettings}>
               <Settings size={16} aria-hidden />

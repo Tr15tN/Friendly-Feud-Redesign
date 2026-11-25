@@ -51,6 +51,8 @@ Mängu juhid ikka juhtpaneelilt.
 
 Teises seadmes ava sama leht, sisesta suvaline nimi ja mängukood, vajuta **Mängi** ning vali tiimi asemel **Ava mänguaken**.
 
+Kui teler on teises ruumis, vaata allpool jaotist **Mitu seadet**.
+
 ## 4. Lase mängijad sisse
 
 Mängijad avavad lehe oma telefonis, sisestavad **mängukoodi** ja nime, valivad tiimi ja vajutavad **Mängi**.
@@ -88,6 +90,19 @@ Samas aknas jaotises **Tuled** saad süüdata tuled tiimile, kes vajutas, ning k
 Vali **USB- või jadaplaat** Arduino või USB-relee jaoks (Chrome või Edge, vajuta **Ühenda seade**) või **Veebiaadress**
 WLED-i, Shelly või Home Assistanti jaoks. Iga sündmuse juures on nupp **Proovi**, nii saad ühendust enne mängu katsetada.
 Veebiaadresside puhul blokeerib Chrome `http://` aadressid `https://` lehelt, kui sa ei luba saidil **Insecure content**.
+
+## Mitu seadet
+
+Teler, nupud ja tuled võivad igaüks töötada oma arvutis, ilma et peaks mängujuhi parooli sisestama.
+
+1. Vajuta juhtpaneeli ülaribal **Seadmed**, anna seadmele nimi (näiteks *Laval olev teler*) ja märgi, milleks see on: **Teleri tabloo**, **Füüsilised nupud**, **Tuled**. Üks seade võib teha mitut asja.
+2. Vajuta **Loo kood**. Saad koodi kujul `ABCD-K7P2`, mis kehtib 10 minutit ja ainult ühe korra.
+3. Ava sellel seadmel lehe `/connect` aadress (see on paneelil kirjas), sisesta kood ja vajuta **Ühenda**. Või vajuta **Kopeeri link** ja ava link seal: kood täidetakse ise ära.
+4. Seade ilmub loendisse sildiga **Ühendatud**. Ta jätab sidumise meelde, nii et pärast lehe uuendamist või voolukatkestust loob ta ühenduse ise uuesti.
+
+Seotud seade saab teha ainult oma tööd: teler näitab tablood, nupud annavad märku, tuled järgivad mängu. Seadme eemaldamiseks vajuta **Eemalda**: ta saadetakse kohe tagasi sidumislehele. Liitumise lukustamine seadmeid ei takista.
+
+Seadme vasakus alanurgas olev väike hammasratas (teleril ilmub see hiirega üle liikudes) avab **Täisekraani**, nuppude ja tulede seaded ning **Katkesta selle seadme ühendus**.
 
 ## Hea teada
 
