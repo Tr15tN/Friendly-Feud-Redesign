@@ -13,7 +13,15 @@ interface TitleMusicProps {
   game: Game;
   setGame: Dispatch<SetStateAction<Game | null>>;
   isPlaying: boolean;
-  setIsPlaying: (isPlaying: boolean) => void;
+  onPlay: () => void;
+  onPause: () => void;
+  /** Slider position, from 0 to 1. */
+  volume: number;
+  onVolume: (volume: number) => void;
+  /** The host let go of the slider: store the level with the room. */
+  onVolumeCommit: () => void;
+  onFadeIn: () => void;
+  onFadeOut: () => void;
 }
 
 function isMp3File(file: File, rawData: ArrayBuffer) {
@@ -28,9 +36,23 @@ function isMp3File(file: File, rawData: ArrayBuffer) {
   return hasId3Header || hasMp3FrameHeader;
 }
 
-export default function TitleMusic({ send, room, game, setGame, isPlaying, setIsPlaying }: TitleMusicProps) {
+export default function TitleMusic({
+  send,
+  room,
+  game,
+  setGame,
+  isPlaying,
+  onPlay,
+  onPause,
+  volume,
+  onVolume,
+  onVolumeCommit,
+  onFadeIn,
+  onFadeOut,
+}: TitleMusicProps) {
   const { t } = useTranslation();
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
+  const percent = Math.round(volume * 100);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -39,10 +61,7 @@ export default function TitleMusic({ send, room, game, setGame, isPlaying, setIs
         id="playTitleMusicButton"
         aria-pressed={isPlaying}
         className={buttonClass(isPlaying ? "primary" : "secondary")}
-        onClick={() => {
-          setIsPlaying(true);
-          send({ action: WSAction.PLAY_TITLE_MUSIC });
-        }}
+        onClick={onPlay}
       >
         <Play size={16} aria-hidden />
         {t("Play")}
@@ -51,14 +70,38 @@ export default function TitleMusic({ send, room, game, setGame, isPlaying, setIs
         id="pauseTitleMusicButton"
         aria-pressed={!isPlaying}
         className={buttonClass("secondary")}
-        onClick={() => {
-          setIsPlaying(false);
-          send({ action: WSAction.PAUSE_TITLE_MUSIC });
-        }}
+        onClick={onPause}
       >
         <Pause size={16} aria-hidden />
         {t("Pause")}
       </button>
+      <button id="fadeTitleMusicInButton" className={buttonClass("secondary")} onClick={onFadeIn}>
+        {t("Fade in")}
+      </button>
+      <button id="fadeTitleMusicOutButton" className={buttonClass("secondary")} onClick={onFadeOut}>
+        {t("Fade out")}
+      </button>
+      <label className="flex min-h-11 items-center gap-2 text-sm text-pro-mute" htmlFor="titleMusicVolume">
+        <span>{t("Volume")}</span>
+        <input
+          id="titleMusicVolume"
+          className="h-11 w-28 cursor-pointer accent-pro-accent sm:w-36"
+          type="range"
+          min={0}
+          max={100}
+          step={1}
+          value={percent}
+          aria-label={t("Music volume")}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={percent}
+          aria-valuetext={`${percent}%`}
+          onChange={(event) => onVolume(Number(event.target.value) / 100)}
+          onPointerUp={onVolumeCommit}
+          onKeyUp={onVolumeCommit}
+          onBlur={onVolumeCommit}
+        />
+      </label>
       <button
         id="uploadTitleMusicButton"
         className={buttonClass("ghost")}

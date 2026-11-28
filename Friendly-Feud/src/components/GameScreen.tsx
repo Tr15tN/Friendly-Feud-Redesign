@@ -3,6 +3,7 @@ import BuzzerPopup from "@/components/BuzzerPopup";
 import StrikeOverlay from "@/components/StrikeOverlay";
 import NoSession from "@/components/ui/NoSession";
 import { ERROR_CODES } from "@/i18n/errorCodes";
+import { useTitleMusic } from "@/lib/audio/useTitleMusic";
 import { deviceConnectMessage, leaveDevice, lossForErrorCode, ScreenAuth } from "@/lib/devices/session";
 import { useTeamColors } from "@/lib/hooks/useTeamColors";
 import { hasPendingBuzz } from "@/lib/host/console";
@@ -35,26 +36,6 @@ export default function GameScreen({ auth }: GameScreenProps) {
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const refreshCounterRef = useRef(0);
   const mistakeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const titleMusicRef = useRef<HTMLAudioElement | null>(null);
-  const titleMusicSourceRef = useRef("/title.mp3");
-
-  const getTitleMusic = () => {
-    const source = titleMusicSourceRef.current;
-    const resolvedSource = typeof window === "undefined" ? source : new URL(source, window.location.href).toString();
-
-    if (titleMusicRef.current && titleMusicRef.current.src !== resolvedSource) {
-      titleMusicRef.current.pause();
-      titleMusicRef.current = null;
-    }
-
-    if (!titleMusicRef.current) {
-      const audio = new Audio(source);
-      audio.loop = true;
-      titleMusicRef.current = audio;
-    }
-
-    return titleMusicRef.current;
-  };
 
   const notifyTitleMusicPlaybackError = () => {
     // Only the host can pass this on; a paired device just plays or does not.
@@ -75,6 +56,12 @@ export default function GameScreen({ auth }: GameScreenProps) {
       })
     );
   };
+
+  const music = useTitleMusic((error) => {
+    console.warn("Unable to play title music:", error);
+    toast.error(t(ERROR_CODES.TITLE_MUSIC_PLAYBACK_ERROR));
+    notifyTitleMusicPlaybackError();
+  });
 
   useEffect(() => {
     if (game?.is_final_round && game.final_round_timers) {
@@ -148,14 +135,11 @@ export default function GameScreen({ auth }: GameScreenProps) {
       console.debug(json);
       if (json.action === "data") {
         const newGameData: Game = json.data;
-        const nextTitleMusicSource = newGameData.settings?.title_music_url ?? "/title.mp3";
-        if (titleMusicSourceRef.current !== nextTitleMusicSource) {
-          titleMusicSourceRef.current = nextTitleMusicSource;
-          if (titleMusicRef.current) {
-            titleMusicRef.current.pause();
-            titleMusicRef.current = null;
-          }
-        }
+        music.sync({
+          source: newGameData.settings?.title_music_url ?? "/title.mp3",
+          playing: newGameData.settings?.title_music_playing,
+          volume: newGameData.settings?.title_music_volume,
+        });
 
         if (Object.keys(buzzed).length === 0 && newGameData.buzzed.length > 0) {
           const buzzerInfo = newGameData.buzzed[0];
@@ -248,16 +232,13 @@ export default function GameScreen({ auth }: GameScreenProps) {
       } else if (json.action === "final_wrong") {
         const audio = new Audio("try-again.mp3");
         audio.play();
-      } else if (json.action === WSAction.PLAY_TITLE_MUSIC) {
-        const titleMusic = getTitleMusic();
-        titleMusic.play().catch((error) => {
-          console.warn("Unable to play title music:", error);
-          toast.error(t(ERROR_CODES.TITLE_MUSIC_PLAYBACK_ERROR));
-          notifyTitleMusicPlaybackError();
-        });
-      } else if (json.action === WSAction.PAUSE_TITLE_MUSIC) {
-        const titleMusic = getTitleMusic();
-        titleMusic.pause();
+      } else if (
+        json.action === WSAction.PLAY_TITLE_MUSIC ||
+        json.action === WSAction.PAUSE_TITLE_MUSIC ||
+        json.action === WSAction.SET_TITLE_MUSIC_VOLUME ||
+        json.action === WSAction.FADE_TITLE_MUSIC
+      ) {
+        music.handleMessage(json);
       } else if (json.action === WSAction.TITLE_MUSIC_PLAYBACK_ERROR) {
         console.debug("Title music playback error reported");
       } else if (json.action === "set_timer") {
@@ -357,9 +338,6 @@ export default function GameScreen({ auth }: GameScreenProps) {
       if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
       if (mistakeTimeoutRef.current) clearTimeout(mistakeTimeoutRef.current);
       if (timerInterval) clearInterval(timerInterval);
-      if (titleMusicRef.current) {
-        titleMusicRef.current.pause();
-      }
       ws.current?.close();
     };
   }, []);

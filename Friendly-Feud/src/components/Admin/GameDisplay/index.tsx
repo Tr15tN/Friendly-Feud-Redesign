@@ -2,7 +2,6 @@ import FastMoneyConsole from "@/components/Admin/Console/FastMoneyConsole";
 import RoundsConsole from "@/components/Admin/Console/RoundsConsole";
 import { FlowActions } from "@/components/Admin/Console/useFlowActions";
 import Lobby from "@/components/Admin/GameDisplay/Lobby";
-import TitleMusic from "@/components/Admin/GameDisplay/TitleMusic";
 import { ScoringApi } from "@/components/Admin/GameDisplay/useScoring";
 import { buttonClass } from "@/components/ui/Button";
 import ConfirmButton from "@/components/ui/ConfirmButton";
@@ -23,8 +22,6 @@ interface GameDisplayProps {
   timerCompleted: boolean;
   setTimerStarted: (timerStarted: boolean) => void;
   setTimerCompleted: (timerCompleted: boolean) => void;
-  titleMusicPlaying: boolean;
-  setTitleMusicPlaying: (titleMusicPlaying: boolean) => void;
   /** Setup controls; rendered inline in the lobby and when no game is loaded. */
   settingsPanel: ReactNode;
 }
@@ -41,8 +38,6 @@ export default function GameDisplay({
   timerCompleted,
   setTimerStarted,
   setTimerCompleted,
-  titleMusicPlaying,
-  setTitleMusicPlaying,
   settingsPanel,
 }: GameDisplayProps) {
   const { t } = useTranslation();
@@ -109,18 +104,6 @@ export default function GameDisplay({
           >
             ▶ {t("Start Round 1")}
           </ConfirmButton>
-          {(game.title || titleMusicPlaying) && (
-            <div className="text-foreground">
-              <TitleMusic
-                send={send}
-                room={room}
-                game={game}
-                setGame={setGame}
-                isPlaying={titleMusicPlaying}
-                setIsPlaying={setTitleMusicPlaying}
-              />
-            </div>
-          )}
         </div>
         <p className="text-sm text-pro-mute">{t("Players join with the code below, then press Start Round 1.")}</p>
         <Lobby game={game} room={room} />
@@ -132,41 +115,19 @@ export default function GameDisplay({
     );
   }
 
-  // Title music can still be playing after leaving the lobby; keep its controls reachable until it is paused.
-  const musicControls = titleMusicPlaying ? (
-    <div className="mx-auto max-w-[1400px] px-3 pt-3 text-foreground sm:px-5">
-      <TitleMusic
-        send={send}
-        room={room}
-        game={game}
-        setGame={setGame}
-        isPlaying={titleMusicPlaying}
-        setIsPlaying={setTitleMusicPlaying}
-      />
-    </div>
-  ) : null;
-
   if (phase === "fastmoney") {
     return (
-      <>
-        {musicControls}
-        <FastMoneyConsole
-          game={game}
-          setGame={setGame}
-          send={send}
-          timerStarted={timerStarted}
-          timerCompleted={timerCompleted}
-          setTimerStarted={setTimerStarted}
-          setTimerCompleted={setTimerCompleted}
-        />
-      </>
+      <FastMoneyConsole
+        game={game}
+        setGame={setGame}
+        send={send}
+        timerStarted={timerStarted}
+        timerCompleted={timerCompleted}
+        setTimerStarted={setTimerStarted}
+        setTimerCompleted={setTimerCompleted}
+      />
     );
   }
 
-  return (
-    <>
-      {musicControls}
-      <RoundsConsole game={game} scoring={scoring} flow={flow} send={send} />
-    </>
-  );
+  return <RoundsConsole game={game} scoring={scoring} flow={flow} send={send} />;
 }

@@ -1,6 +1,7 @@
 import BuzzerKeySettings from "@/components/BuzzerKeySettings";
 import HostBuzzersPage from "@/components/HostBuzzersPage";
 import { ERROR_CODES } from "@/i18n/errorCodes";
+import { useTitleMusic } from "@/lib/audio/useTitleMusic";
 import { useBuzzerKeys } from "@/lib/buzzer/useBuzzerKeys";
 import { useHostBuzzKeys } from "@/lib/buzzer/useHostBuzzKeys";
 import { useLights } from "@/lib/buzzer/useLights";
@@ -67,6 +68,8 @@ export default function BuzzerScreen({
   };
   const [connected, setConnected] = useState(false);
   const lights = useLights(game);
+  const music = useTitleMusic();
+  const playMusicHere = layout === "full";
 
   function send(data: WSEvent) {
     console.debug("Sending", data);
@@ -109,6 +112,20 @@ export default function BuzzerScreen({
       switch (json.action) {
         case WSAction.DATA:
           setGame(json.data);
+          if (playMusicHere) {
+            music.sync({
+              source: json.data?.settings?.title_music_url ?? "/title.mp3",
+              playing: json.data?.settings?.title_music_playing,
+              volume: json.data?.settings?.title_music_volume,
+            });
+          }
+          break;
+
+        case WSAction.PLAY_TITLE_MUSIC:
+        case WSAction.PAUSE_TITLE_MUSIC:
+        case WSAction.SET_TITLE_MUSIC_VOLUME:
+        case WSAction.FADE_TITLE_MUSIC:
+          if (playMusicHere) music.handleMessage(json);
           break;
 
         case WSAction.REGISTER_BUZZER_SCREEN:

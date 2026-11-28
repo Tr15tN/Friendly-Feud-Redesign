@@ -28,14 +28,16 @@ type buzzed struct {
 }
 
 type settings struct {
-	LogoUrl              any    `json:"logo_url"`
-	TitleMusicUrl        any    `json:"title_music_url"`
-	HideQuestions        bool   `json:"hide_questions"`
-	Theme                string `json:"theme"`
-	FinalRoundTitle      any    `json:"final_round_title"`
-	PlayerBuzzerSound    bool   `json:"player_buzzer_sound"`
-	FirstBuzzerSoundOnly bool   `json:"first_buzzer_sound_only"`
-	HideJoinInfo         bool   `json:"hide_join_info"`
+	LogoUrl              any      `json:"logo_url"`
+	TitleMusicUrl        any      `json:"title_music_url"`
+	TitleMusicPlaying    bool     `json:"title_music_playing,omitempty"`
+	TitleMusicVolume     *float64 `json:"title_music_volume,omitempty"`
+	HideQuestions        bool     `json:"hide_questions"`
+	Theme                string   `json:"theme"`
+	FinalRoundTitle      any      `json:"final_round_title"`
+	PlayerBuzzerSound    bool     `json:"player_buzzer_sound"`
+	FirstBuzzerSoundOnly bool     `json:"first_buzzer_sound_only"`
+	HideJoinInfo         bool     `json:"hide_join_info"`
 	// The host buzzes with a physical buzzer, so players get no on-screen buzz button.
 	PhysicalBuzzer bool `json:"physical_buzzer"`
 	// No new players can join (reconnecting players and paired devices still can).

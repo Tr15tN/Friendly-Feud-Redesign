@@ -34,6 +34,8 @@ export const WSAction = {
   SHOW_MISTAKE: "show_mistake",
   PLAY_TITLE_MUSIC: "play_title_music",
   PAUSE_TITLE_MUSIC: "pause_title_music",
+  SET_TITLE_MUSIC_VOLUME: "set_title_music_volume",
+  FADE_TITLE_MUSIC: "fade_title_music",
   TITLE_MUSIC_PLAYBACK_ERROR: "title_music_playback_error",
   BUZZED: "buzzed",
   REGISTERED: "registered",
@@ -85,6 +87,10 @@ export interface WSEvent {
   session?: string;
   team?: number;
   mimetype?: string;
+  /** Title-music level, from 0 to 1. */
+  volume?: number;
+  /** "in" raises the title music from silence. "out" lowers it, then pauses. */
+  fade?: "in" | "out";
 
   // on WSAction.CHANGE_LANG we get a list of game files back
   // from the server to select for the user.
@@ -114,6 +120,10 @@ export interface BuzzedState {
 export interface Settings {
   logo_url: string | null;
   title_music_url: string | null;
+  /** Host pressed play. Pages that open later start the track from this. */
+  title_music_playing?: boolean;
+  /** Host's slider, from 0 to 1. Missing means the default level. */
+  title_music_volume?: number;
   hide_questions: boolean;
   theme: string;
   final_round_title: string | null;

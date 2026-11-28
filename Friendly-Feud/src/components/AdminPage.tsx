@@ -7,15 +7,18 @@ import { useFlowActions } from "@/components/Admin/Console/useFlowActions";
 import WhoWasFirst from "@/components/Admin/Console/WhoWasFirst";
 import CSVLoader from "@/components/Admin/CSVLoader";
 import GameDisplay from "@/components/Admin/GameDisplay";
+import TitleMusic from "@/components/Admin/GameDisplay/TitleMusic";
 import { useScoring } from "@/components/Admin/GameDisplay/useScoring";
 import { useDemo } from "@/components/Demo/DemoContext";
 import Drawer from "@/components/ui/Drawer";
 import { ERROR_CODES } from "@/i18n/errorCodes";
 import { normalizeLanguage } from "@/i18n/languages";
+import { clampVolume, DEFAULT_TITLE_MUSIC_VOLUME, titleMusicFadeMs } from "@/lib/audio/titleMusic";
+import { useTitleMusic } from "@/lib/audio/useTitleMusic";
 import { DeviceInfo, onlineCount } from "@/lib/devices/devices";
 import { useTeamColors } from "@/lib/hooks/useTeamColors";
 import { markTourDone, shouldAutoStartTour } from "@/lib/host/tour";
-import { Game, WSAction, WSEvent } from "@/types/game";
+import { Game, Settings, WSAction, WSEvent } from "@/types/game";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -42,7 +45,12 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
   const [imageUploaded, setImageUploaded] = useState<File | null>(null);
   const [timerStarted, setTimerStarted] = useState(false);
   const [timerCompleted, setTimerCompleted] = useState(false);
-  const [titleMusicPlaying, setTitleMusicPlaying] = useState(false);
+  const [titleMusicPlaying, setTitleMusicPlaying] = useState(() => game.settings.title_music_playing ?? false);
+  const [musicVolume, setMusicVolume] = useState(() =>
+    typeof game.settings.title_music_volume === "number"
+      ? clampVolume(game.settings.title_music_volume)
+      : DEFAULT_TITLE_MUSIC_VOLUME
+  );
   const [csvFileUpload, setCsvFileUpload] = useState<File | null>(null);
   const [csvFileUploadText, setCsvFileUploadText] = useState("");
   const [drawer, setDrawer] = useState<"players" | "settings" | "devices" | null>(null);
@@ -50,6 +58,15 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
   const [tourOpen, setTourOpen] = useState(false);
   const closeDrawer = useCallback(() => setDrawer(null), []);
   const refreshCounterRef = useRef(0);
+  const fadeToken = useRef(0);
+  const gameRef = useRef(game);
+  gameRef.current = game;
+  const musicVolumeRef = useRef(musicVolume);
+  musicVolumeRef.current = musicVolume;
+  const music = useTitleMusic((error) => {
+    console.warn("Unable to play title music:", error);
+    toast.error(t(ERROR_CODES.TITLE_MUSIC_PLAYBACK_ERROR));
+  });
 
   // Setup controls are shown inline in the lobby (and when no game is loaded); during play they live in a drawer.
   const settingsInline = game.rounds == null || game.title;
@@ -69,6 +86,64 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
   function send(data: WSEvent) {
     console.debug("Sending", data);
     ws.current.send(JSON.stringify({ ...data, room, id: playerId, hostPassword: hostPassword }));
+  }
+
+  function rememberMusic(patch: Partial<Settings>, broadcast: boolean) {
+    const current = gameRef.current;
+    const next = { ...current, settings: { ...current.settings, ...patch } };
+    gameRef.current = next;
+    setGame(next);
+    if (broadcast) send({ action: WSAction.DATA, data: next });
+  }
+
+  function playMusic() {
+    fadeToken.current += 1;
+    const volume = musicVolumeRef.current;
+    setTitleMusicPlaying(true);
+    music.play(volume);
+    rememberMusic({ title_music_playing: true, title_music_volume: volume }, true);
+    send({ action: WSAction.PLAY_TITLE_MUSIC, volume });
+  }
+
+  function pauseMusic() {
+    fadeToken.current += 1;
+    setTitleMusicPlaying(false);
+    music.pause();
+    rememberMusic({ title_music_playing: false }, true);
+    send({ action: WSAction.PAUSE_TITLE_MUSIC });
+  }
+
+  function changeVolume(volume: number) {
+    const next = clampVolume(volume);
+    musicVolumeRef.current = next;
+    setMusicVolume(next);
+    music.setVolume(next);
+    rememberMusic({ title_music_volume: next }, false);
+    send({ action: WSAction.SET_TITLE_MUSIC_VOLUME, volume: next });
+  }
+
+  function commitVolume() {
+    rememberMusic({ title_music_volume: musicVolumeRef.current }, true);
+  }
+
+  function fadeMusicIn() {
+    fadeToken.current += 1;
+    const volume = musicVolumeRef.current;
+    setTitleMusicPlaying(true);
+    music.fadeIn(volume);
+    send({ action: WSAction.FADE_TITLE_MUSIC, fade: "in", volume });
+    rememberMusic({ title_music_playing: true, title_music_volume: volume }, true);
+  }
+
+  function fadeMusicOut() {
+    const token = ++fadeToken.current;
+    music.fadeOut();
+    send({ action: WSAction.FADE_TITLE_MUSIC, fade: "out" });
+    window.setTimeout(() => {
+      if (fadeToken.current !== token) return;
+      setTitleMusicPlaying(false);
+      rememberMusic({ title_music_playing: false }, true);
+    }, titleMusicFadeMs());
   }
 
   const scoring = useScoring(game, setGame, send);
@@ -173,6 +248,24 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
         onOpenSettings={() => setDrawer("settings")}
         onStartTour={() => setTourOpen(true)}
       />
+      <section aria-label={t("Title Music")} className="border-b border-pro-line bg-pro-bg">
+        <div className="mx-auto max-w-[1400px] px-3 py-2 text-foreground sm:px-5">
+          <TitleMusic
+            send={send}
+            room={room}
+            game={game}
+            setGame={setGame}
+            isPlaying={titleMusicPlaying}
+            onPlay={playMusic}
+            onPause={pauseMusic}
+            volume={musicVolume}
+            onVolume={changeVolume}
+            onVolumeCommit={commitVolume}
+            onFadeIn={fadeMusicIn}
+            onFadeOut={fadeMusicOut}
+          />
+        </div>
+      </section>
       <GameDisplay
         game={game}
         setGame={setGame}
@@ -184,8 +277,6 @@ export default function AdminPage({ ws, game, setGame, room, quitGame, playerId 
         timerCompleted={timerCompleted}
         setTimerStarted={setTimerStarted}
         setTimerCompleted={setTimerCompleted}
-        titleMusicPlaying={titleMusicPlaying}
-        setTitleMusicPlaying={setTitleMusicPlaying}
         settingsPanel={settingsPanel}
       />
       <Drawer id="playersDrawer" open={drawer === "players"} title={t("Players & buzzers")} onClose={closeDrawer}>

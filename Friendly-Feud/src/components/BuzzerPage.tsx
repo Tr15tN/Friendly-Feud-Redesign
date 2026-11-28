@@ -8,6 +8,7 @@ import TeamName from "@/components/TeamName";
 import TitleLogo from "@/components/TitleLogo";
 import { buttonClass } from "@/components/ui/button-class";
 import { ERROR_CODES } from "@/i18n/errorCodes";
+import { useTitleMusic } from "@/lib/audio/useTitleMusic";
 import { useTeamColors } from "@/lib/hooks/useTeamColors";
 import { getTeamDisplayName } from "@/lib/utils";
 import { Game, WSEvent } from "@/types/game";
@@ -41,6 +42,7 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
   const [showMistake, setShowMistake] = useState<number | null>(null);
   const refreshCounterRef = useRef(0);
   const mistakeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const music = useTitleMusic();
 
   const send = function (data: WSEvent) {
     data.room = room;
@@ -117,7 +119,19 @@ export default function BuzzerPage({ ws, game, id, setGame, room, setTeam, team 
         if (json.data.title_text === "Change Me") {
           json.data.title_text = t("Change Me");
         }
+        music.sync({
+          source: json.data.settings?.title_music_url ?? "/title.mp3",
+          playing: json.data.settings?.title_music_playing,
+          volume: json.data.settings?.title_music_volume,
+        });
         setGame(json.data);
+      } else if (
+        json.action === "play_title_music" ||
+        json.action === "pause_title_music" ||
+        json.action === "set_title_music_volume" ||
+        json.action === "fade_title_music"
+      ) {
+        music.handleMessage(json);
       } else if (json.action === "buzzed") {
         setBuzzed(true);
       } else if (json.action === "clearbuzzers") {

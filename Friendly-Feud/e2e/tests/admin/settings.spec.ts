@@ -62,7 +62,8 @@ test("can hide questions", async () => {
 });
 
 test("can keep default title music and upload custom title music", async () => {
-  // The title music controls live on the title screen, and earlier tests in this file started round 1.
+  // Music controls stay on the admin page for every round. Earlier tests left round 1,
+  // so return to the title card before checking the track the TV loads.
   await adminPage.openFlowMenu();
   await adminPage.titleCardButton.click();
   await expect(adminPage.uploadTitleMusicButton).toHaveText("Upload Music");

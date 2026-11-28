@@ -23,6 +23,10 @@ type Event struct {
 	Session      string `json:"session"`
 	Team         *int   `json:"team"`
 	MimeType     string `json:"mimetype"`
+	// Title-music level, 0 to 1. A pointer so a mute (0) is not dropped on relay.
+	Volume *float64 `json:"volume,omitempty"`
+	// "in" or "out" for fade_title_music.
+	Fade string `json:"fade,omitempty"`
 }
 
 type ActionFunc func(*Client, *Event) GameError
