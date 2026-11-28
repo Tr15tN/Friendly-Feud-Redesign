@@ -68,12 +68,12 @@ test.describe("Host onboarding", () => {
     await expect(selector.locator("optgroup").first()).toHaveAttribute("label", "Esiletõstetud mängud");
     await expect(selector.locator("optgroup").nth(1)).toHaveAttribute("label", "Klassikalised mängud");
 
-    // The Rooside Sõda set: 6 answers on the first board, and the first answer is worth 25.
+    // The Rooside Sõda set: 6 answers on the first board (favourite subject), and the first answer is worth 30.
     await selector.selectOption({ label: "Rooside Sõda Keila Kool" });
     await page.getByTestId("startRoundOneButton").click();
     await expect(page.getByTestId("answer5PointsText")).toBeVisible({ timeout: 10000 });
     await expect(page.getByTestId("answer6PointsText")).toHaveCount(0);
-    await expect(page.getByTestId("answer0PointsText")).toHaveText("25");
+    await expect(page.getByTestId("answer0PointsText")).toHaveText("30");
   });
 
   test("the quickstart exists in English and Estonian", async ({ page }) => {
